@@ -1,0 +1,67 @@
+---
+title: "500 nm 条形波导里不该留下的第三个模"
+description: "220 nm SOI、宽 500 nm 的条形波导在 1550 nm 下，FDE 会多给一个接近氧化硅折射率的解。那不是导模。"
+pubDate: 2026-11-17
+tags: ["MODE", "FDE", "SOI", "Waveguide"]
+category: "siph"
+featured: false
+draft: false
+---
+
+220 nm 的 SOI，条宽 500 nm，全刻蚀，埋在氧化硅里，波长 1550 nm。
+我在 Ansys Lumerical MODE 里对这个截面做 FDE，求解器交回三个模。
+前两个是导模。第三个的 neff 贴着二氧化硅，还带着大约 −1.5 dB/cm 的负损耗。
+**那不是导模。**
+
+传播沿 z，截面在 xy。芯层是 `Si (Silicon) - Palik`，背景是 `SiO2 (Glass) - Palik`。
+版图里三样东西：波导 `Si_wg`，求解区 `FDE`，以及波导附近的网格覆盖 `wg_mesh`。
+FDE 窗口大约 4 µm，试探模设了 8 个，全局网格 dx = dy = 20 nm，四边都是 PML。
+`wg_mesh` 把波导附近收到 5 nm。
+
+## 三个解
+
+| 模 | neff | TE fraction | loss |
+| --- | --- | --- | --- |
+| mode1，TE0 | 2.445347 | 0.9835 | ~ 0 |
+| mode2，TM0 | 1.771059 | 0.0444 | ~ 0 |
+| mode3 | 1.492897 | ≈ 0.70 | ≈ −1.5 dB/cm |
+
+TE fraction 接近 1 是 TE，接近 0 是 TM。0.9835 和 0.0444 两边都很干净。
+
+同一根 500 nm 的条，TE 比 TM 绑得更紧，所以 TE0 的 neff 更高，|E|² 也收得更窄。
+两张图就是这个差别。
+
+<Figure
+  src="/images/siph/mode1_E2.png"
+  alt="1550 nm 下，220 nm SOI、宽 500 nm 条形波导的 TE0 模 |E|²，neff = 2.445"
+  caption="TE0 |E|²，neff = 2.445。场收在硅芯里。"
+  width={750}
+  height={600}
+/>
+
+<Figure
+  src="/images/siph/mode2_E2.png"
+  alt="同一根波导的 TM0 模 |E|²，neff = 1.771，束缚比 TE0 弱"
+  caption="TM0 |E|²，neff = 1.771。束缚比 TE0 松，能量往包层伸。"
+  width={750}
+  height={600}
+/>
+
+这个对比的框架来自 Lukas Chrostowski 与 Michael Hochberg，*Silicon Photonics Design: From Devices to Systems*（Cambridge, 2015）。第 2 章用 FDE 处理沿传播方向均匀的波导，第 3 章比较条形波导里 TE 和 TM 的束缚。书只提供这个框架。上面的 neff、偏振分数和场图是这次仿真自己的。
+
+## 贴着包层折射率的那个
+
+mode3 的 neff = 1.492897，离 `n_SiO2` ≈ 1.44 很近。
+损耗大约 −1.5 dB/cm，符号是反的：求解器在报告增益。
+这是辐射场碰到 PML 之后的数值假象，不是波导在放大光。
+TE fraction ≈ 0.70，偏振也不干净。丢掉。
+
+8 个试探模里找到 3 个。去掉这一个，导模只剩 TE0 和 TM0。
+所以在 1550 nm，这根 500 nm 的条对 TE 和 TM 都是单模。
+
+第一遍脚本在点 Find Modes 之前就把 `.lms` 存了盘。
+打开文件只能看到版图：`Si_wg`、FDE 窗口、网格。
+模场要等你在 GUI 里再点一次 Find Modes 才会出现。
+学界面的时候这有用。它不是仿真结论。
+
+高阶模从哪一个宽度开始出现，这次没有扫。下一篇笔记扫宽度，把截止找出来。

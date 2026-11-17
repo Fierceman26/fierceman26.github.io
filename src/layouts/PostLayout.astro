@@ -4,7 +4,7 @@ import FormattedDate from '~/components/FormattedDate.astro';
 import { getCollection } from 'astro:content';
 import readingTime from 'reading-time';
 import type { CollectionEntry } from 'astro:content';
-import { slugifyTag, findCategory } from '~/consts';
+import { SITE, slugifyTag, findCategory } from '~/consts';
 
 interface Props {
   post: CollectionEntry<'posts'>;
@@ -18,6 +18,8 @@ const category = data.category ? findCategory(data.category) : null;
 const rawBody = post.body ?? '';
 const stats = readingTime(rawBody);
 const readMinutes = Math.max(1, Math.round(stats.minutes));
+const rightsYear = data.pubDate.getFullYear();
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
 // 上一篇 / 下一篇 —— 按发布时间倒序
 const all = (await getCollection('posts', ({ data }) => !data.draft))
@@ -73,6 +75,11 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
             ))}
           </div>
         )}
+
+        <p class="post-rights">
+          &copy; {rightsYear} {SITE.author}. All rights reserved.
+          Original: <a href={canonicalURL}>{canonicalURL}</a>
+        </p>
 
         {(prev || next) && (
           <nav class="post-nav" aria-label="文章导航">

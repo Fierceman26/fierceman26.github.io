@@ -1,0 +1,70 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  credit?: string;
+  width?: number;
+  height?: number;
+}
+
+const {
+  src,
+  alt,
+  caption,
+  credit = 'Fierceman · fierceman26.github.io',
+  width,
+  height,
+} = Astro.props;
+---
+
+<figure class="figure">
+  <div class="figure__frame">
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="figure__credit">{credit}</div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .figure {
+    margin: 1.8rem 0 1.2rem;
+  }
+
+  .figure__frame img {
+    margin: 0;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+
+  /* Corner credit sits under the plate, right-aligned.
+     It stays off the bitmap so axis ticks and the mode stay readable. */
+  .figure__credit {
+    margin: 0.35rem 0 0;
+    text-align: right;
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+
+  .figure figcaption {
+    margin: 0.35rem 0 0;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+</style>
