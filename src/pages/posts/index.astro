@@ -1,0 +1,66 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import FormattedDate from '~/components/FormattedDate.astro';
+import { getCollection } from 'astro:content';
+import { findCategory } from '~/consts';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+// 按年份分组（保持原顺序：最新年在最前）
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const y = post.data.pubDate.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(post);
+}
+const years = Array.from(byYear.keys()).sort((a, b) => b - a);
+---
+
+<BaseLayout title="Writing" description="所有文章档案 —— 按年份归档。">
+  <section class="container hero">
+    <div class="hero__masthead">
+      <span>The Archive</span>
+      <span style="color: var(--ink);">·</span>
+      <span>{posts.length} entries</span>
+    </div>
+    <h1 class="hero__title" style="font-size: clamp(2.4rem, 5vw, 3.8rem);">
+      Writing
+    </h1>
+    <p class="hero__lead">
+      A chronological record of essays, notes, and small reports.
+      Most pieces are technical; some are not.
+    </p>
+  </section>
+
+  <section class="container archive">
+    {years.map((year) => (
+      <div class="archive__group">
+        <h2 class="archive__year">{year}</h2>
+        <ul class="archive__list">
+          {byYear.get(year)!.map((post) => (
+            <li class="archive__item">
+              <div class="archive__date">
+                <FormattedDate date={post.data.pubDate} />
+              </div>
+              <a class="archive__title" href={`/posts/${post.id}/`}>
+                {post.data.title}
+              </a>
+              <div class="archive__tags">
+                {post.data.category
+                  ? (findCategory(post.data.category)?.title ?? post.data.category)
+                  : (post.data.tags[0] ?? '')}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    {posts.length === 0 && (
+      <p class="meta" style="padding-block: 3rem; text-align: center;">
+        No entries yet.
+      </p>
+    )}
+  </section>
+</BaseLayout>

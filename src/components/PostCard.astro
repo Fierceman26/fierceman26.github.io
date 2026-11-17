@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { findCategory } from '~/consts';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  index?: number; // 用于显示 01 / 02 / 03 序号
+  readingTime?: string;
+}
+
+const { post, index, readingTime } = Astro.props;
+const href = `/posts/${post.id}/`;
+const numeralText = typeof index === 'number'
+  ? String(index + 1).padStart(2, '0')
+  : null;
+const category = post.data.category ? findCategory(post.data.category) : null;
+---
+
+<article class="card">
+  {numeralText && <div class="card__numeral" aria-hidden="true">№ {numeralText}</div>}
+
+  <div class="card__meta">
+    <FormattedDate date={post.data.pubDate} />
+    {category && (
+      <>
+        <span class="dot" aria-hidden="true"></span>
+        <a href={`/categories/${category.slug}/`}>{category.title}</a>
+      </>
+    )}
+    {readingTime && (
+      <>
+        <span class="dot" aria-hidden="true"></span>
+        <span>{readingTime}</span>
+      </>
+    )}
+  </div>
+
+  <h3 class="card__title">
+    <a href={href}>{post.data.title}</a>
+  </h3>
+
+  <p class="card__lead">{post.data.description}</p>
+
+  <a href={href} class="card__footer">
+    Read on<span aria-hidden="true">→</span>
+  </a>
+</article>

@@ -1,0 +1,67 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { CATEGORIES } from '~/consts';
+
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+
+// 每个分类的文章数
+const counts = new Map<string, number>();
+for (const post of allPosts) {
+  if (post.data.category) {
+    counts.set(post.data.category, (counts.get(post.data.category) ?? 0) + 1);
+  }
+}
+
+// 没有 category 的文章数（"Notes 杂记"）
+const uncategorized = allPosts.filter((p) => !p.data.category).length;
+---
+
+<BaseLayout title="Sections" description="按栏目浏览：HSD 高速数字、EOE 光电链路、PI 电源完整性。">
+  <section class="container hero">
+    <div class="hero__masthead">
+      <span>The Sections</span>
+      <span style="color: var(--ink);">·</span>
+      <span>{CATEGORIES.length} editorial lines</span>
+    </div>
+    <h1 class="hero__title" style="font-size: clamp(2.4rem, 5vw, 3.8rem);">
+      Sections
+    </h1>
+    <p class="hero__lead">
+      Three editorial lines, one journal. Pick whichever is closest to your work today.
+    </p>
+  </section>
+
+  <section class="container">
+    <div class="sections-grid">
+      {CATEGORIES.map((cat, i) => {
+        const n = counts.get(cat.slug) ?? 0;
+        return (
+          <a class="section-card" href={`/categories/${cat.slug}/`}>
+            <div class="section-card__numeral" aria-hidden="true">
+              S{String(i + 1).padStart(2, '0')}
+            </div>
+            <h2 class="section-card__title">{cat.title}</h2>
+            <div class="section-card__subtitle">{cat.subtitle}</div>
+            <p class="section-card__tagline">{cat.tagline}</p>
+            <p class="section-card__tagline-zh">{cat.taglineZh}</p>
+            <div class="section-card__keywords">
+              {cat.keywords.map((k) => <span>{k}</span>)}
+            </div>
+            <div class="section-card__footer">
+              <span>{n} {n === 1 ? 'entry' : 'entries'}</span>
+              <span aria-hidden="true">→</span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+
+    {uncategorized > 0 && (
+      <p class="meta" style="text-align: center; margin-top: 3rem;">
+        Plus {uncategorized} miscellaneous {uncategorized === 1 ? 'note' : 'notes'} —
+        {' '}<a href="/posts/" style="color: var(--accent);">browse the full archive →</a>
+      </p>
+    )}
+  </section>
+</BaseLayout>

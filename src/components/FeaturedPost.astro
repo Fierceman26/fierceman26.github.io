@@ -1,0 +1,57 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { findCategory } from '~/consts';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  readingTime?: string;
+}
+
+const { post, readingTime } = Astro.props;
+const href = `/posts/${post.id}/`;
+const category = post.data.category ? findCategory(post.data.category) : null;
+---
+
+<section class="container">
+  <article class="featured">
+    <div>
+      <div class="featured__eyebrow">
+        Feature · {category ? category.title : 'Essay'}
+      </div>
+      <h2 class="featured__title">
+        <a href={href}>{post.data.title}</a>
+      </h2>
+      <p class="featured__lead">{post.data.description}</p>
+      <a href={href} class="card__footer">
+        Read the full piece<span aria-hidden="true">→</span>
+      </a>
+    </div>
+    <aside>
+      <div class="meta" style="display: grid; gap: 0.5rem;">
+        <div>
+          <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Published</strong>
+          <FormattedDate date={post.data.pubDate} />
+        </div>
+        {post.data.updatedDate && (
+          <div>
+            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Last revised</strong>
+            <FormattedDate date={post.data.updatedDate} />
+          </div>
+        )}
+        {readingTime && (
+          <div>
+            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Reading</strong>
+            {readingTime}
+          </div>
+        )}
+        {post.data.tags.length > 0 && (
+          <div>
+            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Filed under</strong>
+            {post.data.tags.join(' · ')}
+          </div>
+        )}
+      </div>
+    </aside>
+  </article>
+</section>

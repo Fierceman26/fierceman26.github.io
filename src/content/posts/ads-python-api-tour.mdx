@@ -1,0 +1,119 @@
+---
+title: "ADS Python API 的两个隐藏路径"
+description: "ADS 安装下的 keysight.* 包分散在两个不同的 site-packages，单查一个会漏掉 90% 的 API。一个工程师的备忘录。"
+pubDate: 2026-04-27
+tags: ["ADS", "Python API", "Automation"]
+---
+
+如果你尝试过用 Python 自动化 ADS，大概率撞过这个问题：
+HTML 文档明明写了某个 API，自己 `import` 却找不到。
+
+根因是 ADS 安装目录下的 `keysight.*` 命名空间**分散在两个目录**。
+单看一个目录就只能看到 10% 的 API。
+
+## 两条路径
+
+主 Python (`ADS2026_Update2/tools/python/python.exe`) 下：
+
+```text
+位置 A:
+  tools/python/Lib/site-packages/keysight/
+    └── ads/
+        ├── datalink/    ← .ds 文件读写
+        └── dataset/
+
+位置 B（容易漏）:
+  tools/python/packages/keysight/
+    └── ads/
+        ├── ael/         ← AEL 函数桥
+        ├── ann/
+        ├── compliance/
+        ├── ctle_editor/
+        ├── dds/
+        ├── de/          ← 设计编辑器（最大头）
+        ├── emtools/     ← EM 视图工具
+        ├── experimental_simulation/
+        ├── hsd/
+        ├── pcb/
+        ├── subst/
+        └── util/
+```
+
+**90% 的实用 API 在位置 B**：`de`（layout / schematic / pcell）、
+`emtools`（rfpro 视图 / em setup）、`ael`（AEL 函数桥）。
+
+位置 A 只有 `datalink` 和 `dataset` —— 用来读写 `.ds` 数据集。
+
+## 实际后果
+
+如果你 grep API 时只查位置 A，会发生这样的事：
+
+- 找不到 `create_pro_view`（在 `keysight.ads.emtools`，位置 B）
+- 找不到 `db_uu.open_design`（在 `keysight.ads.de`，位置 B）
+- 找不到 AEL 桥（`keysight.ads.ael`，位置 B）
+
+然后你会怀疑文档是不是骗人。**文档是对的，是搜索路径不对。**
+
+## 我现在怎么查
+
+写了一段 helper 同时查两条路径：
+
+```python
+from pathlib import Path
+import subprocess
+
+ADS = Path(r"C:\Program Files\Keysight\ADS2026_Update2")
+SEARCH_ROOTS = [
+    ADS / "tools" / "python" / "Lib" / "site-packages" / "keysight",
+    ADS / "tools" / "python" / "packages" / "keysight",
+]
+
+def grep_keysight(pattern: str) -> None:
+    """在两个 keysight 包路径下用 ripgrep 搜索 pattern."""
+    for root in SEARCH_ROOTS:
+        if not root.exists():
+            continue
+        print(f"\n── {root.name} " + "─" * 40)
+        subprocess.run(
+            ["rg", "--type", "py", "-n", pattern, str(root)],
+            check=False,
+        )
+
+grep_keysight("def create_pro_view")
+```
+
+每次想确认一个 API 是不是真的存在，就跑一下这个。
+比看 HTML 文档可靠 —— 文档是描述性的，源码是定义性的。
+
+## 第三条路径：EMPro 专属 Python
+
+如果你需要 `import empro`（EM worker / 自定义 mesh / port），
+不是主 Python，是另一个：
+
+```text
+C:/Program Files/Keysight/ADS2026_Update2/fem/2026.20/win32_64/bin/tools/win32/python/python.exe
+```
+
+`empro` 包跟 `keysight.ads.*` 完全不在一个进程空间。
+跨进程的 RPC 用 `keysight.edatoolbox.multi_python.xxpro_context`。
+
+值得**单独存一份 .pyi 路径**到笔记里：
+
+```text
+empro 的类型存根:
+  fem/2026.20/win32_64/bin/empro/*.pyi  (26 个 .pyi 文件)
+```
+
+`.pyi` 的 docstring 经常比 `.py` 详细 —— 这是个反直觉的事，
+但 Keysight 在 stub 里写了更多用法说明。
+
+## 一条经验
+
+任何"这个 API 是不是被官方阉割了" 的怀疑，都先做这件事：
+
+> 同时 grep 两条 site-packages 路径，再下结论。
+
+我曾经有一次差点写了 200 行 workaround，
+后来发现 API 一直在，只是我没看见 `packages/` 那条路径。
+
+便宜的怀疑要先验证。这条规则放在工程的任何地方都成立。

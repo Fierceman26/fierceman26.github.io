@@ -1,0 +1,23 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 — Not Found" description="页面不存在" noIndex={true}>
+  <section class="container hero" style="text-align: center;">
+    <div class="hero__masthead" style="justify-content: center;">
+      <span>Error · 404</span>
+    </div>
+    <h1
+      class="hero__title"
+      style="margin: 1.6rem auto 0; max-width: 30ch;"
+    >
+      The page <em>has wandered off.</em>
+    </h1>
+    <p class="hero__lead" style="margin-inline: auto;">
+      链接断了，或者文章被移走了。要不回到
+      <a href="/" style="color: var(--accent);">首页</a>
+      看看？或者浏览
+      <a href="/posts/" style="color: var(--accent);">所有文章</a>。
+    </p>
+  </section>
+</BaseLayout>

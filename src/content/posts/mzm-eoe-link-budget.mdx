@@ -1,0 +1,89 @@
+---
+title: "MZM EOE 链路里被忽略的几个 dB"
+description: "光 I/O 链路的 budget 表上总有几个不起眼的损耗：偏置点漂移、TIA 输入参考噪声、retiming 抖动。每一个都能让你 1e-12 BER 的目标多 6 dB margin。"
+pubDate: 2026-05-03
+tags: ["MZM", "EOE", "Link Budget", "Photonics"]
+category: "eoe"
+---
+
+数据中心的可插拔光模块正在让位给 **光 I/O** —— 信号从 ASIC 出来直接调制，
+然后走光纤。这种架构里 EOE 链路（电 → 光 → 电）的 budget 比传统电链路紧得多，
+原因是 **光端的非线性 + 探测器噪声 + 模拟接收前端的有限 SNR**
+叠在一起，留给数字均衡的空间不大。
+
+下面记几个我在 ADS Photonics Designer Suite 里跑 budget 时容易漏掉的项。
+
+## 1. MZM 偏置点的工艺漂移
+
+理论上 MZM 应该工作在正交偏置点（Q-point），让 small-signal 线性度最佳。
+实际上偏置点会随温度、波长、调制器内部 thermo-optic 系数漂动。
+
+ADS 里如果只用一个 ideal MZM，budget 会偏乐观 **2–3 dB**。
+对应到 OMA（Optical Modulation Amplitude）就是 30–50% 的损失。
+
+在 system simulation 里做这件事的正确方式：
+
+- 给 MZM 加一个 **bias control loop** 模型（哪怕是简化的一阶环路）
+- 在 corner 仿真里把偏置误差扫到 ±5° 左右
+
+## 2. TIA 输入参考噪声
+
+接收端是 Photodetector + TIA。Budget 表里经常只算 PD 的 shot noise，
+**漏掉 TIA 的 input-referred current noise**。
+
+典型数：
+
+| 组件 | 噪声贡献（在 16 GHz 带宽下） |
+| --- | --- |
+| PD shot noise (1 mA photocurrent) | ~22 nA RMS |
+| TIA input current noise | ~80 nA RMS |
+| Total | ~83 nA RMS |
+
+也就是说 **TIA 是主要噪声源**，不是 PD。Budget 必须算上。
+
+## 3. Retiming 抖动 → 时序噪声
+
+如果接收端有 CDR，retiming 之后的 BER 不只看眼图的电压噪声，
+还要看 **采样时刻** 的抖动。
+
+ADS 的 envelope simulator 在 30 GHz 以上波特率时，CDR jitter
+通常是 0.5–1 ps RMS 量级 —— 这在眼宽 16 ps 的 UI 上是 **3–6%**，
+直接吃到 timing margin 里。
+
+> 经验：BER target 1e-12 时，把 jitter 单独留 6 dB 的 budget，比事后发现不够再调容易。
+
+## 一份保守的 budget 模板
+
+我现在的 EOE budget 模板大致是这样的，单位 dB：
+
+```text
+Transmitter
+  Laser RIN ............... 1.5
+  MZM ER (extinction) ..... 6.0  (10 dB ER)
+  MZM bias drift .......... 2.0  (PVT corner)
+  Driver linearity ........ 0.8
+
+Channel
+  Fiber attenuation ....... 0.3  (50 m)
+  Connector losses ........ 1.5  (3 × 0.5 dB)
+
+Receiver
+  PD responsivity ......... 0
+  TIA input noise ......... 4.0  (主导项)
+  TIA bandwidth ........... 1.2
+  Retiming jitter ......... 6.0
+
+Margins
+  Aging + temperature .... 3.0
+  Manufacturing tolerance . 2.0
+  ──────────────────────────────
+  Total budget ............ 28.3 dB
+```
+
+实际可用 OMA 减去这个数字，就是 link 能稳定关眼的窗口。
+
+---
+
+光 I/O 的 budget 之所以紧，不是单项有多坏，而是 **每一项都不能省**。
+下一篇打算写在 ADS Photonics 里搭这个 budget 模型的具体步骤 —— 用 MZM_EOE
+官方案例改起。

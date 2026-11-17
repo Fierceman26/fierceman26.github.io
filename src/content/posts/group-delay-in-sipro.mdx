@@ -1,0 +1,113 @@
+---
+title: "Group Delay 的几种 SIPro 优化路径"
+description: "在 DDR5 通道上，几纳秒的差分对内 skew 就能把 eye 关掉。这篇记一次从 layout 端到端调 SIPro 的过程 —— 哪些手段实际有效，哪些只是数字上的安慰。"
+pubDate: 2026-05-18
+updatedDate: 2026-05-19
+tags: ["ADS", "SIPro", "DDR5", "Signal Integrity"]
+category: "hsd"
+featured: true
+---
+
+> 这是一篇工作笔记。结论可能不普适，但每一步都在真实工程里跑过。
+
+最近在一条 DDR5-6400 的通道上调 group delay，差分对内的延时差大概在 **18 ps** 左右，
+按经验放在 eye margin 里已经吃掉 1/3。SIPro 给的是网络参数级别的视图，
+能从 layout 上看出哪段贡献了多少，但具体怎么"调"，需要自己想。
+
+下面是这次几条路径的对比 —— 不是教程，更像工作日志。
+
+## 起点：先量再说
+
+任何优化的起点都是测量。SIPro 里的 group delay 视图本身不会骗人，
+但容易**看错单位**：在 frequency 轴上读 group delay 时，曲线本身是 ns 量级，
+但你关心的 skew 是对内两条线之间的**差值**，会在 ps 量级抖动。
+
+```python
+# 在 ADS Python 里取 group delay 数据
+from keysight.ads import datalink
+
+ds = datalink.open("path/to/sim.ds")
+gd_p = ds.get_named("GD(S(2,1))")   # 正线
+gd_n = ds.get_named("GD(S(4,3))")   # 负线
+skew = (gd_p - gd_n) * 1e12          # 转 ps
+print(f"max intra-pair skew = {skew.abs().max():.2f} ps")
+```
+
+这一步给出了**目标函数**。后面所有调整都是在让这个数字变小。
+
+## 路径 A：等长（Length Tuning）
+
+最经典的做法。SIPro 里加一个 length tuning serpentine，
+把短线那条补到和长线一样长。
+
+实操上要注意：
+
+- **补线段长度** 跟 `√(L · C)` 成正比，但 SIPro 在 layout 上看到的"长度"
+  是几何长度，不是电学长度。两者差别来自材料 Dk、铜厚、参考层结构。
+- 在 BGA 出脚那一段，**fanout 区域** 的等长是最难调的 —— 因为线在不同层间穿，
+  Dk 不一致。强行在主信号层做等长会让 differential mode 变形。
+
+这次我在 fanout 内换了思路，**让两条线在同一段 via stub 上对称下沉**，
+不在主信号层做长度补偿。intra-pair skew 从 18 ps 降到约 9 ps。
+
+## 路径 B：参考层一致性
+
+更隐蔽的一个来源 —— **参考层不连续**。
+
+DDR5 通道里我们经常会跨越 split plane，
+特别是 DQ/DQS 在某些 BGA 球出去后会借道一段没有完整参考的区域。
+此时 group delay 会有一个不规则的波动，肉眼很难看出来"是这里"。
+
+我用了一个粗暴但有效的办法：在 SIPro 的 net visualization 上**把两条线分别高亮**，
+然后看每一段的 reference net 是不是同一个。
+只要两条线在不同段引用了不同的 GND 拼接片，就一定会贡献 skew。
+
+修法：调整 BGA pin 顺序，让两条线在所有段都看到同一个完整的 plane。
+
+## 路径 C：via stub 的对称性
+
+via 本身不大，但**stub 不对称**带来的延迟差，可以在 6 GHz 以上把这条信号杀掉。
+
+```text
+对内两条线的 stub:
+  正线:  drilled-thru, stub 5.2 mil
+  负线:  back-drilled, stub 0.8 mil
+```
+
+这种结构上的不对称在 SIPro 里看 group delay 不会立刻爆 —— 因为 SIPro 解的是
+linear network parameters，stub 引入的是高频谐振，
+group delay 的可见劣化在更高频段。
+
+**结论**：调对内 skew 要先看 via stub 是否同处理。同处理（同 back drill 或同 thru）
+比"哪个更短"更重要。
+
+## 怎么知道改完真的有效
+
+在 SIPro 里跑一遍 group delay 是不够的 —— 你要把 S-parameter 喂回到 channel sim
+里看 eye。SIPro 给的是 channel itself，eye 是 channel + driver/receiver + equalization
+的综合。
+
+我的做法是把每一版 design 跑一次 channel simulation，
+记三个数：
+
+| 版本 | intra-pair skew | eye height | eye width |
+| --- | --- | --- | --- |
+| Baseline | 18 ps | 38 mV | 0.51 UI |
+| 路径 A | 9 ps  | 51 mV | 0.58 UI |
+| A + B  | 5 ps  | 58 mV | 0.61 UI |
+| A + B + C | 4 ps | 60 mV | 0.62 UI |
+
+路径 C 在这个版本里**收益最小**。但等到 PVT corner 跑全的时候，
+C 的好处会显现在 worst case 上 —— 这是个慢效益。
+
+---
+
+## 几条经验总结
+
+1. **不要先做等长**。先做参考层一致性，先做 via 对称性，最后再做等长。
+   等长是补偿性的，会在 layout 上消耗大面积，且会在 PVT corner 上抖动。
+2. **每个改动都过 channel sim**。SIPro 视图本身能骗人，把数据放回 channel 才是真。
+3. **group delay 平坦 ≠ skew 小**。skew 是对内差值，平坦只是单线的好看而已。
+
+下次想试试用 SIPro 的 Net Parametrization 跑一组 sweep —— 自动改 length tuning
+长度，看 channel sim 出来的 skew 曲线。如果跑通了再写一篇。

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir C:\\\\EDA_ToolBox\\\\Blog_HSD *)",
+      "WebFetch(domain:www.gongjue.fun)",
+      "Bash(curl *)",
+      "Bash(npm --version)",
+      "Bash(where node *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(grep -oE \"<title>[^<]+</title>|<h1[^>]*>[^<]*\\(<em[^>]*>[^<]*</em>[^<]*\\)?</h1>|hero__masthead.{0,200}\")",
+      "Bash(grep -oE 'section-card[^\"]*\"[^>]*>|<h3 class=\"section-card__title\">[^<]+</h3>|section-card__subtitle\">[^<]+|section-card__footer.{0,100}')",
+      "Bash(grep -oE 'post-header__category[^>]*>.{0,150}')"
+    ]
+  }
+}

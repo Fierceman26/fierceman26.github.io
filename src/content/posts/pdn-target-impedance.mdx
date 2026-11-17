@@ -1,0 +1,88 @@
+---
+title: "PDN target impedance 的两个常见误读"
+description: "Z_target = V_ripple / I_transient 是 PDN 设计的起点公式，但工程师常常把这个数字理解错。一次错读就能让 PI 仿真和实测差出一个数量级。"
+pubDate: 2026-04-15
+tags: ["PI", "PDN", "Decoupling", "PIPro"]
+category: "pi"
+---
+
+电源完整性 (PI) 设计的起点几乎都是这个公式：
+
+```text
+              V_ripple
+Z_target  =  ─────────
+             I_transient
+```
+
+写起来简单，工程师却经常误读 —— 把 ASIC datasheet 上的两个数字一除就完事。
+这一篇说说常见的两个误读，以及它们带来的后果。
+
+## 误读 1：`I_transient` 不是平均电流
+
+datasheet 上的 `I_max` 通常是平均的峰值，**不是瞬态阶跃**。
+
+PDN 看到的真实激励是**电流的导数** —— 一个 di/dt 阶跃产生 V = L·di/dt 的电压扰动。
+对应到 target impedance：
+
+| 参数 | 数值 |
+| --- | --- |
+| ASIC 平均最大电流 | 50 A |
+| 瞬态阶跃 ΔI（一个 clock cycle 内） | 8 A |
+| `I_transient`（用于 Z_target） | **8 A**，不是 50 A |
+
+如果你拿 50 A 去算 Z_target，会得到一个**比真实需要小 6 倍**的数字。
+意味着你会过度堆电容，PIPro 跑出来 PDN 看起来完美 ——
+但实测纹波还是大，因为问题在更高频段（di/dt 那里）。
+
+## 误读 2：`V_ripple` 不是 datasheet 的 tolerance
+
+ASIC datasheet 给的电源 tolerance 通常是 **DC + low-frequency** 容差，
+比如 1.0 V ± 3%。把这个 30 mV 当成 `V_ripple` 喂进 Z_target 公式，结果偏松。
+
+真实的 V_ripple 预算应该是：
+
+```text
+V_ripple_budget = V_tolerance - V_dc_drop - V_aging - V_other_corner
+                = 30 mV    - 10 mV     - 5 mV    - 5 mV
+                = 10 mV
+```
+
+也就是说，PDN 留给瞬态抖动的真实预算是 **10 mV**，不是 30 mV。
+用 30 mV 算的 Z_target 会**乐观 3 倍**。
+
+## 综合：一个真实的小算账
+
+假设：
+
+- ΔI = 10 A（一个 die 内的瞬态阶跃）
+- V_ripple_budget = 8 mV（VRM 输出端实际预算）
+
+```text
+Z_target = 8 mV / 10 A = 0.8 mΩ
+```
+
+这个数字在频域上要从 DC 到 1/(2π·t_rise) 全部维持。
+如果 t_rise = 100 ps，那么 PDN 的 |Z| 必须在 **DC 到 1.6 GHz 全频段 < 0.8 mΩ**。
+
+这通常意味着：
+
+- VRM 输出 + bulk 大电容 主导低频段
+- MLCC 阵列主导中频段
+- 封装级电容 + 片上电容主导高频段
+- 任何一个频段缺失，都会在 ASIC 看到瞬态电压跌落
+
+## PIPro 仿真时容易忽略的项
+
+跑 PIPro 时除了 |Z| < Z_target 的可视化，还有几件事值得专门看：
+
+1. **anti-resonance 峰值**：相邻电容之间会有谐振点，PIPro 默认会画但容易被忽略
+2. **VRM 的输出阻抗**：默认仿真常常把 VRM 当作理想短路，实际上它有一个 inductive 输出
+3. **封装 + 焊球**：片外 PDN 看起来完美的设计，加上封装后高频段全废
+
+---
+
+PI 设计是一个**全频段**的工程问题。任何一个频段不达标，
+ASIC 看到的瞬态电压都会跑出 budget。
+
+下次我们看一个具体案例：在 PIPro 里搭一个 GDDR6 的 PDN，
+看 anti-resonance 是怎么把 |Z| 推过 target 的。

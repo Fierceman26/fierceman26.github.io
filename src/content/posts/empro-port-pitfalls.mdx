@@ -1,0 +1,131 @@
+---
+title: "EMPro 端口设置里那些容易踩的坑"
+description: "把 layout 推到 EMPro 仿真后报 \"needs at least one excitation\" 是最常见的卡点。这篇梳理几种常见根因，以及它们各自的修法。"
+pubDate: 2026-05-11
+tags: ["EMPro", "ADS", "FEM", "Port", "Debug"]
+category: "hsd"
+---
+
+EMPro 第一次跑仿真时报 **"needs at least one excitation"**，
+是很多人接触 ADS EM 流程的第一道坎。表面上看是端口没设置，
+但实际根因可以分成好几种 —— 而它们的修法完全不一样。
+
+下面按 root cause 排序。
+
+## 1. pcell 实例的 pin 没有 refresh
+
+最常见。改了 pcell 实例的参数（比如 finger width / spacing），
+然后直接跑 EMPro。报 "no excitation"。
+
+原因：rfpro 视图里端口挂在 pcell 实例的具体 pin 坐标上
+（形式如 `X1.1`、`X1.2`）。改参数后 pin 物理位置变了，
+但 rfpro 视图缓存里的坐标还是旧的，端口对应的 pin 在新 layout 上**不存在**。
+
+修法：在 worker 里强制 refresh。
+
+```python
+import empro
+
+# 改完 pcell 参数后必须刷新
+empro.activeProject.layout.refresh()
+
+# 然后再 setup analysis
+analysis = empro.toolkit.analysis.runAnalysis(...)
+```
+
+注意是 `layout.refresh()` 不是 `save()`。后者只是写盘，
+不会重新解析 instance 的 pin 几何。
+
+## 2. Momentum 把端口合并了
+
+跨 simulator（FEM ↔ Momentum）用同一个 rfpro 视图时容易遇到。
+
+Momentum 有一个 `TouchingPortsReduction` 选项，**默认开启**。
+它会把共享同一个 reference pin 的端口合并成一个。FEM 不会做这件事。
+
+具体表现：在 FEM 上能看到 14 个端口，切到 Momentum 后只剩 8 个。
+有几个端口被合掉了 —— 对差分对来说这是灾难，因为正负两个 port 共享 GND
+就会被合并，差分激励就消失了。
+
+修法二选一：
+
+- 在 Momentum 设置里关掉 `TouchingPortsReduction`
+- 或者重新设计端口拓扑，让差分两端不共享 reference pin
+
+我倾向第二种。第一种关掉之后端口数会爆 —— Momentum 不像 FEM 那么擅长处理
+强耦合多端口。
+
+## 3. 端口挂在顶层 pin 而不是 instance pin
+
+这是个**稳定性**问题，不一定立刻 break。
+
+如果你的端口挂在顶层独立 pin 上（如 `P1`、`P2`），
+任何一次 layout 改动都可能让顶层 pin 失效；
+如果挂在 pcell 实例 pin 上（如 `X1.1`、`X1.2`），稳定得多。
+
+```python
+# 不推荐 —— 顶层 pin，pcell 参数一改就废
+ports.append(empro.analysis.Port(top_pin="P1", reference_pin="P2"))
+
+# 推荐 —— instance pin，跟随 pcell 走
+ports.append(empro.analysis.Port(top_pin="X1.1", reference_pin="X1.2"))
+```
+
+`X1.1` 是说 instance `X1` 的第 1 号 pin —— pcell 改参数后，pin 编号不变，
+但物理位置会跟着走。
+
+## 4. Reference pin 没有写
+
+EMPro 的 Port 构造要求**显式给 reference**，
+不像有些 EM 工具会自动从 GND net 推断。
+
+```python
+# 这样会被静默忽略，跑起来就是 "no excitation"
+ports.append(empro.analysis.Port(top_pin="X1.1"))  # ← reference 漏了
+
+# 正确：必须配对
+ports.append(empro.analysis.Port(top_pin="X1.1", reference_pin="X1.GND"))
+```
+
+如果你的端口确实是单端，没有 reference pin，
+就得用 `empro.analysis.createVirtualPinForMinusTerminal(...)`
+显式造一个虚拟的 minus terminal，挂到底面 GND 上。
+
+## 5. EM Setup 视图本身没保存
+
+最隐蔽的一个。在 ADS 主界面里改了端口设置，但**没有保存视图**。
+
+EMPro worker 通过 rfpro 视图的 XML 加载端口配置。
+XML 没刷新，端口配置就还是旧的。
+
+修法：动 layout 之前先 `keysight.ads.de.save_design()`，再去更新视图。
+或者更彻底 —— 删掉 `<workspace>/<lib>/<cell>/sipi/` 整个目录，
+让 SIPro 重新提取一次。
+
+```python
+import shutil
+from pathlib import Path
+
+# SIPro 缓存的彻底清理
+ws = Path("workspace_root")
+for sub in ["sipi", "simulation"]:
+    target = ws / "lib" / "cell" / sub
+    if target.exists():
+        shutil.rmtree(target)
+
+# 然后重新 create_pro_view
+```
+
+---
+
+## 一个诊断 checklist
+
+碰到 "needs at least one excitation" 之后，按这个顺序走：
+
+1. `empro.activeProject.layout.refresh()` 跑了吗
+2. Port 构造里有没有写 `reference_pin`
+3. 跨 simulator 时检查 `TouchingPortsReduction`
+4. SIPro 缓存（`sipi/` 目录）有没有清掉
+5. 实在不行 —— 把 rfpro 视图删掉重建
+
+90% 的情况停在第 1 或第 2 步。剩下 10% 才需要后面那几步。

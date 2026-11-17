@@ -1,0 +1,26 @@
+---
+import { SITE } from '~/consts';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__row">
+      <div class="site-footer__brand">
+        {SITE.shortTitle}
+        <span>JOURNAL · {year}</span>
+      </div>
+      <nav class="site-footer__meta" aria-label="次要链接">
+        <a href="/rss.xml">RSS</a>
+        &nbsp;·&nbsp;
+        <a href={`mailto:${SITE.email}`}>Email</a>
+        &nbsp;·&nbsp;
+        <a href="/about/">Colophon</a>
+      </nav>
+    </div>
+    <p class="site-footer__colophon">
+      Typeset in Fraunces &amp; Inter. Built with Astro, deployed on GitHub Pages.
+      All writing &copy; {year} {SITE.author}, except where otherwise noted.
+    </p>
+  </div>
+</footer>

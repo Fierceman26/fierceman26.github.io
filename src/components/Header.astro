@@ -1,0 +1,81 @@
+---
+import { SITE, NAV, issueLabel } from '~/consts';
+
+const issue = issueLabel(new Date());
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-header__brand" aria-label="返回首页">
+      {SITE.shortTitle}
+      <small>JOURNAL · EST. 2026</small>
+    </a>
+
+    <div class="site-header__issue" aria-hidden="true">
+      {issue}
+    </div>
+
+    <nav class="site-header__nav" aria-label="主导航">
+      {NAV.map((item) => {
+        const itemPath = item.href.replace(/\/$/, '') || '/';
+        const isCurrent = pathname === itemPath || (itemPath !== '/' && pathname.startsWith(itemPath));
+        return (
+          <a href={item.href} aria-current={isCurrent ? 'page' : undefined}>
+            {item.label}
+          </a>
+        );
+      })}
+      <button
+        type="button"
+        class="theme-toggle"
+        id="theme-toggle"
+        aria-label="切换明暗模式"
+        title="切换明暗模式"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // 暗色模式切换 —— localStorage 持久化，未设置时跟随系统
+  const STORAGE_KEY = 'theme-preference';
+  const root = document.documentElement;
+
+  const getStored = () => localStorage.getItem(STORAGE_KEY) as 'light' | 'dark' | null;
+  const apply = (value: 'light' | 'dark' | null) => {
+    if (value === 'light' || value === 'dark') {
+      root.setAttribute('data-theme', value);
+    } else {
+      root.removeAttribute('data-theme');
+    }
+  };
+
+  // 初始化（脚本可能在 DOM 完成前就执行，先尝试一次）
+  apply(getStored());
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('theme-toggle');
+    if (!button) return;
+
+    button.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let next: 'light' | 'dark';
+
+      if (!current) {
+        // 当前在跟随系统：点击 = 切到相反值
+        next = systemPrefersDark ? 'light' : 'dark';
+      } else {
+        next = current === 'dark' ? 'light' : 'dark';
+      }
+
+      localStorage.setItem(STORAGE_KEY, next);
+      apply(next);
+    });
+  });
+</script>
