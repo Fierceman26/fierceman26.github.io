@@ -368,3 +368,487 @@
     font-size: 0.62rem;
   }
 }
+
+/* -------------------------------------------------------------------------
+   CPO 随笔的四张示意图。沿用同一套纸色、酒红和控件高度。
+   状态靠单选按钮切换，不自动播放，减少动效时也不会有循环动画。
+   ------------------------------------------------------------------------- */
+
+.cpo-sheet {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cpo-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cpo-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border: 0;
+  margin: 0;
+  padding: 0.65rem 0.85rem 0.15rem;
+  min-inline-size: 0;
+}
+
+.cpo-choice label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.cpo-choice input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cpo-choice label:has(input:checked) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.cpo-choice label:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.cpo-choice label:has(input:checked):hover {
+  color: var(--bg);
+}
+
+.cpo-panel {
+  display: none;
+}
+
+.cpo-sheet:has(input[value='plug']:checked) .cpo-panel[data-panel='plug'],
+.cpo-sheet:has(input[value='cpo']:checked) .cpo-panel[data-panel='cpo'],
+.cpo-sheet:has(input[value='front']:checked) .cpo-panel[data-panel='front'],
+.cpo-sheet:has(input[value='inside']:checked) .cpo-panel[data-panel='inside'],
+.cpo-sheet:has(input[value='mrm']:checked) .cpo-panel[data-panel='mrm'],
+.cpo-sheet:has(input[value='mzm']:checked) .cpo-panel[data-panel='mzm'],
+.cpo-sheet:has(input[value='hot']:checked) .cpo-panel[data-panel='hot'],
+.cpo-sheet:has(input[value='temp']:checked) .cpo-panel[data-panel='temp'],
+.cpo-sheet:has(input[value='wave']:checked) .cpo-panel[data-panel='wave'],
+.cpo-sheet:has(input[value='ctrl']:checked) .cpo-panel[data-panel='ctrl'] {
+  display: block;
+}
+
+.cpo-stage-pad {
+  padding: 0.75rem 0.7rem 0.65rem;
+  min-width: 0;
+}
+
+.cpo-col {
+  width: min(100%, 18rem);
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.cpo-chip,
+.cpo-die {
+  border: 1px solid var(--ink);
+  background: var(--bg);
+  border-radius: 2px;
+  padding: 0.5rem 0.6rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.cpo-chip b,
+.cpo-die b {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.cpo-chip small,
+.cpo-die small {
+  display: block;
+  margin-top: 0.12rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.cpo-wire {
+  display: grid;
+  grid-template-columns: 1fr 2px 1fr;
+  column-gap: 0.55rem;
+  align-items: stretch;
+  width: min(100%, 18rem);
+  margin-inline: auto;
+}
+
+.cpo-wire b {
+  width: 2px;
+  background: var(--accent);
+  grid-column: 2;
+}
+
+.cpo-wire span {
+  grid-column: 3;
+  align-self: center;
+}
+
+.cpo-wire--long { height: 112px; }
+.cpo-wire--long b {
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--accent) 0 5px,
+    transparent 5px 9px
+  );
+}
+.cpo-wire--short { height: 40px; }
+
+.cpo-wire span,
+.cpo-fiber span {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: var(--accent);
+  min-width: 0;
+}
+
+.cpo-meter {
+  margin-top: 0.85rem;
+}
+
+.cpo-meter__name,
+.cpo-loss__sub {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.cpo-loss__num {
+  margin: 0.2rem 0 0.35rem;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.28rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.cpo-meter__track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--rule-soft);
+  overflow: hidden;
+}
+
+.cpo-meter__fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.cpo-meter__fill--full { width: 100%; }
+.cpo-meter__fill--short { width: 16%; background: var(--ink); }
+
+.prose .siph-widget .cpo-note {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.prose .siph-widget .cpo-kicker {
+  margin: 0 0 0.4rem;
+}
+
+.prose .siph-widget .cpo-meter__name,
+.prose .siph-widget .cpo-loss__sub {
+  margin: 0;
+}
+
+.prose .siph-widget .cpo-loss__sub {
+  margin-bottom: 0.35rem;
+}
+
+.prose .siph-widget .cpo-loss__num {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.cpo-kicker {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.cpo-face,
+.cpo-pkg {
+  width: min(100%, 22rem);
+  margin-inline: auto;
+  min-width: 0;
+  border-radius: 3px;
+  padding: 0.65rem 0.65rem 0.7rem;
+}
+
+.cpo-face {
+  border: 1px solid var(--ink);
+  background: var(--bg);
+}
+
+.cpo-pkg {
+  border: 1px solid color-mix(in srgb, #b08a3e 55%, var(--rule));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #c4a15a 32%, var(--bg)),
+    var(--bg) 80%
+  );
+}
+
+.cpo-dies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.cpo-dies .cpo-die {
+  flex: 1 1 6.2rem;
+}
+
+.cpo-die.is-on {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cpo-die.is-ghost {
+  border-style: dashed;
+  background: transparent;
+}
+
+.cpo-die.is-ghost b,
+.cpo-die.is-ghost small {
+  color: var(--muted);
+}
+
+.cpo-fiber {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: min(100%, 22rem);
+  min-height: 2.6rem;
+  margin: 0.15rem auto;
+}
+
+.cpo-fiber i {
+  width: 2px;
+  align-self: stretch;
+  margin-left: 1.15rem;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--accent) 0 4px,
+    transparent 4px 8px
+  );
+  flex: 0 0 auto;
+}
+
+.cpo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+.cpo-svg .ink { stroke: var(--ink); }
+.cpo-svg .accent { stroke: var(--accent); }
+.cpo-svg .faint { stroke: var(--muted); }
+.cpo-svg .hot {
+  stroke: var(--accent);
+  fill: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.cpo-svg path,
+.cpo-svg line,
+.cpo-svg circle,
+.cpo-svg rect {
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cpo-svg .hot { stroke-width: 1.4; }
+
+.cpo-cmp {
+  display: grid;
+  grid-template-columns: minmax(2.5rem, 0.52fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1px;
+  margin: 0.55rem 0.7rem 0.15rem;
+  background: var(--rule-soft);
+  border: 1px solid var(--rule-soft);
+  min-width: 0;
+}
+
+.cpo-cmp > div {
+  min-width: 0;
+  padding: 0.42rem 0.38rem;
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.cpo-cmp__h,
+.cpo-cmp__k {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.cpo-sheet:has(input[value='mrm']:checked) .cpo-cmp .is-mrm,
+.cpo-sheet:has(input[value='mzm']:checked) .cpo-cmp .is-mzm {
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  color: var(--ink);
+}
+
+.cpo-stack {
+  width: min(100%, 22rem);
+  margin: 0 auto 0.15rem;
+  min-width: 0;
+}
+
+.cpo-stack__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.cpo-stack__row .cpo-die {
+  flex: 1 1 6.2rem;
+}
+
+.cpo-die--wide {
+  width: 100%;
+  margin-top: 0;
+}
+
+.prose .siph-widget .cpo-via {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.35rem 0;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.cpo-via i {
+  width: 2px;
+  height: 1.1rem;
+  background: var(--rule);
+  flex: 0 0 auto;
+}
+
+.cpo-mark {
+  border-color: var(--rule);
+}
+
+.cpo-sheet:has(input[value='hot']:checked) [data-mark='asic'],
+.cpo-sheet:has(input[value='hot']:checked) [data-mark='eic'] {
+  border-color: color-mix(in srgb, #b08a3e 70%, var(--ink));
+  background: color-mix(in srgb, #c4a15a 34%, var(--bg));
+}
+
+.cpo-sheet:has(input[value='temp']:checked) [data-mark='flow'],
+.cpo-sheet:has(input[value='temp']:checked) [data-mark='pic'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.cpo-sheet:has(input[value='temp']:checked) [data-mark='flow'] i,
+.cpo-sheet:has(input[value='ctrl']:checked) [data-mark='back'] i {
+  background: var(--accent);
+}
+
+.cpo-sheet:has(input[value='wave']:checked) [data-mark='pic'] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cpo-sheet:has(input[value='ctrl']:checked) [data-mark='back'],
+.cpo-sheet:has(input[value='ctrl']:checked) [data-mark='heater'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.cpo-notch {
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 560px) {
+  .cpo-choice {
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+  }
+
+  .cpo-cmp {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .cpo-loss__num {
+    font-size: 1.12rem;
+  }
+
+  .cpo-wire--long {
+    height: 96px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cpo-sheet *,
+  .cpo-sheet *::before,
+  .cpo-sheet *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
