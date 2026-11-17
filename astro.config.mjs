@@ -55,10 +55,27 @@ export default defineConfig({
   site: 'https://fierceman26.github.io',
   base: '/',
   trailingSlash: 'ignore',
+  // 中文是默认语言，URL 不带前缀。英文页面放在 src/pages/en/，公开路径为 /en/。
+  i18n: {
+    defaultLocale: 'zh',
+    locales: ['zh', 'en'],
+    routing: {
+      prefixDefaultLocale: false,
+      redirectToDefaultLocale: false,
+    },
+  },
   integrations: [
     mdxFigureComponents(),
     mdx(),
-    sitemap(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'zh',
+        locales: {
+          zh: 'zh-CN',
+          en: 'en-US',
+        },
+      },
+    }),
   ],
   markdown: {
     shikiConfig: {

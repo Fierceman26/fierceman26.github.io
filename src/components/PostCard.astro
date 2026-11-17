@@ -1,16 +1,20 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import type { JournalPost } from '~/lib/posts';
 import FormattedDate from './FormattedDate.astro';
 import { findCategory } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
 
 interface Props {
-  post: CollectionEntry<'posts'>;
-  index?: number; // 用于显示 01 / 02 / 03 序号
+  post: JournalPost;
+  index?: number;
   readingTime?: string;
 }
 
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
 const { post, index, readingTime } = Astro.props;
-const href = `/posts/${post.id}/`;
+const href = localizePath(`/posts/${post.id}/`, locale);
 const numeralText = typeof index === 'number'
   ? String(index + 1).padStart(2, '0')
   : null;
@@ -25,7 +29,7 @@ const category = post.data.category ? findCategory(post.data.category) : null;
     {category && (
       <>
         <span class="dot" aria-hidden="true"></span>
-        <a href={`/categories/${category.slug}/`}>{category.title}</a>
+        <a href={localizePath(`/categories/${category.slug}/`, locale)}>{category.title}</a>
       </>
     )}
     {readingTime && (
@@ -43,6 +47,6 @@ const category = post.data.category ? findCategory(post.data.category) : null;
   <p class="card__lead">{post.data.description}</p>
 
   <a href={href} class="card__footer">
-    Read on<span aria-hidden="true">→</span>
+    {t.post.readOn}<span aria-hidden="true">→</span>
   </a>
 </article>

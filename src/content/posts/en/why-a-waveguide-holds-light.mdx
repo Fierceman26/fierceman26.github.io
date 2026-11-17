@@ -1,0 +1,160 @@
+---
+title: "Why light stays in a waveguide"
+description: "Starting from a transverse electromagnetic wave in a uniform medium: why a silicon strip can keep the optical field inside the core, and what TE0 and TM0 actually are on a 220 nm SOI strip."
+pubDate: 2026-11-17
+tags: ["Waveguide", "TE", "TM", "FDE", "MODE"]
+category: "siph"
+featured: false
+draft: false
+---
+
+In the previous note I threw out a third mode on a silicon strip 500 nm wide. Before throwing it out, something more basic had to be said: why light is willing to travel along that strip, and what the TE0 and TM0 that remain actually are.
+
+This one starts at the shallow end. The electric field and the magnetic field pull each other forward. That is enough to begin.
+
+## In a uniform medium there is no force from the side
+
+In a medium whose index is the same everywhere, light is a transverse wave. The electric field, the magnetic field, and the direction of travel sit at right angles to one another. The wavefront is a surface pushing forward. Nothing reaches in from the side to hold it.
+
+A beam of finite width also fattens on its own. Every point on the wavefront spreads sideways. That is diffraction. If the index is the same everywhere, the material cannot tell a core from the outside. Draw a strip on the geometry and, to the light, you have drawn nothing.
+
+For light to follow a path, the inside of the path and the outside have to differ.
+
+## Total internal reflection, which is not enough once you are at 220 nm
+
+Near 1550 nm the index of silicon is about 3.5, and silica about 1.44. Both numbers come from Palik's optical constants. Here they are only approximate, enough to build a picture. The FDE run in the previous note used the same Palik data. The neff it produced is finer than these two round numbers, and later I will cite that run directly.
+
+The picture people learn first is total internal reflection. A ray inside the core hits the interface, hits it obliquely enough, past the critical angle, the transmitted branch disappears, and the ray folds back into the core. The critical angle is set by the two indices. Estimating from n ≈ 3.5 and n ≈ 1.44, it is about 24° from the normal. If the direction of travel hugs the axis more tightly than that, the ray bounces between the upper and lower interfaces.
+
+The picture is clear when the core is a good deal thicker than the wavelength. This strip is not that case.
+
+The free-space wavelength is 1550 nm. Inside uniform silicon at n ≈ 3.5, the wavelength of a plane wave shrinks to about 440 nm. That is the wavelength in the bulk material, a way to feel the size. It is not the guided wavelength we will compute later. The strip is only 220 nm thick: about a seventh of the free-space wavelength, about half of that wavelength inside silicon. The width is 500 nm, the same order.
+
+A ray needs a place larger than the wavelength before it has a clear angle of incidence and one clear reflection. Here the core itself is smaller than the wavelength. The folding back is still happening. It just can no longer be drawn as a thin geometric ray. The field is one piece across the whole cross-section, and it has to be solved from Maxwell's equations. The family of solutions that can travel along the strip without their shape coming apart are called bound modes.
+
+<SlabLimit />
+
+Pull the slider all the way to the right. The core shrinks, on the same scale as λ0, into a thin band. The zigzag ray fades, and what replaces it is a bright band whose shape does not change along the way. The band is strongest in the core. After it reaches into the oxide it fades quickly, but it is not cut off at the interface.
+
+## A cross-section that does not deform
+
+A bound mode is a picture of the field on the cross-section. As it travels along z the shape does not change. It is only multiplied by a phase:
+
+<p class="eq">E(x, y, z, t) = Re( e(x, y) · exp[ j(ωt − βz) ] )</p>
+
+ω is the optical frequency. β is the propagation constant. e(x, y) is that cross-sectional portrait. For a pure mode, |E|², once it is averaged in time, sits still. What changes is the phase.
+
+Stack two different values of β and the pattern on the cross-section beats as it goes. So "one mode" means this: this portion of the field can walk the whole length alone, and the portrait stays as it was.
+
+Write β in the shape of an index:
+
+<p class="eq">β = n<sub>eff</sub> · k<sub>0</sub> ,&nbsp; k<sub>0</sub> = 2π / λ<sub>0</sub></p>
+
+neff is the effective index. It falls between the silicon and the oxide:
+
+<p class="eq">n<sub>clad</sub> &lt; n<sub>eff</sub> &lt; n<sub>core</sub></p>
+
+Go above the core, and the field in the cross-section no longer oscillates back and forth. That is not a guided mode of this strip. Drop to the cladding index, and the field in the cladding no longer decays outward. Power can travel to infinity, and the mode comes apart.
+
+Land between the two, and the field oscillates in the core. The transverse wave number in the cladding is imaginary, and the field falls off exponentially. That tail is the evanescent field. It has to be there. The tangential electric field is continuous on the two sides of the interface. The field cannot suddenly become zero on the boundary, so a length of it always reaches into the cladding.
+
+Reaching into the cladding is not the same as power leaking out the side. In a lossless bound mode, the tail stores energy, and the energy travels along z with the mode. Averaged in time, no power radiates sideways. The tail is part of the mode.
+
+The closer neff sits to the cladding, the slower the fall, the longer the tail, and the weaker the core's hold on the field. Pull it down until it equals the cladding index and the decay length runs off to infinity. The field is no longer bound.
+
+On the same strip, the core and the cladding have to share one β. The core's index is high, so on its own it would ask for a larger β. That β is already past what the cladding can propagate, so inside the cladding only decay remains. The boundary conditions then gather β into a few discrete values. Those values are the neff of the guided modes.
+
+<NeffWindow />
+
+In the solve from the previous note, the third root had neff = 1.492897, stuck against n<sub>SiO₂</sub> ≈ 1.44. It sits on the lower edge of the window. The field is no longer held by this 500 nm silicon strip. That time it was a numerical artifact, a radiating field meeting the PML, so it was thrown out and not counted as a guided mode. The mesh and the solve window are written up in [The third mode a 500 nm strip should not have kept](/en/posts/soi-strip-fde-third-mode/).
+
+## The solver is solving an eigenvalue problem
+
+The strip is uniform along z. Substitute the phase factor above into Maxwell's equations, and the portrait on the cross-section and β lock each other: only certain portraits fit certain values of β. This is an eigenvalue problem. The eigenvalue is neff, which is β / k<sub>0</sub>. The eigenvector is the distribution of the electric and magnetic fields on the xy plane.
+
+FDE is the finite-difference eigenmode method. Draw xy as a mesh, replace derivatives with differences, and the eigenvalue problem becomes a matrix. That is what the FDE solver in Lumerical MODE does. It looks at the cross-section: which shapes can propagate without deforming.
+
+This note does not run the sweep again. It only sets down, as a coordinate, the one example that has already been checked: 220 nm SOI, a fully etched strip, 500 nm wide, wavelength 1550 nm, silicon and silica both from Palik.
+
+| Solution | neff | TE fraction | What was done with it |
+| --- | --- | --- | --- |
+| TE0 | 2.445347 | 0.9835 | kept, essentially lossless |
+| TM0 | 1.771059 | 0.0444 | kept, essentially lossless |
+| third root | 1.492897 | — | radiation / PML artifact, discarded |
+
+Both guided modes sit between 1.44 and 3.5. TE0 is higher, TM0 is lower. The difference is polarization, and it is also the shape of this strip: 220 nm thick, 500 nm wide. The thin direction is the vertical one.
+
+## Quasi-TE, quasi-TM
+
+A slab waveguide can have a true TE and a true TM. For one polarization the electric field lies entirely parallel to the interface. For the other it is entirely perpendicular. A strip has sidewalls. The moment a sidewall appears, a pure TE and a pure TM mix, and there is generally a little electric field along z as well. So one has to say quasi-TE and quasi-TM.
+
+The coordinates in this note match the field plots. x runs along the width, 500 nm. y runs along the thickness, 220 nm, upward. z is the direction of propagation.
+
+TE0 is the quasi-TE fundamental. The dominant electric field is in the plane, along the width: Ex. The TE fraction is 0.9835, close to 1.
+
+TM0 is the quasi-TM fundamental. The dominant electric field is vertical, along the thickness: Ey. The TE fraction is 0.0444, close to 0.
+
+The TE fraction is a numerical label the solver hands back. Close to 1, the electric field is mostly Ex. Close to 0, mostly Ey. Both numbers are clean.
+
+On the same strip, TE0 is bound more tightly, and its neff is higher. The reason is mostly the two large faces, top and bottom.
+
+Where there is no free charge on an interface, the normal electric displacement D is continuous, and the tangential E is continuous. Normal D continuous means the normal component of εE is continuous, so the normal electric field jumps across the interface: on the side where ε is smaller, E is larger. At n ≈ 3.5 against n ≈ 1.44 the relative permittivity differs by about a factor of six, and the normal electric field on the oxide side is about six times the field in the silicon. That ratio comes from the boundary condition. It was not measured off a field plot.
+
+The Ex of TE0 lies against the two large faces, top and bottom. It is a tangential component, continuous on both sides, and it is not amplified inside the oxide. Electric energy density is proportional to ε|E|². When the tangential field is continuous, the silicon, with the larger ε, has the advantage, and the energy is willing to stay in the core. Ex becomes normal only when it reaches a sidewall, so TE pokes out a little on the left and the right. Those two faces are narrow. The effect is small.
+
+The Ey of TM0 presses against the two large faces. That is the normal direction. It is larger inside the oxide, and that share of the electric energy density is higher too. The core is only 220 nm. The two faces sit close together, so a fair amount of electric energy sits in the oxide outside the core. The cladding index is low, the neff of the whole mode is pulled down, and the tail is longer.
+
+The figure below is a sketch, for seeing which way the arrows point, and which mode spreads more. Each color field is normalized to its own peak. You cannot compare power by comparing brightness. The |E|² from the same FDE run is placed after the sketch.
+
+<ModePortrait />
+
+While it is paused, the phase sits on the frame where the arrows are longest. Once it plays, the arrows across the whole cross-section stretch together and reverse together: one mode, at one z, differs only by a single overall phase. The color of the envelope does not move. When you look at TM0, look at the outside of the top and bottom edges of the silicon strip. The vertical arrows there are longer than the ones inside the core.
+
+<Figure
+  src="/images/siph/mode1_E2.png"
+  alt="TE0 |E|² of a 220 nm SOI strip, 500 nm wide, at 1550 nm, neff = 2.445"
+  caption="TE0 |E|² from the same FDE run, neff = 2.445. The field is held in the silicon core, with a slight reach to either side."
+  width={750}
+  height={600}
+/>
+
+<Figure
+  src="/images/siph/mode2_E2.png"
+  alt="TM0 |E|² of the same waveguide, neff = 1.771, with energy reaching into the cladding along the thickness"
+  caption="TM0 |E|² from the same FDE run, neff = 1.771. A lobe sits in the cladding above and below; the core is not, in fact, the brightest part."
+  width={750}
+  height={600}
+/>
+
+The light and dark in the sketch, and these two computed plots, are the same fact. TE0 stays in the core. TM0 hands a good share of itself to the oxide along the thickness.
+
+## The phase travels along z
+
+The cross-sectional portrait is an envelope. What travels along z is the phase. In a lossless straight waveguide the portrait can be taken as real, and the instantaneous field is:
+
+<p class="eq">Re( e(x, y) · exp[ j(ωt − βz) ] ) = e(x, y) · cos(ωt − βz)</p>
+
+The guided wavelength is the distance over which the phase advances 2π. The phase velocity is the speed at which a surface of constant phase moves.
+
+<p class="eq">λ<sub>g</sub> = 2π / β = λ<sub>0</sub> / n<sub>eff</sub></p>
+
+<p class="eq">v<sub>p</sub> = ω / β = c / n<sub>eff</sub></p>
+
+λ<sub>0</sub> = 1550 nm is already fixed. TE0, with the larger neff, has the shorter guided wavelength and the slower phase velocity. Computed straight from the two expressions:
+
+- TE0: λ<sub>g</sub> ≈ 634 nm, v<sub>p</sub> ≈ 0.409 c
+- TM0: λ<sub>g</sub> ≈ 875 nm, v<sub>p</sub> ≈ 0.565 c
+
+That comes from the definitions. It is not another simulation. At the same optical frequency, the peaks of TM0 sit farther apart, and they run faster.
+
+<ModeTravel />
+
+What moves in the figure is a surface of constant phase, and the speed is the phase velocity. The time-averaged |E|² of a continuous wave does not flow along the strip. The portrait sits still. Sending a packet of energy onward depends on the group velocity, dω/dβ. The group index needs the way neff changes with wavelength. This page has only the one point at 1550 nm, so it cannot give that number.
+
+## Width is left for the next note
+
+On this 500 nm × 220 nm strip, at 1550 nm, the two guided modes inside the window are TE0 and TM0. The third root sits against the oxide and is thrown out. For these two polarizations, the strip is single-moded. Why it was thrown out that time is written in [The third mode a 500 nm strip should not have kept](/en/posts/soi-strip-fde-third-mode/).
+
+Make the width larger and the cross-section can hold higher-order modes, modes with nodes. The width at which they appear was not swept this time. The next note sweeps width and finds the cutoff.
+
+A waveguide that is uniform along the direction of propagation is solved by its eigenmodes. Inside a strip, TE and TM are not bound the same way. That frame comes from chapters 2 and 3 of Lukas Chrostowski and Michael Hochberg, *Silicon Photonics Design: From Devices to Systems* (Cambridge University Press, 2015). The book supplies only the frame. The neff, the polarization fractions, the field plots, and the four moving sketches here belong to this note.

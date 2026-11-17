@@ -1,5 +1,7 @@
 ---
 import { SITE } from '~/consts';
+import { TAG_SLUG_ALT, alternatePath, localizePath, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
 import Header from '~/components/Header.astro';
 import Footer from '~/components/Footer.astro';
 import '~/styles/global.css';
@@ -14,9 +16,12 @@ interface Props {
   modifiedTime?: Date;
 }
 
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
+
 const {
   title,
-  description = SITE.description,
+  description = t.metaDescription,
   image,
   noIndex = false,
   pageType = 'website',
@@ -27,17 +32,71 @@ const {
 const pageTitle = title ? `${title} — ${SITE.title}` : SITE.title;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = image ? new URL(image, Astro.site).href : null;
+const zhURL = new URL(alternatePath(Astro.url.pathname, 'zh'), Astro.site).href;
+const enURL = new URL(alternatePath(Astro.url.pathname, 'en'), Astro.site).href;
+const rssHref = localizePath('/rss.xml', locale);
 ---
 
 <!doctype html>
-<html lang={SITE.locale}>
+<html lang={t.htmlLang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <!--
+      语言偏好。未选择过时按 navigator.language 跳一次（zh* 留在中文，其余去 /en/）。
+      点击「中 / EN」之后写入 locale-preference，此后只服从这个值，不再看浏览器语言。
+      规则与 src/i18n/routing.ts 的 alternatePath 一致，标签 slug 用同一张对照表。
+    -->
+    <script is:inline define:vars={{ tagMap: TAG_SLUG_ALT, storageKey: 'locale-preference' }}>
+      (function () {
+        try {
+          var path = location.pathname || '/';
+          var isEn = path === '/en' || path.indexOf('/en/') === 0;
+          var stored = null;
+          try { stored = localStorage.getItem(storageKey); } catch (err) { stored = null; }
+          var target;
+          if (stored === 'en' || stored === 'zh') {
+            target = stored;
+          } else {
+            var lang = (navigator.language || '').toLowerCase();
+            target = lang.indexOf('zh') === 0 ? 'zh' : 'en';
+          }
+          var current = isEn ? 'en' : 'zh';
+          if (target === current) return;
+
+          var bare = path;
+          if (path === '/en' || path === '/en/') bare = '/';
+          else if (path.indexOf('/en/') === 0) bare = path.slice(3);
+
+          var tag = bare.match(/^\/tags\/([^/]+)\/?$/);
+          if (tag) {
+            var slug = tag[1];
+            try { slug = decodeURIComponent(slug); } catch (err) { /* keep */ }
+            var mapped = tagMap[slug];
+            if (mapped) bare = '/tags/' + encodeURIComponent(mapped) + '/';
+          }
+
+          function finish(p) {
+            if (!p) p = '/';
+            if (p.charAt(0) !== '/') p = '/' + p;
+            var file = /\.[a-z0-9]+$/i.test(p);
+            if (!file && p !== '/' && p.charAt(p.length - 1) !== '/') p += '/';
+            return p;
+          }
+
+          bare = finish(bare);
+          var next = target === 'zh' ? bare : (bare === '/' ? '/en/' : '/en' + bare);
+          if (next !== path) location.replace(next + location.search + location.hash);
+        } catch (err) { /* ignore */ }
+      })();
+    </script>
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" hreflang="zh-CN" href={zhURL} />
+    <link rel="alternate" hreflang="en" href={enURL} />
+    <link rel="alternate" hreflang="x-default" href={zhURL} />
     {noIndex && <meta name="robots" content="noindex, follow" />}
 
     {/* 主题色（移动 Safari 顶栏） */}
@@ -46,6 +105,8 @@ const ogImage = image ? new URL(image, Astro.site).href : null;
 
     {/* Open Graph / Twitter */}
     <meta property="og:type" content={pageType} />
+    <meta property="og:locale" content={t.ogLocale} />
+    <meta property="og:locale:alternate" content={locale === 'zh' ? 'en_US' : 'zh_CN'} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
@@ -58,8 +119,10 @@ const ogImage = image ? new URL(image, Astro.site).href : null;
     <meta name="twitter:description" content={description} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
 
-    {/* RSS */}
-    <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+    {/* RSS：当前语言为主，另一种语言也挂上 */}
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={rssHref} hreflang={t.htmlLang} />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.title} (中文)`} href="/rss.xml" hreflang="zh-CN" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.title} (English)`} href="/en/rss.xml" hreflang="en" />
 
     {/* Favicon */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

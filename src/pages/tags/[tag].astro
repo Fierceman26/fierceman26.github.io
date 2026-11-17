@@ -1,63 +1,12 @@
 ---
-import BaseLayout from '~/layouts/BaseLayout.astro';
-import FormattedDate from '~/components/FormattedDate.astro';
-import { getCollection } from 'astro:content';
-import { slugifyTag, findCategory } from '~/consts';
+import TagView from '~/views/Tag.astro';
+import { tagStaticPaths } from '~/lib/paths';
 
-export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
-  const tagSet = new Set<string>();
-  for (const p of posts) for (const t of p.data.tags) tagSet.add(t);
-
-  return Array.from(tagSet).map((tag) => ({
-    params: { tag: slugifyTag(tag) },
-    props: {
-      tagName: tag,
-      posts: posts
-        .filter((p) => p.data.tags.includes(tag))
-        .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()),
-    },
-  }));
+export function getStaticPaths() {
+  return tagStaticPaths('zh');
 }
 
-const { tagName, posts } = Astro.props as {
-  tagName: string;
-  posts: Awaited<ReturnType<typeof getCollection<'posts'>>>;
-};
+const { tagName, posts } = Astro.props;
 ---
 
-<BaseLayout title={`#${tagName}`} description={`所有标签为 ${tagName} 的文章。`}>
-  <section class="container hero">
-    <div class="hero__masthead">
-      <span>Tag</span>
-      <span style="color: var(--ink);">·</span>
-      <span>{posts.length} entries</span>
-    </div>
-    <h1 class="hero__title" style="font-size: clamp(2.4rem, 5vw, 3.8rem);">
-      #{tagName}
-    </h1>
-    <p class="hero__lead">
-      Pieces touching on this topic, newest first.
-    </p>
-  </section>
-
-  <section class="container archive">
-    <ul class="archive__list">
-      {posts.map((post) => (
-        <li class="archive__item">
-          <div class="archive__date">
-            <FormattedDate date={post.data.pubDate} />
-          </div>
-          <a class="archive__title" href={`/posts/${post.id}/`}>
-            {post.data.title}
-          </a>
-          <div class="archive__tags">
-            {post.data.category
-              ? (findCategory(post.data.category)?.title ?? post.data.category)
-              : ''}
-          </div>
-        </li>
-      ))}
-    </ul>
-  </section>
-</BaseLayout>
+<TagView tagName={tagName} posts={posts} />
