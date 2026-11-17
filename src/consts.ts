@@ -10,7 +10,8 @@ export const SITE = {
   taglineZh: '关于信号完整性、硅光设计，以及让 EDA 真正跑起来的那些细节。',
   description: '个人技术博客 —— 信号完整性 / 硅光器件与链路 / EDA 自动化与笔记。',
   author: 'Fierceman',
-  email: 'yungaopi@gmail.com',
+  // 刻意不放邮箱：站点是公开的，任何明文地址都会被爬虫抓走并发垃圾邮件。
+  // 联系方式统一走每篇文章底部的匿名留言框（不含任何个人信息）。
   // 顶部 issue 编号：杂志感装饰，每次构建按当前日期生成
   // 你也可以手动改成固定值
   locale: 'zh-CN',

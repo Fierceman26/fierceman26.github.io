@@ -1,16 +1,13 @@
 ---
-// 匿名留言 —— 访客不需要任何账号
-// 提交经 formsubmit.co 转发到邮箱，前端纯静态、无第三方追踪脚本。
-// 想换成真正的公开留言墙（匿名 + 所有人可见），需要自定义域名 + 自建后端。
+// 匿名留言 —— 访客不需要任何账号。
+// 站点是公开的，这里刻意不含任何个人信息（邮箱、电话、真实姓名）。
+// 提交端点由 endpoint 传入；端点本身必须是不含个人信息的随机标识。
+// endpoint 为空时表单显示为未开放，避免访客白填。
 interface Props {
-  email?: string;
-  /** formsubmit 的随机别名端点（避免邮箱明文出现在 HTML 里） */
   endpoint?: string;
 }
-const {
-  email = 'yungaopi@gmail.com',
-  endpoint = '/ajax/yungaopi@gmail.com',
-} = Astro.props;
+const { endpoint = '' } = Astro.props;
+const enabled = endpoint.trim().length > 0;
 ---
 
 <section class="comments" id="comments" aria-label="留言">
@@ -18,65 +15,79 @@ const {
     <span class="comments__label">Leave a note</span>
     <span class="comments__line" aria-hidden="true"></span>
   </div>
-  <p class="comments__note">
-    不用注册任何账号，填个昵称就能留言。留言会直接进我的邮箱，我看到了会回复。
-  </p>
 
-  <form class="reply-form" id="reply-form" novalidate>
-    <div class="reply-form__grid">
-      <label class="reply-form__field">
-        <span class="reply-form__label">昵称</span>
-        <input
-          class="reply-form__input"
-          type="text"
-          name="name"
-          maxlength="40"
-          required
-          autocomplete="nickname"
-          placeholder="随便写一个"
-        />
-      </label>
-      <label class="reply-form__field">
-        <span class="reply-form__label">邮箱<span class="reply-form__opt">（选填，方便我回你）</span></span>
-        <input
-          class="reply-form__input"
-          type="email"
-          name="email"
-          maxlength="120"
-          autocomplete="email"
-          placeholder="you@example.com"
-        />
-      </label>
-    </div>
+  {
+    enabled ? (
+      <>
+        <p class="comments__note">
+          不用注册任何账号，填个昵称就能留言。留言会直接到我这里，我看到了会回。
+        </p>
 
-    <label class="reply-form__field">
-      <span class="reply-form__label">留言</span>
-      <textarea
-        class="reply-form__input reply-form__textarea"
-        name="message"
-        rows="5"
-        maxlength="2000"
-        required
-        placeholder="哪一段看不懂、哪里跑不通、或者你那边实测结果不一样……"
-      ></textarea>
-    </label>
+        <form class="reply-form" id="reply-form" novalidate>
+          <div class="reply-form__grid">
+            <label class="reply-form__field">
+              <span class="reply-form__label">昵称</span>
+              <input
+                class="reply-form__input"
+                type="text"
+                name="name"
+                maxlength="40"
+                required
+                autocomplete="nickname"
+                placeholder="随便写一个"
+              />
+            </label>
+            <label class="reply-form__field">
+              <span class="reply-form__label">
+                回信地址<span class="reply-form__opt">（选填，方便我回你）</span>
+              </span>
+              <input
+                class="reply-form__input"
+                type="email"
+                name="reply"
+                maxlength="120"
+                autocomplete="email"
+                placeholder="you@example.com"
+              />
+            </label>
+          </div>
 
-    <!-- 反垃圾：正常人看不到这个字段 -->
-    <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="reply-form__honey" aria-hidden="true" />
+          <label class="reply-form__field">
+            <span class="reply-form__label">留言</span>
+            <textarea
+              class="reply-form__input reply-form__textarea"
+              name="message"
+              rows="5"
+              maxlength="2000"
+              required
+              placeholder="哪一段看不懂、哪里跑不通、或者你那边实测结果不一样……"
+            ></textarea>
+          </label>
 
-    <div class="reply-form__actions">
-      <button class="reply-form__submit" type="submit">发送</button>
-      <p class="reply-form__status" id="reply-form-status" role="status" aria-live="polite"></p>
-    </div>
-  </form>
+          <input
+            type="text"
+            name="_honey"
+            tabindex="-1"
+            autocomplete="off"
+            class="reply-form__honey"
+            aria-hidden="true"
+          />
 
-  <p class="comments__alt">
-    不想用表单？直接 <a href={`mailto:${email}`}>发邮件给我</a>。
-  </p>
+          <div class="reply-form__actions">
+            <button class="reply-form__submit" type="submit">发送</button>
+            <p class="reply-form__status" id="reply-form-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </>
+    ) : (
+      <p class="comments__note">留言通道正在整理，稍后开放。</p>
+    )
+  }
 </section>
 
-<script is:inline define:vars={{ endpoint }}>
+<script is:inline define:vars={{ endpoint, enabled }}>
   (() => {
+    if (!enabled) return;
     const form = document.getElementById('reply-form');
     const status = document.getElementById('reply-form-status');
     if (!form || !status) return;
@@ -92,7 +103,7 @@ const {
 
       const name = form.name.value.trim();
       const message = form.message.value.trim();
-      const mail = form.email.value.trim();
+      const reply = form.reply.value.trim();
 
       if (!name) { setStatus('写个昵称吧。', 'error'); form.name.focus(); return; }
       if (message.length < 4) { setStatus('内容太短了，多写两句。', 'error'); form.message.focus(); return; }
@@ -104,12 +115,12 @@ const {
       setStatus('', '');
 
       try {
-        const res = await fetch(`https://formsubmit.co${endpoint}`, {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
             name,
-            email: mail,
+            reply,
             message,
             _subject: `[FIERCEMAN · JOURNAL] 留言来自 ${name}`,
             _template: 'table',
@@ -122,11 +133,10 @@ const {
           form.reset();
           setStatus('已收到，谢谢。我会看的。', 'ok');
         } else {
-          const why = (data && (data.message || data.error)) || `提交失败（${res.status}）`;
-          setStatus(`${why}。也可以直接发邮件。`, 'error');
+          setStatus('没发出去，稍后再试。', 'error');
         }
       } catch (err) {
-        setStatus('网络没通，重试一次或者直接发邮件给我。', 'error');
+        setStatus('网络没通，重试一次。', 'error');
       } finally {
         form.dataset.busy = '0';
         btn.textContent = original;
@@ -164,31 +174,12 @@ const {
     background: var(--rule-soft);
   }
 
-  .comments__note,
-  .comments__alt {
+  .comments__note {
     font-family: var(--font-sans);
     font-size: 0.86rem;
     line-height: 1.65;
     color: var(--muted);
-  }
-
-  .comments__note {
     margin: 0 0 1.6rem;
-  }
-
-  .comments__alt {
-    margin: 1.4rem 0 0;
-  }
-
-  .comments__alt a {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: var(--link-underline);
-    text-underline-offset: 3px;
-  }
-
-  .comments__alt a:hover {
-    text-decoration-color: var(--accent);
   }
 
   /* ---------- 表单 ---------- */
@@ -291,12 +282,6 @@ const {
 
   .reply-form__submit:hover {
     opacity: 0.86;
-  }
-
-  .reply-form__submit:disabled,
-  .reply-form__submit[aria-busy='true'] {
-    opacity: 0.6;
-    cursor: default;
   }
 
   .reply-form__status {
