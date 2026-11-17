@@ -63,6 +63,14 @@ export const CATEGORIES = [
     taglineZh: 'PDN、目标阻抗，以及电压在数据之前先抖的那些时刻。',
     keywords: ['PDN', 'IR drop', 'decoupling', 'target Z', 'rail'],
   },
+  {
+    slug: 'gezhi',
+    title: '格致',
+    subtitle: 'Investigation of Things',
+    tagline: 'First principles, classics, and the patterns that only show up after years in the field.',
+    taglineZh: '第一性原理、经典，以及只有在事上磨练之后才会显影的那些规律。',
+    keywords: ['心学', '致良知', '第一性原理', '省思'],
+  },
 ] as const;
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
@@ -80,14 +88,15 @@ export function magazineDate(d: Date | string): string {
   return `${y} · ${m} · ${day}`;
 }
 
-// 把标签名转成 URL 友好的 slug：小写 + 空格换连字符
-// 例如 "Signal Integrity" → "signal-integrity"
+// 把标签名转成 URL 友好的 slug：小写 + 空格换连字符。
+// 拉丁字母仍会收成 "Signal Integrity" → "signal-integrity"。
+// 中文标签原样保留，否则会被滤成空路径，标签页构建失败。
 export function slugifyTag(tag: string): string {
   return tag
     .toLowerCase()
     .trim()
     .replace(/[\s/]+/g, '-')
-    .replace(/[^a-z0-9\-]/g, '');
+    .replace(/[^\p{L}\p{N}\-]/gu, '');
 }
 
 // "Vol. III · No. 7" 风格的卷期号 —— 根据日期推算
