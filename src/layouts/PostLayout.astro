@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '~/components/FormattedDate.astro';
+import Comments from '~/components/Comments.astro';
 import { getCollection } from 'astro:content';
 import readingTime from 'reading-time';
 import type { CollectionEntry } from 'astro:content';
@@ -98,6 +99,8 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
           </nav>
         )}
       </footer>
+
+      <Comments />
     </div>
   </article>
 

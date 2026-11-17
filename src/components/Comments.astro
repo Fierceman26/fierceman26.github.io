@@ -1,0 +1,316 @@
+---
+// 匿名留言 —— 访客不需要任何账号
+// 提交经 formsubmit.co 转发到邮箱，前端纯静态、无第三方追踪脚本。
+// 想换成真正的公开留言墙（匿名 + 所有人可见），需要自定义域名 + 自建后端。
+interface Props {
+  email?: string;
+  /** formsubmit 的随机别名端点（避免邮箱明文出现在 HTML 里） */
+  endpoint?: string;
+}
+const {
+  email = 'yungaopi@gmail.com',
+  endpoint = '/ajax/yungaopi@gmail.com',
+} = Astro.props;
+---
+
+<section class="comments" id="comments" aria-label="留言">
+  <div class="comments__head">
+    <span class="comments__label">Leave a note</span>
+    <span class="comments__line" aria-hidden="true"></span>
+  </div>
+  <p class="comments__note">
+    不用注册任何账号，填个昵称就能留言。留言会直接进我的邮箱，我看到了会回复。
+  </p>
+
+  <form class="reply-form" id="reply-form" novalidate>
+    <div class="reply-form__grid">
+      <label class="reply-form__field">
+        <span class="reply-form__label">昵称</span>
+        <input
+          class="reply-form__input"
+          type="text"
+          name="name"
+          maxlength="40"
+          required
+          autocomplete="nickname"
+          placeholder="随便写一个"
+        />
+      </label>
+      <label class="reply-form__field">
+        <span class="reply-form__label">邮箱<span class="reply-form__opt">（选填，方便我回你）</span></span>
+        <input
+          class="reply-form__input"
+          type="email"
+          name="email"
+          maxlength="120"
+          autocomplete="email"
+          placeholder="you@example.com"
+        />
+      </label>
+    </div>
+
+    <label class="reply-form__field">
+      <span class="reply-form__label">留言</span>
+      <textarea
+        class="reply-form__input reply-form__textarea"
+        name="message"
+        rows="5"
+        maxlength="2000"
+        required
+        placeholder="哪一段看不懂、哪里跑不通、或者你那边实测结果不一样……"
+      ></textarea>
+    </label>
+
+    <!-- 反垃圾：正常人看不到这个字段 -->
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="reply-form__honey" aria-hidden="true" />
+
+    <div class="reply-form__actions">
+      <button class="reply-form__submit" type="submit">发送</button>
+      <p class="reply-form__status" id="reply-form-status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+  <p class="comments__alt">
+    不想用表单？直接 <a href={`mailto:${email}`}>发邮件给我</a>。
+  </p>
+</section>
+
+<script is:inline define:vars={{ endpoint }}>
+  (() => {
+    const form = document.getElementById('reply-form');
+    const status = document.getElementById('reply-form-status');
+    if (!form || !status) return;
+
+    const setStatus = (msg, kind) => {
+      status.textContent = msg;
+      status.dataset.kind = kind || '';
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (form.dataset.busy === '1') return;
+
+      const name = form.name.value.trim();
+      const message = form.message.value.trim();
+      const mail = form.email.value.trim();
+
+      if (!name) { setStatus('写个昵称吧。', 'error'); form.name.focus(); return; }
+      if (message.length < 4) { setStatus('内容太短了，多写两句。', 'error'); form.message.focus(); return; }
+
+      form.dataset.busy = '1';
+      const btn = form.querySelector('.reply-form__submit');
+      const original = btn.textContent;
+      btn.textContent = '发送中…';
+      setStatus('', '');
+
+      try {
+        const res = await fetch(`https://formsubmit.co${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name,
+            email: mail,
+            message,
+            _subject: `[FIERCEMAN · JOURNAL] 留言来自 ${name}`,
+            _template: 'table',
+            _captcha: 'false',
+          }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && (data.success === true || data.success === 'true')) {
+          form.reset();
+          setStatus('已收到，谢谢。我会看的。', 'ok');
+        } else {
+          const why = (data && (data.message || data.error)) || `提交失败（${res.status}）`;
+          setStatus(`${why}。也可以直接发邮件。`, 'error');
+        }
+      } catch (err) {
+        setStatus('网络没通，重试一次或者直接发邮件给我。', 'error');
+      } finally {
+        form.dataset.busy = '0';
+        btn.textContent = original;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .comments {
+    margin-top: 3.6rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .comments__head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .comments__label {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .comments__line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule-soft);
+  }
+
+  .comments__note,
+  .comments__alt {
+    font-family: var(--font-sans);
+    font-size: 0.86rem;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  .comments__note {
+    margin: 0 0 1.6rem;
+  }
+
+  .comments__alt {
+    margin: 1.4rem 0 0;
+  }
+
+  .comments__alt a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: var(--link-underline);
+    text-underline-offset: 3px;
+  }
+
+  .comments__alt a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  /* ---------- 表单 ---------- */
+  .reply-form {
+    font-family: var(--font-sans);
+    margin: 0;
+  }
+
+  .reply-form__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 560px) {
+    .reply-form__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .reply-form__field {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .reply-form__label {
+    display: block;
+    font-size: var(--fs-meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.45rem;
+  }
+
+  .reply-form__opt {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.78rem;
+    color: var(--faint);
+  }
+
+  .reply-form__input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 0.62rem 0.75rem;
+    transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+  }
+
+  .reply-form__input::placeholder {
+    color: var(--faint);
+  }
+
+  .reply-form__input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg);
+  }
+
+  .reply-form__textarea {
+    resize: vertical;
+    min-height: 7rem;
+    line-height: 1.6;
+  }
+
+  .reply-form__honey {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .reply-form__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .reply-form__submit {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    padding: 0.62rem 1.6rem;
+    cursor: pointer;
+    transition: opacity 0.2s var(--ease);
+  }
+
+  .reply-form__submit:hover {
+    opacity: 0.86;
+  }
+
+  .reply-form__submit:disabled,
+  .reply-form__submit[aria-busy='true'] {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .reply-form__status {
+    font-size: 0.84rem;
+    margin: 0;
+    color: var(--muted);
+    min-height: 1.2em;
+  }
+
+  .reply-form__status[data-kind='ok'] {
+    color: var(--accent);
+  }
+
+  .reply-form__status[data-kind='error'] {
+    color: var(--accent-soft);
+  }
+</style>
