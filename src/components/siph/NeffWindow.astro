@@ -1,0 +1,48 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget" data-siph="neff">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">示意图</p>
+    <p class="siph-widget__title">neff 要落在氧化硅和硅之间</p>
+  </div>
+  <div class="siph-widget__controls">
+    <button class="siph-widget__play" type="button" data-play aria-pressed="false">播放</button>
+    <label class="siph-widget__slider">
+      <span>neff</span>
+      <input type="range" data-neff min="1.42" max="3.2" step="0.001" value="2.445347" />
+    </label>
+  </div>
+  <div class="siph-widget__snaps">
+    <button type="button" data-snap="2.445347">TE0 · 2.445347</button>
+    <button type="button" data-snap="1.771059">TM0 · 1.771059</button>
+    <button type="button" data-snap="1.492897">第三个根 · 1.492897</button>
+  </div>
+  <div class="siph-widget__stage" data-stage>
+    <canvas data-canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="neff-axis">
+    <div class="neff-axis__track" data-track>
+      <div class="neff-axis__window" data-window></div>
+      <div class="neff-axis__head" data-head></div>
+    </div>
+    <p class="neff-axis__note">浅色带从左端的氧化硅 1.44 到右端的硅 3.5。靠在左墙边上的那一点是丢掉的根，往右依次是 TM0 和 TE0。</p>
+  </div>
+  <p class="siph-widget__live" data-live aria-live="polite"></p>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    拖动 neff，或点上面三个解。尾巴的长短按 1/√(neff² − 1.44²)，只用这个大约的包层折射率，不是另一次仿真。滑过的中间值不是这根 500 nm 条的导模。
+  </figcaption>
+</figure>
+
+<script>
+  import { mountNeff } from './neff-view';
+
+  function boot() {
+    document.querySelectorAll<HTMLElement>('[data-siph="neff"]').forEach((el) => mountNeff(el));
+  }
+
+  boot();
+</script>
