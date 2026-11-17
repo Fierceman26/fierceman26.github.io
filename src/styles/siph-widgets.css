@@ -457,7 +457,11 @@
 .cpo-sheet:has(input[value='hot']:checked) .cpo-panel[data-panel='hot'],
 .cpo-sheet:has(input[value='temp']:checked) .cpo-panel[data-panel='temp'],
 .cpo-sheet:has(input[value='wave']:checked) .cpo-panel[data-panel='wave'],
-.cpo-sheet:has(input[value='ctrl']:checked) .cpo-panel[data-panel='ctrl'] {
+.cpo-sheet:has(input[value='ctrl']:checked) .cpo-panel[data-panel='ctrl'],
+.cpo-sheet:has(input[value='fde']:checked) .cpo-panel[data-panel='fde'],
+.cpo-sheet:has(input[value='eme']:checked) .cpo-panel[data-panel='eme'],
+.cpo-sheet:has(input[value='tmm']:checked) .cpo-panel[data-panel='tmm'],
+.cpo-sheet:has(input[value='fdtd']:checked) .cpo-panel[data-panel='fdtd'] {
   display: block;
 }
 
@@ -850,5 +854,60 @@
   .cpo-sheet *::after {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   SolverPick：四种求解器怎么选。单选切换，不自动播放，也不画场或光谱。
+   ------------------------------------------------------------------------- */
+
+.solver-sheet {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.solver-sheet .cpo-choice label {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.solver-svg .grid {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.solver-svg .solver-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  fill: var(--muted);
+}
+
+.solver-svg .solver-label--accent {
+  fill: var(--accent);
+}
+
+.swatch-ink {
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  box-sizing: border-box;
+}
+
+/* 这篇的五列表在窄栏里横向滚动，不改其他文章的表。 */
+@media (max-width: 720px) {
+  .prose:has(.solver-sheet) table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prose:has(.solver-sheet) th,
+  .prose:has(.solver-sheet) td {
+    min-width: 7.2rem;
   }
 }

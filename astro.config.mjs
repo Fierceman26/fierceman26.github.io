@@ -20,6 +20,7 @@ function mdxFigureComponents() {
     { tag: '<CpoEls', marker: 'components/siph/CpoEls.astro', line: "import CpoEls from '~/components/siph/CpoEls.astro';\n" },
     { tag: '<CpoMod', marker: 'components/siph/CpoMod.astro', line: "import CpoMod from '~/components/siph/CpoMod.astro';\n" },
     { tag: '<CpoLoop', marker: 'components/siph/CpoLoop.astro', line: "import CpoLoop from '~/components/siph/CpoLoop.astro';\n" },
+    { tag: '<SolverPick', marker: 'components/siph/SolverPick.astro', line: "import SolverPick from '~/components/siph/SolverPick.astro';\n" },
   ];
   return {
     name: 'mdx-figure-components',
