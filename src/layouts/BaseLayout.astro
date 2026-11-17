@@ -41,7 +41,7 @@ const rssHref = localizePath('/rss.xml', locale);
 <html lang={t.htmlLang}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
     <!--
       语言偏好。未选择过时按 navigator.language 跳一次（zh* 留在中文，其余去 /en/）。
@@ -99,9 +99,20 @@ const rssHref = localizePath('/rss.xml', locale);
     <link rel="alternate" hreflang="x-default" href={zhURL} />
     {noIndex && <meta name="robots" content="noindex, follow" />}
 
-    {/* 主题色（移动 Safari 顶栏） */}
+    {/* 主题色（移动 Safari 顶栏）。清单里的 theme_color 是 Bordeaux，阅读时顶栏跟纸色。 */}
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafaf6" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1013" />
+
+    {/*
+      主屏幕 Web App。start_url 是 /，scope 是 /，中文无前缀、英文 /en/ 都留在独立窗口里。
+      语言仍由下面的 locale-preference 脚本决定，不在清单里写死。
+    */}
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={SITE.shortTitle} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
 
     {/* Open Graph / Twitter */}
     <meta property="og:type" content={pageType} />
@@ -127,14 +138,20 @@ const rssHref = localizePath('/rss.xml', locale);
     {/* Favicon */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    {/* FOUC 防护：在样式加载前就尝试应用 data-theme */}
+    {/* FOUC 防护：在样式加载前就尝试应用 data-theme，并让顶栏跟着纸色 */}
     <script is:inline>
       (function () {
         try {
-          const stored = localStorage.getItem('theme-preference');
+          var stored = localStorage.getItem('theme-preference');
           if (stored === 'light' || stored === 'dark') {
             document.documentElement.setAttribute('data-theme', stored);
           }
+          var dark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var meta = document.createElement('meta');
+          meta.setAttribute('name', 'theme-color');
+          meta.setAttribute('data-theme-color', 'active');
+          meta.setAttribute('content', dark ? '#0f1013' : '#fafaf6');
+          document.head.appendChild(meta);
         } catch (_) { /* ignore */ }
       })();
     </script>
@@ -145,5 +162,53 @@ const rssHref = localizePath('/rss.xml', locale);
       <slot />
     </main>
     <Footer />
+    <script is:inline>
+      (function () {
+        var standalone = window.navigator.standalone === true
+          || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+        if (standalone) {
+          document.documentElement.setAttribute('data-standalone', '');
+          document.addEventListener('click', function (event) {
+            if (event.defaultPrevented || event.button !== 0) return;
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+            if (!link || link.hasAttribute('download')) return;
+            var url;
+            try { url = new URL(link.href, location.href); } catch (err) { return; }
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+            if (url.origin !== location.origin) return;
+            if (url.pathname === location.pathname && url.search === location.search) return;
+            event.preventDefault();
+            location.href = url.href;
+          }, true);
+        }
+
+        if (!('serviceWorker' in navigator)) return;
+        var didWarm = false;
+        var warm = function () {
+          var urls = [location.href];
+          var images = document.images || [];
+          for (var i = 0; i < images.length; i++) {
+            var src = images[i].currentSrc || images[i].src;
+            if (!src) continue;
+            try {
+              var parsed = new URL(src, location.href);
+              if (parsed.origin === location.origin) urls.push(parsed.href);
+            } catch (err) { /* ignore */ }
+          }
+          urls.forEach(function (href) { fetch(href).catch(function () {}); });
+        };
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function () {
+            if (navigator.serviceWorker.controller) warm();
+          }).catch(function () {});
+        });
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          if (didWarm) return;
+          didWarm = true;
+          warm();
+        });
+      })();
+    </script>
   </body>
 </html>
