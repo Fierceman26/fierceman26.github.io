@@ -146,14 +146,16 @@ hr {
   width: 100%;
   max-width: var(--content-max);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 
 .prose-container {
   width: 100%;
   max-width: var(--prose-max);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 
 /* -------------------------------------------------------------------------
@@ -267,6 +269,7 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 50;
+  padding-top: env(safe-area-inset-top, 0px);
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: saturate(140%) blur(10px);
   -webkit-backdrop-filter: saturate(140%) blur(10px);
@@ -406,20 +409,41 @@ html[lang='zh-CN'] .hero__title {
   max-width: 14em;
 }
 
-/* 移动端：导航折叠 */
+/* 手机：导航可点，卷期装饰让开 */
 @media (max-width: 720px) {
   .site-header__inner {
     grid-template-columns: 1fr;
     gap: 0.35rem;
+    padding-block: 0.65rem;
   }
   .site-header__issue { display: none; }
+  .site-header__brand {
+    min-height: 44px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .site-header__nav {
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 0.45rem 0.85rem;
+    gap: 0.15rem 0.35rem;
+  }
+  .site-header__nav a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.2rem;
+    letter-spacing: 0.08em;
   }
   .site-header__nav .site-header__tools {
     margin-left: auto;
+    gap: 0.35rem;
+  }
+  .site-header__nav a.lang-toggle,
+  .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    height: 44px;
   }
   .site-header__nav a span.label-long { display: none; }
 }
@@ -865,6 +889,9 @@ html[lang='zh-CN'] .hero__title {
     gap: 0.3rem;
   }
   .archive__tags { display: none; }
+  .archive__title {
+    padding-block: 0.35rem;
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -1272,7 +1299,8 @@ html[lang='zh-CN'] .hero__title {
    ------------------------------------------------------------------------- */
 .site-footer {
   margin-top: 6rem;
-  padding-block: 3rem 2.5rem;
+  padding-top: 3rem;
+  padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
   border-top: 2px solid var(--ink);
   font-family: var(--font-sans);
   font-size: 0.78rem;
@@ -1348,6 +1376,12 @@ html[lang='zh-CN'] .hero__title {
 @media (max-width: 560px) {
   .site-footer__row { grid-template-columns: 1fr; }
   .site-footer__meta { text-align: left; }
+  .site-footer__meta a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.15rem;
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -1355,7 +1389,7 @@ html[lang='zh-CN'] .hero__title {
    ------------------------------------------------------------------------- */
 .reading-progress {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   left: 0;
   height: 2px;
   background: var(--accent);
@@ -1369,5 +1403,65 @@ html[lang='zh-CN'] .hero__title {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   16. 手机阅读
+   桌面杂志版式不动。窄屏把字号、行长和标题收成一条阅读栏，
+   卷期大字和栏目空高退到后面。
+   ------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  :root {
+    --fs-body: 1.125rem;
+    --fs-display: 2.05rem;
+    --fs-h1: 1.7rem;
+    --fs-h2: 1.35rem;
+    --gutter: 1.25rem;
+    --rhythm: 1.72;
+  }
+
+  .prose {
+    font-size: 1.125rem;
+    line-height: 1.78;
+  }
+
+  .hero {
+    padding-block: 1.75rem 1.25rem;
+  }
+  .hero__title { margin-top: 1rem; }
+  .hero__masthead { letter-spacing: 0.16em; }
+  .hero__lead { font-size: 1.08rem; }
+
+  .post-header {
+    text-align: left;
+    padding-block: 1.6rem 1.2rem;
+  }
+  .post-header__title {
+    margin: 0.8rem 0 0.75rem;
+    max-width: 20em;
+  }
+  .post-header__lead {
+    margin: 0 0 1.1rem;
+    font-size: 1.05rem;
+  }
+  .post-header__meta {
+    justify-content: flex-start;
+    letter-spacing: 0.08em;
+  }
+
+  .section-card,
+  .card { min-height: 0; }
+  .archive__year { font-size: 2.4rem; }
+
+  .tag-pill {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .prose pre {
+    font-size: 0.92rem;
+    padding: 0.9rem 1rem;
   }
 }
