@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "description": "个人技术博客 —— 信号完整性 / 系统级仿真 / ADS 自动化笔记",
+  "description": "个人技术博客 —— 信号完整性 / 硅光器件与链路 / EDA 自动化与笔记",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

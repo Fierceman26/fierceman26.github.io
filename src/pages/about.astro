@@ -8,8 +8,8 @@ import { SITE } from '~/consts';
     <div class="about-hero__kicker">About · The Author</div>
     <h1 class="about-hero__name">{SITE.author}</h1>
     <p class="about-hero__role">
-      Engineer working on high-speed digital, signal integrity, and the
-      small Python that holds an EDA workflow together.
+      Engineer working on high-speed digital, signal integrity, silicon
+      photonics, and the small Python that holds an EDA workflow together.
     </p>
   </section>
 
@@ -22,14 +22,20 @@ import { SITE } from '~/consts';
         踩过的坑，和那些"看起来理所当然但跑起来不对"的经验。
       </p>
       <p>
-        内容覆盖：信号完整性 (SI) 与电源完整性 (PI)、系统级仿真、
-        EM 求解器的工程化使用、ADS 自动化 API（含 EMPro / RFPro / SIPro）、
+        内容覆盖：信号完整性 (SI) 与电源完整性 (PI)、系统级光电链路、
+        硅光器件、EM 求解器的工程化使用、ADS 自动化 API（含 EMPro / RFPro / SIPro）、
         以及偶尔的工具开发与 MCP server 实验。
+      </p>
+      <p>
+        硅光这一支记的是器件。条形波导、耦合器，用 Lumerical MODE 的 FDE 来算，
+        读书路径跟着 Chrostowski 与 Hochberg 的
+        <em>Silicon Photonics Design</em>。
+        器件归 SiPh；MZM、TIA 和链路 budget 仍归 EOE。
       </p>
 
       <h2>Why "Journal"</h2>
       <p>
-        这里不是教程，也不追新闻 —— 它更像一本工程日志，
+        不是教程，是工程日志，也不追新闻。
         节奏不快，但每一篇都写到我自己满意为止。
         如果哪一篇让你少踩一个坑，就达到了它存在的目的。
       </p>
@@ -39,7 +45,7 @@ import { SITE } from '~/consts';
         欢迎邮件交流 ——
         <a href={`mailto:${SITE.email}`}>{SITE.email}</a>。
         如果你在做 ADS / EMPro 自动化，或者在折腾 SIPro 的奇怪行为，
-        欢迎来信。
+        欢迎来信。硅光器件（MODE / FDE）上的具体问题，同样欢迎。
       </p>
 
       <h2>Colophon</h2>
@@ -52,8 +58,11 @@ import { SITE } from '~/consts';
         ({" "}<code style="color: var(--accent);">#7a1631</code>{" "}), used sparingly.
       </p>
       <p>
-        Source available on request. All writing &copy; the author except where
-        otherwise noted; code samples are MIT unless stated.
+        文字与原创图示为
+        <a href="/LICENSE">All Rights Reserved</a>。
+        未经书面许可不得转载或演绎；短引用请署名，并链接原文。
+        站点源码公开，只为把这份日志部署出去，并不授权再利用其中的内容。
+        文中代码片段除非另有说明，仍以 MIT 提供。
       </p>
     </div>
   </section>
