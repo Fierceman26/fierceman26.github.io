@@ -911,3 +911,165 @@
     min-width: 7.2rem;
   }
 }
+
+/* -------------------------------------------------------------------------
+   BendLossPick：90° 圆弯半径扫描。单选切换，不自动播放。
+   数字与正文表格一致，纵轴为对数。
+   ------------------------------------------------------------------------- */
+
+.bend-sheet {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.bend-sheet .cpo-choice label {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.bend-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.bend-line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.bend-line--te {
+  stroke: var(--accent);
+}
+
+.bend-line--tm {
+  stroke: #1e3f66;
+}
+
+:root[data-theme='dark'] .bend-line--tm {
+  stroke: #9ec3dd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .bend-line--tm {
+    stroke: #9ec3dd;
+  }
+}
+
+.bend-pt--te {
+  fill: var(--accent);
+}
+
+.bend-pt--tm {
+  fill: #1e3f66;
+}
+
+:root[data-theme='dark'] .bend-pt--tm {
+  fill: #9ec3dd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .bend-pt--tm {
+    fill: #9ec3dd;
+  }
+}
+
+.bend-budget {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.bend-label,
+.bend-budget-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  fill: var(--muted);
+}
+
+.bend-guide,
+.bend-ring {
+  display: none;
+}
+
+.bend-guide {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.bend-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.bend-sheet:has(input[name='bend-r'][value='r1']:checked) .bend-guide[data-r='r1'],
+.bend-sheet:has(input[name='bend-r'][value='r2']:checked) .bend-guide[data-r='r2'],
+.bend-sheet:has(input[name='bend-r'][value='r3']:checked) .bend-guide[data-r='r3'],
+.bend-sheet:has(input[name='bend-r'][value='r5']:checked) .bend-guide[data-r='r5'],
+.bend-sheet:has(input[name='bend-r'][value='r8']:checked) .bend-guide[data-r='r8'],
+.bend-sheet:has(input[name='bend-r'][value='r10']:checked) .bend-guide[data-r='r10'] {
+  display: block;
+}
+
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r1']:checked) .bend-ring[data-pt='te0-r1'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r2']:checked) .bend-ring[data-pt='te0-r2'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r3']:checked) .bend-ring[data-pt='te0-r3'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r5']:checked) .bend-ring[data-pt='te0-r5'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r8']:checked) .bend-ring[data-pt='te0-r8'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r10']:checked) .bend-ring[data-pt='te0-r10'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r1']:checked) .bend-ring[data-pt='tm0-r1'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r2']:checked) .bend-ring[data-pt='tm0-r2'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r3']:checked) .bend-ring[data-pt='tm0-r3'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r5']:checked) .bend-ring[data-pt='tm0-r5'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r8']:checked) .bend-ring[data-pt='tm0-r8'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r10']:checked) .bend-ring[data-pt='tm0-r10'] {
+  display: block;
+}
+
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r1']:checked) .cpo-panel[data-panel='te0-r1'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r2']:checked) .cpo-panel[data-panel='te0-r2'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r3']:checked) .cpo-panel[data-panel='te0-r3'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r5']:checked) .cpo-panel[data-panel='te0-r5'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r8']:checked) .cpo-panel[data-panel='te0-r8'],
+.bend-sheet:has(input[name='bend-pol'][value='te0']:checked):has(input[name='bend-r'][value='r10']:checked) .cpo-panel[data-panel='te0-r10'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r1']:checked) .cpo-panel[data-panel='tm0-r1'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r2']:checked) .cpo-panel[data-panel='tm0-r2'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r3']:checked) .cpo-panel[data-panel='tm0-r3'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r5']:checked) .cpo-panel[data-panel='tm0-r5'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r8']:checked) .cpo-panel[data-panel='tm0-r8'],
+.bend-sheet:has(input[name='bend-pol'][value='tm0']:checked):has(input[name='bend-r'][value='r10']:checked) .cpo-panel[data-panel='tm0-r10'] {
+  display: block;
+}
+
+.bend-readout {
+  margin: 0.55rem 0 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--ink);
+  min-width: 0;
+}
+
+/* 这篇的损耗表在窄栏里横向滚动，不改其他文章的表。 */
+@media (max-width: 720px) {
+  .prose:has(.bend-sheet) table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prose:has(.bend-sheet) th,
+  .prose:has(.bend-sheet) td {
+    min-width: 6.2rem;
+  }
+}
