@@ -1,7 +1,6 @@
 ---
 // 匿名留言 —— 访客不需要任何账号。
 // 提交经 FormSubmit 转发到 SITE.email（对外专用邮箱，非个人邮箱）。
-// 同时提供 mailto 作为备用通道。
 import { SITE } from '~/consts';
 import { useLocale } from '~/i18n/routing';
 import { useUI } from '~/i18n/ui';
@@ -89,10 +88,6 @@ const copy = {
       <p class="reply-form__status" id="reply-form-status" role="status" aria-live="polite"></p>
     </div>
   </form>
-
-  <p class="comments__alt">
-    {c.altBefore} <a href={`mailto:${SITE.email}`}>{c.altLink}</a>{c.altAfter}
-  </p>
 </section>
 
 <script is:inline define:vars={{ endpoint, copy, subjectTemplate }}>
@@ -184,31 +179,12 @@ const copy = {
     background: var(--rule-soft);
   }
 
-  .comments__note,
-  .comments__alt {
+  .comments__note {
     font-family: var(--font-sans);
     font-size: 0.86rem;
     line-height: 1.65;
     color: var(--muted);
-  }
-
-  .comments__note {
     margin: 0 0 1.6rem;
-  }
-
-  .comments__alt {
-    margin: 1.4rem 0 0;
-  }
-
-  .comments__alt a {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: var(--link-underline);
-    text-underline-offset: 3px;
-  }
-
-  .comments__alt a:hover {
-    text-decoration-color: var(--accent);
   }
 
   /* ---------- 表单 ---------- */
