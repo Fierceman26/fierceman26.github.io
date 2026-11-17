@@ -2,14 +2,14 @@
 // 部署到 GitHub Pages 时 SITE 同步改成自己的地址
 
 export const SITE = {
-  title: 'LONGMA · JOURNAL',
-  shortTitle: 'LONGMA',
+  title: 'FIERCEMAN · JOURNAL',
+  shortTitle: 'FIERCEMAN',
   // 副标题用衬线斜体在 hero 区展示
   tagline: 'Notes on signal integrity, system-level simulation, and the small details that make EDA work.',
   // 中文副标题，鼠标 hover 显示
   taglineZh: '关于信号完整性、系统级仿真，以及让 EDA 真正跑起来的那些细节。',
   description: '个人技术博客 —— 信号完整性 / 系统级仿真 / ADS 自动化与笔记。',
-  author: 'Longma',
+  author: 'Fierceman',
   email: 'yungaopi@gmail.com',
   // 顶部 issue 编号：杂志感装饰，每次构建按当前日期生成
   // 你也可以手动改成固定值

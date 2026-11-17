@@ -1,4 +1,4 @@
-# Longma · Journal
+# Fierceman · Journal
 
 个人技术博客 —— 信号完整性、系统级仿真、ADS 自动化笔记。
 
