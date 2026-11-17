@@ -1,0 +1,164 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet bend-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">扫描结果</p>
+    <p class="siph-widget__title">同一半径，两种偏振</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">偏振</legend>
+    <label>
+      TE0
+      <input type="radio" name="bend-pol" value="te0" checked />
+    </label>
+    <label>
+      TM0
+      <input type="radio" name="bend-pol" value="tm0" />
+    </label>
+  </fieldset>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">半径</legend>
+    <label>
+      1 µm
+      <input type="radio" name="bend-r" value="r1" />
+    </label>
+    <label>
+      2 µm
+      <input type="radio" name="bend-r" value="r2" />
+    </label>
+    <label>
+      3 µm
+      <input type="radio" name="bend-r" value="r3" />
+    </label>
+    <label>
+      5 µm
+      <input type="radio" name="bend-r" value="r5" checked />
+    </label>
+    <label>
+      8 µm
+      <input type="radio" name="bend-r" value="r8" />
+    </label>
+    <label>
+      10 µm
+      <input type="radio" name="bend-r" value="r10" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <svg class="cpo-svg bend-svg" viewBox="0 0 340 200" role="img" aria-label="90 度弯曲损耗随半径变化，纵轴为对数，单位分贝。TE0 和 TM0 两条曲线来自同一次 varFDTD 扫描。">
+        <line class="faint" x1="40" y1="16" x2="324" y2="16"></line>
+        <line class="faint" x1="40" y1="51" x2="324" y2="51"></line>
+        <line class="faint" x1="40" y1="86" x2="324" y2="86"></line>
+        <line class="faint" x1="40" y1="121" x2="324" y2="121"></line>
+        <line class="faint" x1="40" y1="156" x2="324" y2="156"></line>
+        <line class="bend-budget" x1="40" y1="86" x2="324" y2="86"></line>
+        <text class="bend-label" x="36" y="20" text-anchor="end">10</text>
+        <text class="bend-label" x="36" y="55" text-anchor="end">1</text>
+        <text class="bend-label" x="36" y="90" text-anchor="end">0.1</text>
+        <text class="bend-label" x="36" y="125" text-anchor="end">0.01</text>
+        <text class="bend-label" x="8" y="90" text-anchor="middle" transform="rotate(-90 8 90)">损耗 (dB)</text>
+        <text class="bend-label" x="54.2" y="174" text-anchor="middle">1</text>
+        <text class="bend-label" x="82.6" y="174" text-anchor="middle">2</text>
+        <text class="bend-label" x="111.0" y="174" text-anchor="middle">3</text>
+        <text class="bend-label" x="167.8" y="174" text-anchor="middle">5</text>
+        <text class="bend-label" x="253.0" y="174" text-anchor="middle">8</text>
+        <text class="bend-label" x="309.8" y="174" text-anchor="middle">10</text>
+        <text class="bend-label" x="182" y="194" text-anchor="middle">R (µm)</text>
+        <polyline class="bend-line bend-line--tm" points="54.20,26.95 82.60,39.20 111.00,51.84 167.80,74.24 253.00,93.41 309.80,100.87"></polyline>
+        <polyline class="bend-line bend-line--te" points="54.20,52.20 82.60,78.28 111.00,90.39 167.80,105.24 253.00,129.54 309.80,145.46"></polyline>
+        <line class="bend-guide" data-r="r1" x1="54.2" y1="16" x2="54.2" y2="156"></line>
+        <line class="bend-guide" data-r="r2" x1="82.6" y1="16" x2="82.6" y2="156"></line>
+        <line class="bend-guide" data-r="r3" x1="111.0" y1="16" x2="111.0" y2="156"></line>
+        <line class="bend-guide" data-r="r5" x1="167.8" y1="16" x2="167.8" y2="156"></line>
+        <line class="bend-guide" data-r="r8" x1="253.0" y1="16" x2="253.0" y2="156"></line>
+        <line class="bend-guide" data-r="r10" x1="309.8" y1="16" x2="309.8" y2="156"></line>
+        <circle class="bend-pt bend-pt--tm" cx="54.20" cy="26.95" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--tm" cx="82.60" cy="39.20" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--tm" cx="111.00" cy="51.84" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--tm" cx="167.80" cy="74.24" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--tm" cx="253.00" cy="93.41" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--tm" cx="309.80" cy="100.87" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--te" cx="54.20" cy="52.20" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--te" cx="82.60" cy="78.28" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--te" cx="111.00" cy="90.39" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--te" cx="167.80" cy="105.24" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--te" cx="253.00" cy="129.54" r="3.2"></circle>
+        <circle class="bend-pt bend-pt--te" cx="309.80" cy="145.46" r="3.2"></circle>
+        <circle class="bend-ring" data-pt="te0-r1" cx="54.20" cy="52.20" r="7"></circle>
+        <circle class="bend-ring" data-pt="te0-r2" cx="82.60" cy="78.28" r="7"></circle>
+        <circle class="bend-ring" data-pt="te0-r3" cx="111.00" cy="90.39" r="7"></circle>
+        <circle class="bend-ring" data-pt="te0-r5" cx="167.80" cy="105.24" r="7"></circle>
+        <circle class="bend-ring" data-pt="te0-r8" cx="253.00" cy="129.54" r="7"></circle>
+        <circle class="bend-ring" data-pt="te0-r10" cx="309.80" cy="145.46" r="7"></circle>
+        <circle class="bend-ring" data-pt="tm0-r1" cx="54.20" cy="26.95" r="7"></circle>
+        <circle class="bend-ring" data-pt="tm0-r2" cx="82.60" cy="39.20" r="7"></circle>
+        <circle class="bend-ring" data-pt="tm0-r3" cx="111.00" cy="51.84" r="7"></circle>
+        <circle class="bend-ring" data-pt="tm0-r5" cx="167.80" cy="74.24" r="7"></circle>
+        <circle class="bend-ring" data-pt="tm0-r8" cx="253.00" cy="93.41" r="7"></circle>
+        <circle class="bend-ring" data-pt="tm0-r10" cx="309.80" cy="100.87" r="7"></circle>
+      </svg>
+
+      <div class="cpo-panel" data-panel="te0-r1">
+        <p class="bend-readout">TE0，R = 1 µm · T = 0.808387 · 0.9238 dB</p>
+        <p class="cpo-note">弯已经偏急。外侧开始甩，但大部分功率还留在条里。</p>
+      </div>
+      <div class="cpo-panel" data-panel="te0-r2">
+        <p class="bend-readout">TE0，R = 2 µm · T = 0.962464 · 0.1662 dB</p>
+        <p class="cpo-note">掉得很快，已经接近 0.1 dB 那条虚线。</p>
+      </div>
+      <div class="cpo-panel" data-panel="te0-r3">
+        <p class="bend-readout">TE0，R = 3 µm · T = 0.982907 · 0.0749 dB</p>
+        <p class="cpo-note">刚落到约 0.1 dB 的预算以下。</p>
+      </div>
+      <div class="cpo-panel" data-panel="te0-r5">
+        <p class="bend-readout">TE0，R = 5 µm · T = 0.993533 · 0.0282 dB</p>
+        <p class="cpo-note">余量清楚。我把 TE0 的工程半径定在这里。</p>
+      </div>
+      <div class="cpo-panel" data-panel="te0-r8">
+        <p class="bend-readout">TE0，R = 8 µm · T = 0.998679 · 0.0057 dB</p>
+        <p class="cpo-note">再加大，省下的已经很少。</p>
+      </div>
+      <div class="cpo-panel" data-panel="te0-r10">
+        <p class="bend-readout">TE0，R = 10 µm · T = 0.999531 · 0.0020 dB</p>
+        <p class="cpo-note">场贴着条走。不要把这点残差写成已经拆开的接头。</p>
+      </div>
+      <div class="cpo-panel" data-panel="tm0-r1">
+        <p class="bend-readout">TM0，R = 1 µm · T = 0.326043 · 4.8672 dB</p>
+        <p class="cpo-note">最紧的一档。同一半径比 TE0 大约多亏 4 dB，外侧辐射很明显。</p>
+      </div>
+      <div class="cpo-panel" data-panel="tm0-r2">
+        <p class="bend-readout">TM0，R = 2 µm · T = 0.606262 · 2.1734 dB</p>
+        <p class="cpo-note">仍有两分贝以上，还在大幅辐射。</p>
+      </div>
+      <div class="cpo-panel" data-panel="tm0-r3">
+        <p class="bend-readout">TM0，R = 3 µm · T = 0.804212 · 0.9463 dB</p>
+        <p class="cpo-note">差不多是 TE0 在 1 µm 的那个水平。</p>
+      </div>
+      <div class="cpo-panel" data-panel="tm0-r5">
+        <p class="bend-readout">TM0，R = 5 µm · T = 0.951333 · 0.2167 dB</p>
+        <p class="cpo-note">同一 5 µm，大约是 TE0 的八倍，已经高出 0.1 dB 这道线。</p>
+      </div>
+      <div class="cpo-panel" data-panel="tm0-r8">
+        <p class="bend-readout">TM0，R = 8 µm · T = 0.985953 · 0.0614 dB</p>
+        <p class="cpo-note">TM0 在这里才落到约 0.1 dB 的预算以下。</p>
+      </div>
+      <div class="cpo-panel" data-panel="tm0-r10">
+        <p class="bend-readout">TM0，R = 10 µm · T = 0.991369 · 0.0376 dB</p>
+        <p class="cpo-note">仍有 0.038 dB，而同一半径的 TE0 只剩 0.002 dB。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-te"></i>TE0</li>
+    <li><i class="swatch-tm"></i>TM0</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    12 个点全部来自这一次 varFDTD 扫描，不是经验公式。损耗是输出基模的透过再换成 dB，里面叠着弯曲辐射和两个直弯接头，没有拆开。纵轴用对数，是为了同时看见 0.002 dB 和 4.867 dB。虚线标在 0.1 dB。
+  </figcaption>
+</figure>
