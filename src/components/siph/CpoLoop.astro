@@ -1,0 +1,85 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">示意图</p>
+    <p class="siph-widget__title">热怎样走回光</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">闭环里的哪一步</legend>
+    <label>
+      热点
+      <input type="radio" name="cpo-loop" value="hot" checked />
+    </label>
+    <label>
+      传到 PIC
+      <input type="radio" name="cpo-loop" value="temp" />
+    </label>
+    <label>
+      波长或相位
+      <input type="radio" name="cpo-loop" value="wave" />
+    </label>
+    <label>
+      加热器
+      <input type="radio" name="cpo-loop" value="ctrl" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <div class="cpo-stack" aria-hidden="true">
+        <div class="cpo-stack__row">
+          <div class="cpo-die" data-mark="asic">
+            <b>ASIC</b>
+            <small>封装下方</small>
+          </div>
+          <div class="cpo-die" data-mark="eic">
+            <b>EIC</b>
+            <small>驱动器热点</small>
+          </div>
+        </div>
+        <p class="cpo-via" data-mark="flow"><i></i><span>热传到 PIC</span></p>
+        <div class="cpo-die cpo-die--wide" data-mark="pic">
+          <b>PIC</b>
+          <small>折射率随温度变</small>
+        </div>
+        <p class="cpo-via" data-mark="back"><i></i><span>加热器回到温度</span></p>
+        <div class="cpo-die cpo-die--wide" data-mark="heater">
+          <b>微加热器</b>
+          <small>闭环，不是开环算一次</small>
+        </div>
+      </div>
+
+      <div class="cpo-panel" data-panel="hot">
+        <p class="cpo-note">热来自两处。下面是高功耗的 ASIC，上面也可以是 EIC 驱动器的局部热点。在 COUPE 这种堆叠里，它们离 PIC 很近。</p>
+      </div>
+      <div class="cpo-panel" data-panel="temp">
+        <p class="cpo-note">硅的热光系数大约是 1.8×10⁻⁴ /K。温度一变，材料折射率变，波导的有效折射率跟着变。这一步要把芯片、封装和系统的电热接上：直流压降，加上三维热阻。</p>
+      </div>
+      <div class="cpo-panel" data-panel="wave">
+        <p class="cpo-note">微环的谐振波长大约漂 0.08–0.1 nm/K。凹口挪开，激光还停在原来的波长上，调制就浅了。MZM 没有这只凹口，同一份热变成两臂的相位差。</p>
+        <svg class="cpo-svg cpo-notch" viewBox="0 0 340 96" role="img" aria-label="透过率凹口相对激光波长往旁边挪">
+          <line class="faint" x1="120" y1="8" x2="120" y2="88" stroke-dasharray="3 4"></line>
+          <path class="ink" d="M16 20.2 L24 20.6 L32 21 L40 21.6 L48 22.4 L56 23.5 L64 25 L72 27.2 L80 30.4 L88 35.4 L96 43.4 L104 55.8 L112 71.4 L116 77.6 L120 80 L124 77.6 L128 71.4 L136 55.8 L144 43.4 L152 35.4 L160 30.4 L168 27.2 L176 25 L184 23.5 L192 22.4 L208 21 L232 19.9 L264 19.2 L328 18.6"></path>
+          <path class="accent" d="M16 19 L48 19.5 L72 20.2 L96 21.6 L112 23.5 L128 27.2 L144 35.4 L156 49 L164 63.6 L172 77.6 L176 80 L180 77.6 L188 63.6 L200 43.4 L212 32.6 L224 27.2 L240 23.5 L256 21.6 L280 20.2 L328 19.1"></path>
+        </svg>
+        <p class="cpo-note">细线是原来的凹口，酒红是升温之后。虚线是激光停住的波长。横轴没有按 0.08 nm 去标定。</p>
+      </div>
+      <div class="cpo-panel" data-panel="ctrl">
+        <p class="cpo-note">片上微加热器把 PIC 的温度拉回该在的点，波长或相位才锁得住。它改的是温度，所以箭头回到 PIC，要和前面的电热放进同一段瞬态。少了这一截，就看不到满载时的失锁和误码。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-heat"></i>热点</li>
+    <li><i class="swatch-te"></i>当前这一步</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    热光系数约 1.8×10⁻⁴ /K，微环谐振波长约 0.08–0.1 nm/K。凹口的挪动只说明方向，不是一张标定过的光谱。应力和翘曲是另一件事，不画在这张闭环里。
+  </figcaption>
+</figure>
