@@ -5,10 +5,10 @@ export const SITE = {
   title: 'FIERCEMAN · JOURNAL',
   shortTitle: 'FIERCEMAN',
   // 副标题用衬线斜体在 hero 区展示
-  tagline: 'Notes on signal integrity, system-level simulation, and the small details that make EDA work.',
+  tagline: 'Notes on signal integrity, silicon photonics, and the small details that make EDA work.',
   // 中文副标题，鼠标 hover 显示
-  taglineZh: '关于信号完整性、系统级仿真，以及让 EDA 真正跑起来的那些细节。',
-  description: '个人技术博客 —— 信号完整性 / 系统级仿真 / ADS 自动化与笔记。',
+  taglineZh: '关于信号完整性、硅光设计，以及让 EDA 真正跑起来的那些细节。',
+  description: '个人技术博客 —— 信号完整性 / 硅光器件与链路 / EDA 自动化与笔记。',
   author: 'Fierceman',
   email: 'yungaopi@gmail.com',
   // 顶部 issue 编号：杂志感装饰，每次构建按当前日期生成
@@ -43,6 +43,15 @@ export const CATEGORIES = [
     tagline: 'Modulators, photodetectors, and the systems that stitch electrons to photons and back.',
     taglineZh: '调制器、探测器，以及把电子和光子缝合在一起的系统级链路。',
     keywords: ['MZM', 'TIA', 'optical', 'link budget', 'photonics'],
+  },
+  // 器件级（条形波导、耦合器）放 siph。EOE 仍是系统级链路，不要把波导车间写进 eoe。
+  {
+    slug: 'siph',
+    title: 'SiPh',
+    subtitle: 'Silicon Photonics',
+    tagline: 'Strip waveguides, couplers, and the device-level work that feeds an optical link.',
+    taglineZh: '条形波导、耦合器，以及支撑光链路的器件级设计。',
+    keywords: ['SOI', 'MODE', 'waveguide', 'FDE', 'PIC'],
   },
   {
     slug: 'pi',
