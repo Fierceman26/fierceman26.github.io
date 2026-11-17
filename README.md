@@ -1,6 +1,6 @@
 # Fierceman · Journal
 
-个人技术博客 —— 信号完整性、系统级仿真、ADS 自动化笔记。
+个人技术博客 —— 信号完整性、硅光器件与链路、EDA 自动化笔记。
 
 基于 [Astro](https://astro.build) + MDX 搭建，部署在 GitHub Pages。
 设计语言：现代杂志风（serif headlines + sans-serif metadata + Bordeaux accent）。
@@ -33,7 +33,7 @@ description: "一句话摘要，列表页和首页会用。"
 pubDate: 2026-05-20
 # updatedDate: 2026-05-22       # 可选：修订日期
 tags: ["ADS", "SIPro"]            # 可选：标签数组
-category: "Signal Integrity"      # 可选：一级分类
+category: "hsd"                   # 可选：hsd / eoe / pi / siph
 featured: false                   # true 时置顶为首页 hero
 draft: false                      # true 时构建不出现
 ---
@@ -123,5 +123,5 @@ export default defineConfig({
 - 一篇好的笔记 > 三篇水文。这个站点的设计语言鼓励**少而精**。
 - 标题用 6-12 字最舒服（serif 大字排版会用 18ch max-width）。
 - `description` 字段是首页和列表页的引导句，多花点心思。
-- `category` 在卡片元数据上显示，建议用大类（"Signal Integrity" / "EM Simulation" / "Notes"）。
+- `category` 用栏目 slug：`hsd` / `eoe` / `pi` / `siph`。它会变成 `/categories/<slug>/`，不要写成 "Signal Integrity" 这种展示名。波导、耦合器归 `siph`；MZM、TIA、链路 budget 仍归 `eoe`。
 - `tags` 用细分关键词（"SIPro" / "DDR5" / "Python API"）。
