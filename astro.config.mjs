@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import { journalPwa } from './src/pwa/integration.mjs';
 
 // <Figure /> in MDX posts, without a per-file import.
 // The MDX compiler only uses a component that is already in scope; otherwise
@@ -80,6 +81,7 @@ export default defineConfig({
         },
       },
     }),
+    journalPwa(),
   ],
   markdown: {
     shikiConfig: {

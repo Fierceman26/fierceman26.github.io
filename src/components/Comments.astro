@@ -227,6 +227,9 @@ const copy = {
     .reply-form__grid {
       grid-template-columns: 1fr;
     }
+    .reply-form__submit {
+      min-height: 44px;
+    }
   }
 
   .reply-form__field {
@@ -255,7 +258,7 @@ const copy = {
     width: 100%;
     box-sizing: border-box;
     font-family: var(--font-sans);
-    font-size: 0.95rem;
+    font-size: max(16px, 0.95rem);
     color: var(--ink);
     background: var(--bg-elev);
     border: 1px solid var(--rule);
