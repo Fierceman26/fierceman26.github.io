@@ -1,0 +1,119 @@
+---
+title: "Two hidden paths in the ADS Python API"
+description: "The keysight.* packages under an ADS install live in two different site-packages trees. Look at only one and you miss about 90% of the API. An engineer's note."
+pubDate: 2026-04-27
+tags: ["ADS", "Python API", "Automation"]
+---
+
+If you have tried to drive ADS from Python, you have probably hit this:
+the HTML docs clearly name an API, and your own `import` cannot find it.
+
+The cause is that the `keysight.*` namespace under an ADS install **is split across two directories**.
+Look at only one of them and you see about 10% of the API.
+
+## The two paths
+
+Under the main Python (`ADS2026_Update2/tools/python/python.exe`):
+
+```text
+Path A:
+  tools/python/Lib/site-packages/keysight/
+    └── ads/
+        ├── datalink/    ← read and write .ds files
+        └── dataset/
+
+Path B (easy to miss):
+  tools/python/packages/keysight/
+    └── ads/
+        ├── ael/         ← bridge to AEL functions
+        ├── ann/
+        ├── compliance/
+        ├── ctle_editor/
+        ├── dds/
+        ├── de/          ← design editor (the big one)
+        ├── emtools/     ← EM view tools
+        ├── experimental_simulation/
+        ├── hsd/
+        ├── pcb/
+        ├── subst/
+        └── util/
+```
+
+**About 90% of the API you actually want is on path B**: `de` (layout / schematic / pcell),
+`emtools` (rfpro views / em setup), `ael` (the AEL bridge).
+
+Path A has only `datalink` and `dataset` — reading and writing `.ds` datasets.
+
+## What this costs in practice
+
+If you grep for an API and only search path A, this is what happens:
+
+- You do not find `create_pro_view` (it is in `keysight.ads.emtools`, path B)
+- You do not find `db_uu.open_design` (it is in `keysight.ads.de`, path B)
+- You do not find the AEL bridge (`keysight.ads.ael`, path B)
+
+Then you start to suspect the documentation is lying. **The docs are right. The search path is wrong.**
+
+## How I look now
+
+A small helper searches both paths at once:
+
+```python
+from pathlib import Path
+import subprocess
+
+ADS = Path(r"C:\Program Files\Keysight\ADS2026_Update2")
+SEARCH_ROOTS = [
+    ADS / "tools" / "python" / "Lib" / "site-packages" / "keysight",
+    ADS / "tools" / "python" / "packages" / "keysight",
+]
+
+def grep_keysight(pattern: str) -> None:
+    """Search pattern with ripgrep under both keysight package roots."""
+    for root in SEARCH_ROOTS:
+        if not root.exists():
+            continue
+        print(f"\n── {root.name} " + "─" * 40)
+        subprocess.run(
+            ["rg", "--type", "py", "-n", pattern, str(root)],
+            check=False,
+        )
+
+grep_keysight("def create_pro_view")
+```
+
+Whenever I want to know whether an API really exists, I run this.
+It is more reliable than the HTML docs — the docs describe, the source defines.
+
+## A third path: the Python that belongs to EMPro
+
+If you need `import empro` (the EM worker, a custom mesh, a port),
+it is not the main Python. It is another one:
+
+```text
+C:/Program Files/Keysight/ADS2026_Update2/fem/2026.20/win32_64/bin/tools/win32/python/python.exe
+```
+
+The `empro` package and `keysight.ads.*` do not share a process.
+Cross-process RPC goes through `keysight.edatoolbox.multi_python.xxpro_context`.
+
+It is worth **keeping the .pyi path in your notes on its own**:
+
+```text
+Type stubs for empro:
+  fem/2026.20/win32_64/bin/empro/*.pyi  (26 .pyi files)
+```
+
+The docstrings in the `.pyi` files are often richer than the `.py`.
+That is counterintuitive, but Keysight put more usage notes in the stubs.
+
+## One rule
+
+Any suspicion of the form "did they quietly remove this API?" should do this first:
+
+> Grep both site-packages paths, then conclude.
+
+I once nearly wrote a 200-line workaround.
+The API had been there the whole time. I had simply never looked at the `packages/` path.
+
+A cheap suspicion should be checked before it is believed. That rule holds anywhere in engineering.

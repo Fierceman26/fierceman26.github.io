@@ -1,0 +1,48 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { slugifyTag } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
+import { loadPosts } from '~/lib/posts';
+
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
+const posts = await loadPosts(locale);
+
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
+const tags = Array.from(tagCounts.entries())
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title={t.tags.title} description={t.tags.description}>
+  <section class="container hero">
+    <div class="hero__masthead">
+      <span>{t.tags.kicker}</span>
+      <span style="color: var(--ink);">·</span>
+      <span>{t.tags.count(tags.length)}</span>
+    </div>
+    <h1 class="hero__title" style="font-size: clamp(2.4rem, 5vw, 3.8rem);">
+      {t.tags.title}
+    </h1>
+    <p class="hero__lead">
+      {t.tags.lead}
+    </p>
+  </section>
+
+  <section class="container">
+    <div class="tag-cloud">
+      {tags.length === 0 && <p class="meta">{t.tags.empty}</p>}
+      {tags.map(([tag, count]) => (
+        <a href={localizePath(`/tags/${slugifyTag(tag)}/`, locale)}>
+          {tag}<sup>{count}</sup>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

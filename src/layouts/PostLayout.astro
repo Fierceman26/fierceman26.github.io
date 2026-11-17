@@ -2,32 +2,33 @@
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '~/components/FormattedDate.astro';
 import Comments from '~/components/Comments.astro';
-import { getCollection } from 'astro:content';
 import readingTime from 'reading-time';
-import type { CollectionEntry } from 'astro:content';
 import { SITE, slugifyTag, findCategory } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { categoryView, readTime, useUI } from '~/i18n/ui';
+import { loadPosts, type JournalPost } from '~/lib/posts';
 
 interface Props {
-  post: CollectionEntry<'posts'>;
+  post: JournalPost;
 }
 
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
 const { post } = Astro.props;
 const { data } = post;
 const category = data.category ? findCategory(data.category) : null;
+const categoryText = category ? categoryView(category, locale) : null;
 
-// 拿到原始 markdown 内容用于估算阅读时间
 const rawBody = post.body ?? '';
 const stats = readingTime(rawBody);
 const readMinutes = Math.max(1, Math.round(stats.minutes));
 const rightsYear = data.pubDate.getFullYear();
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
-// 上一篇 / 下一篇 —— 按发布时间倒序
-const all = (await getCollection('posts', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+const all = await loadPosts(locale);
 const idx = all.findIndex((p) => p.id === post.id);
-const prev = idx > 0 ? all[idx - 1] : null;     // 比当前更新（更新的一篇）
-const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
+const newer = idx > 0 ? all[idx - 1] : null;
+const older = idx < all.length - 1 ? all[idx + 1] : null;
 ---
 
 <BaseLayout
@@ -41,9 +42,9 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
 
   <article>
     <header class="post-header container">
-      {category && (
+      {category && categoryText && (
         <div class="post-header__category">
-          <a href={`/categories/${category.slug}/`}>{category.title} · {category.subtitle}</a>
+          <a href={localizePath(`/categories/${category.slug}/`, locale)}>{categoryText.title} · {categoryText.subtitle}</a>
         </div>
       )}
       <h1 class="post-header__title">{data.title}</h1>
@@ -51,11 +52,11 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
       <div class="post-header__meta">
         <FormattedDate date={data.pubDate} />
         <span class="sep" aria-hidden="true"></span>
-        <span>{readMinutes} min read</span>
+        <span>{readTime(readMinutes, locale)}</span>
         {data.updatedDate && (
           <>
             <span class="sep" aria-hidden="true"></span>
-            <span>Revised <FormattedDate date={data.updatedDate} /></span>
+            <span>{t.post.revised} <FormattedDate date={data.updatedDate} /></span>
           </>
         )}
       </div>
@@ -68,9 +69,9 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
 
       <footer class="post-footer">
         {data.tags.length > 0 && (
-          <div class="post-tags" aria-label="标签">
+          <div class="post-tags" aria-label={t.post.tagsAria}>
             {data.tags.map((tag) => (
-              <a class="tag-pill" href={`/tags/${slugifyTag(tag)}/`}>
+              <a class="tag-pill" href={localizePath(`/tags/${slugifyTag(tag)}/`, locale)}>
                 #{tag}
               </a>
             ))}
@@ -78,22 +79,22 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
         )}
 
         <p class="post-rights">
-          &copy; {rightsYear} {SITE.author}. All rights reserved.
-          Original: <a href={canonicalURL}>{canonicalURL}</a>
+          &copy; {rightsYear} {SITE.author}. {t.rights}
+          {t.post.original}: <a href={canonicalURL}>{canonicalURL}</a>
         </p>
 
-        {(prev || next) && (
-          <nav class="post-nav" aria-label="文章导航">
-            {next ? (
+        {(newer || older) && (
+          <nav class="post-nav" aria-label={t.post.navAria}>
+            {older ? (
               <div class="post-nav__cell">
-                <span class="post-nav__label">← Older</span>
-                <a class="post-nav__title" href={`/posts/${next.id}/`}>{next.data.title}</a>
+                <span class="post-nav__label">{t.post.older}</span>
+                <a class="post-nav__title" href={localizePath(`/posts/${older.id}/`, locale)}>{older.data.title}</a>
               </div>
             ) : <div></div>}
-            {prev ? (
+            {newer ? (
               <div class="post-nav__cell is-next">
-                <span class="post-nav__label">Newer →</span>
-                <a class="post-nav__title" href={`/posts/${prev.id}/`}>{prev.data.title}</a>
+                <span class="post-nav__label">{t.post.newer}</span>
+                <a class="post-nav__title" href={localizePath(`/posts/${newer.id}/`, locale)}>{newer.data.title}</a>
               </div>
             ) : <div></div>}
           </nav>
@@ -105,7 +106,6 @@ const next = idx < all.length - 1 ? all[idx + 1] : null; // 比当前更老
   </article>
 
   <script>
-    // 阅读进度条
     const bar = document.getElementById('reading-progress');
     if (bar) {
       const update = () => {

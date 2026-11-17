@@ -20,6 +20,7 @@ import {
   reducedMotion,
   watchTheme,
 } from './modes';
+import { siphCopy } from './copy';
 
 const N0 = 1.3;
 const N1 = 3.7;
@@ -32,13 +33,16 @@ interface Mark {
   snap: boolean;
 }
 
-const MARKS: Mark[] = [
-  { n: N_CLAD, label: '氧化硅，n 约 1.44', side: 'down', snap: false },
-  { n: MODE3_NEFF, label: '丢掉的根，1.493', side: 'up', snap: true },
-  { n: TM0.neff, label: 'TM0', side: 'down', snap: true },
-  { n: TE0.neff, label: 'TE0', side: 'up', snap: true },
-  { n: N_CORE, label: '硅，n 约 3.5', side: 'down', snap: false },
-];
+function marks(): Mark[] {
+  const n = siphCopy().neff;
+  return [
+    { n: N_CLAD, label: n.oxide, side: 'down', snap: false },
+    { n: MODE3_NEFF, label: n.discarded, side: 'up', snap: true },
+    { n: TM0.neff, label: 'TM0', side: 'down', snap: true },
+    { n: TE0.neff, label: 'TE0', side: 'up', snap: true },
+    { n: N_CORE, label: n.silicon, side: 'down', snap: false },
+  ];
+}
 
 export function mountNeff(root: HTMLElement): void {
   if (!claim(root)) return;
@@ -64,7 +68,7 @@ export function mountNeff(root: HTMLElement): void {
   windowEl.style.left = `${pct(N_CLAD)}%`;
   windowEl.style.width = `${pct(N_CORE) - pct(N_CLAD)}%`;
 
-  for (const mark of MARKS) {
+  for (const mark of marks()) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'neff-mark';
@@ -180,9 +184,10 @@ export function mountNeff(root: HTMLElement): void {
     ctx.strokeStyle = pal.ink;
     ctx.lineWidth = 1.25;
     ctx.strokeRect(cx - coreW / 2 + 0.5, cy - coreH / 2 + 0.5, coreW, coreH);
-    label(ctx, '硅芯', cx, cy, pal, 12, 'center', 'middle');
+    const neffCopy = siphCopy().neff;
+    label(ctx, neffCopy.core, cx, cy, pal, 12, 'center', 'middle');
 
-    const caption = radiating ? '包层里开始振荡' : '包层里的尾巴';
+    const caption = radiating ? neffCopy.radiating : neffCopy.tail;
     label(ctx, caption, cx, 16, pal, 12, 'center', 'middle');
     label(ctx, `neff = ${formatN(neff)}`, w - 12, h - 14, pal, 12, 'right', 'middle');
   }
@@ -251,19 +256,12 @@ function formatN(n: number): string {
 }
 
 function describe(n: number): string {
-  if (n <= N_CLAD + 0.0008) {
-    return 'neff 低到了氧化硅。包层里不再是衰减的尾巴，场不被这根条束缚。';
-  }
-  if (Math.abs(n - MODE3_NEFF) < 0.003) {
-    return '第三个根，neff = 1.492897，贴着 n_SiO₂。衰减已经很慢。上一篇里它是辐射场碰上 PML 的假象，丢掉。';
-  }
-  if (Math.abs(n - TM0.neff) < 0.003) {
-    return 'TM0，neff = 1.771059。比 TE0 更靠近氧化硅，同样的公式下尾巴更长。';
-  }
-  if (Math.abs(n - TE0.neff) < 0.003) {
-    return 'TE0，neff = 2.445347。落在窗口中段，包层里掉得快。';
-  }
-  return `示意 neff = ${n.toFixed(3)}。尾巴按 1/√(neff² − 1.44²) 变化。滑过的中间值不是这根 500 nm 条的解，解只有标出来的两个导模。`;
+  const copy = siphCopy().neff;
+  if (n <= N_CLAD + 0.0008) return copy.atClad;
+  if (Math.abs(n - MODE3_NEFF) < 0.003) return copy.atThird;
+  if (Math.abs(n - TM0.neff) < 0.003) return copy.atTm;
+  if (Math.abs(n - TE0.neff) < 0.003) return copy.atTe;
+  return copy.between(n.toFixed(3));
 }
 
 function paintTail(

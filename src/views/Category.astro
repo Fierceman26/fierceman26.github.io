@@ -1,0 +1,66 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import FormattedDate from '~/components/FormattedDate.astro';
+import { CATEGORIES } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { categoryView, entryLabel, useUI } from '~/i18n/ui';
+import type { JournalPost } from '~/lib/posts';
+
+interface Props {
+  category: (typeof CATEGORIES)[number];
+  posts: JournalPost[];
+}
+
+const { category, posts } = Astro.props;
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
+const text = categoryView(category, locale);
+---
+
+<BaseLayout
+  title={`${text.title} · ${text.subtitle}`}
+  description={text.tagline}
+>
+  <section class="container hero">
+    <div class="hero__masthead">
+      <span>{t.category.kicker}</span>
+      <span style="color: var(--ink);">·</span>
+      <span>{entryLabel(posts.length, locale)}</span>
+    </div>
+    <h1 class="hero__title">
+      {text.title} <em style="color: var(--accent);">·</em>
+      <span style="font-style: italic; font-weight: 400; color: var(--ink-soft);">
+        {text.subtitle}
+      </span>
+    </h1>
+    <p class="hero__lead">{text.tagline}</p>
+    <div class="card__meta" style="margin-top: 1.5rem; gap: 0.5rem 0.9rem; flex-wrap: wrap;">
+      {text.keywords.map((k) => <span>{k}</span>)}
+    </div>
+  </section>
+
+  <section class="container archive">
+    {posts.length > 0 ? (
+      <ul class="archive__list">
+        {posts.map((post) => (
+          <li class="archive__item">
+            <div class="archive__date">
+              <FormattedDate date={post.data.pubDate} />
+            </div>
+            <a class="archive__title" href={localizePath(`/posts/${post.id}/`, locale)}>
+              {post.data.title}
+            </a>
+            <div class="archive__tags">
+              {post.data.tags[0] ?? ''}
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="meta" style="padding-block: 3rem; text-align: center;">
+        {t.category.emptyBefore}{' '}
+        <a href={localizePath('/', locale)} style="color: var(--accent);">{t.category.emptyLink}</a>
+      </p>
+    )}
+  </section>
+</BaseLayout>

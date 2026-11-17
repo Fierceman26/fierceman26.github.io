@@ -1,23 +1,27 @@
 ---
 import '~/styles/siph-widgets.css';
+import { siphCopy } from './copy';
+import { useLocale } from '~/i18n/routing';
+
+const c = siphCopy(useLocale(Astro.currentLocale, Astro.url.pathname));
 ---
 
-<figure class="siph-widget" data-siph="travel" aria-label="导模沿 z 传播的示意图">
+<figure class="siph-widget" data-siph="travel" aria-label={c.travel.aria}>
   <div class="siph-widget__accent" aria-hidden="true"></div>
   <div class="siph-widget__head">
-    <p class="siph-widget__kicker">示意图</p>
-    <p class="siph-widget__title">同一光频，TE0 的波长更短，也更慢</p>
+    <p class="siph-widget__kicker">{c.schematic}</p>
+    <p class="siph-widget__title">{c.travel.title}</p>
   </div>
   <div class="siph-widget__controls">
-    <div class="siph-widget__seg" role="group" aria-label="选择画在硅条上的模">
+    <div class="siph-widget__seg" role="group" aria-label={c.travel.choose}>
       <button type="button" data-mode="te" aria-pressed="true">TE0</button>
       <button type="button" data-mode="tm" aria-pressed="false">TM0</button>
     </div>
-    <button class="siph-widget__play" type="button" data-compare aria-pressed="true">对照另一模</button>
-    <button class="siph-widget__play" type="button" data-play aria-pressed="false">播放</button>
+    <button class="siph-widget__play" type="button" data-compare aria-pressed="true">{c.travel.compare}</button>
+    <button class="siph-widget__play" type="button" data-play aria-pressed="false">{c.play}</button>
     <label class="siph-widget__slider">
-      <span>时间</span>
-      <input type="range" data-phase min="0" max="359" step="1" value="0" aria-label="时间相位，单位度" />
+      <span>{c.travel.time}</span>
+      <input type="range" data-phase min="0" max="359" step="1" value="0" aria-label={c.travel.phaseAria} />
     </label>
   </div>
   <ul class="siph-legend">
@@ -30,7 +34,7 @@ import '~/styles/siph-widgets.css';
   <p class="siph-widget__live" data-live aria-live="polite"></p>
   <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
   <figcaption>
-    右边的硅条和下面的曲线共用 3.2 µm 的 z 轴。截面用真比例，所以条很扁；左图把端面放大，倍数写在图上。颜色和曲线是 Re{'{'}E exp[j(ωt − βz)]{'}'}，波峰向 +z 走。对照曲线只为比较波长和相速度，没有把两个模加在一起。
+    {c.travel.caption}
   </figcaption>
 </figure>
 

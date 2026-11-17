@@ -13,6 +13,8 @@
  * n ≈ 3.5 and n ≈ 1.44 are the approximate Palik values used for intuition.
  */
 
+import { siphCopy } from './copy';
+
 export const LAMBDA_UM = 1.55;
 export const N_CORE = 3.5;
 export const N_CLAD = 1.44;
@@ -504,9 +506,10 @@ export function bindVisibility(el: HTMLElement, start: () => void, stop: () => v
 }
 
 export function paintPlayButton(button: HTMLButtonElement, playing: boolean): void {
-  button.textContent = playing ? '暂停' : '播放';
+  const c = siphCopy();
+  button.textContent = playing ? c.pause : c.play;
   button.setAttribute('aria-pressed', playing ? 'true' : 'false');
-  button.setAttribute('aria-label', playing ? '暂停动画' : '播放动画');
+  button.setAttribute('aria-label', playing ? c.pauseAria : c.playAria);
 }
 
 export function smoothstep(edge0: number, edge1: number, x: number): number {

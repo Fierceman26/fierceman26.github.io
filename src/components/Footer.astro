@@ -1,5 +1,10 @@
 ---
 import { SITE } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
+
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
 const year = new Date().getFullYear();
 ---
 
@@ -10,19 +15,19 @@ const year = new Date().getFullYear();
         {SITE.shortTitle}
         <span>JOURNAL · {year}</span>
       </div>
-      <nav class="site-footer__meta" aria-label="次要链接">
-        <a href="/rss.xml">RSS</a>
+      <nav class="site-footer__meta" aria-label={t.footerAria}>
+        <a href={localizePath('/rss.xml', locale)}>RSS</a>
         &nbsp;·&nbsp;
-        <a href={`mailto:${SITE.email}`}>Contact</a>
+        <a href={`mailto:${SITE.email}`}>{t.contact}</a>
         &nbsp;·&nbsp;
-        <a href="/about/">Colophon</a>
+        <a href={localizePath('/about/', locale)}>{t.colophon}</a>
       </nav>
     </div>
     <p class="site-footer__colophon">
-      Typeset in Fraunces &amp; Inter. Built with Astro, deployed on GitHub Pages.
+      {t.typeset}
     </p>
     <p class="site-footer__rights">
-      &copy; {year} {SITE.author}. All rights reserved.
+      &copy; {year} {SITE.author}. {t.rights}
       <a href="/LICENSE">LICENSE</a>
     </p>
   </div>

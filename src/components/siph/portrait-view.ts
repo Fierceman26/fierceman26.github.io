@@ -12,6 +12,7 @@ import {
   watchTheme,
 } from './modes';
 import { clearPortraitCache, paintPortrait } from './portrait-draw';
+import { siphCopy } from './copy';
 
 const WORLD = { x0: -0.52, x1: 0.52, y0: -0.48, y1: 0.48 };
 
@@ -35,11 +36,7 @@ export function mountPortrait(root: HTMLElement): void {
   let want = !reducedMotion();
   const clock = makeClock(3600);
 
-  const copy: Record<Choice, string> = {
-    te: 'TE0。箭头沿宽度，是 Ex，与上下两个大面相切。色块收在硅芯里，左右略微探出侧壁。',
-    tm: 'TM0。箭头沿厚度，是 Ey。上下边外侧的箭头比芯里更长：法向电场在氧化硅里更大，所以能量往上下包层交。',
-    both: '左边 TE0，右边（窄屏则是上边）TM0。同一时刻，两个模的箭头一起伸缩。色块各自归一，不能拿亮度比功率。',
-  };
+  const copy = siphCopy().portrait;
 
   function render(phase: number): void {
     const w = stage.clientWidth;
@@ -66,11 +63,11 @@ export function mountPortrait(root: HTMLElement): void {
       });
     }
 
-    const text = choice === 'both'
-      ? (narrow
-        ? '上边 TE0，下边 TM0。同一时刻，箭头一起伸缩。色块各自归一，不能拿亮度比功率。'
-        : '左边 TE0，右边 TM0。同一时刻，箭头一起伸缩。色块各自归一，不能拿亮度比功率。')
-      : copy[choice];
+    const text = choice === 'te'
+      ? copy.te
+      : choice === 'tm'
+        ? copy.tm
+        : (narrow ? copy.bothNarrow : copy.bothWide);
     if (live.textContent !== text) live.textContent = text;
     const deg = Math.round(((phase * 180) / Math.PI) % 360);
     if (document.activeElement !== slider) slider.value = String(deg);

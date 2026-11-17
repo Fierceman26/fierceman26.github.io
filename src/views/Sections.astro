@@ -1,0 +1,69 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { CATEGORIES } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { categoryView, editorialCount, entryLabel, useUI } from '~/i18n/ui';
+import { loadPosts } from '~/lib/posts';
+
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
+const allPosts = await loadPosts(locale);
+
+const counts = new Map<string, number>();
+for (const post of allPosts) {
+  if (post.data.category) {
+    counts.set(post.data.category, (counts.get(post.data.category) ?? 0) + 1);
+  }
+}
+
+const uncategorized = allPosts.filter((p) => !p.data.category).length;
+---
+
+<BaseLayout title={t.sections.title} description={t.sections.description}>
+  <section class="container hero">
+    <div class="hero__masthead">
+      <span>{t.sections.kicker}</span>
+      <span style="color: var(--ink);">·</span>
+      <span>{editorialCount(CATEGORIES.length, locale)}</span>
+    </div>
+    <h1 class="hero__title" style="font-size: clamp(2.4rem, 5vw, 3.8rem);">
+      {t.sections.title}
+    </h1>
+    <p class="hero__lead">
+      {t.sections.lead}
+    </p>
+  </section>
+
+  <section class="container">
+    <div class="sections-grid">
+      {CATEGORIES.map((cat, i) => {
+        const text = categoryView(cat, locale);
+        const n = counts.get(cat.slug) ?? 0;
+        return (
+          <a class="section-card" href={localizePath(`/categories/${cat.slug}/`, locale)}>
+            <div class="section-card__numeral" aria-hidden="true">
+              S{String(i + 1).padStart(2, '0')}
+            </div>
+            <h2 class="section-card__title">{text.title}</h2>
+            <div class="section-card__subtitle">{text.subtitle}</div>
+            <p class="section-card__tagline">{text.tagline}</p>
+            <div class="section-card__keywords">
+              {text.keywords.map((k) => <span>{k}</span>)}
+            </div>
+            <div class="section-card__footer">
+              <span>{entryLabel(n, locale)}</span>
+              <span aria-hidden="true">→</span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+
+    {uncategorized > 0 && (
+      <p class="meta" style="text-align: center; margin-top: 3rem;">
+        {t.sections.misc(uncategorized)}
+        {' '}<a href={localizePath('/posts/', locale)} style="color: var(--accent);">{t.sections.browse}</a>
+      </p>
+    )}
+  </section>
+</BaseLayout>
