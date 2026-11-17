@@ -1,0 +1,29 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
+
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
+---
+
+<BaseLayout title={t.notFound.title} description={t.notFound.description} noIndex={true}>
+  <section class="container hero" style="text-align: center;">
+    <div class="hero__masthead" style="justify-content: center;">
+      <span>{t.notFound.kicker}</span>
+    </div>
+    <h1
+      class="hero__title"
+      style="margin: 1.6rem auto 0; max-width: 16em;"
+    >
+      {locale === 'zh' ? (
+        <>这一页<em>走丢了。</em></>
+      ) : (
+        <>The page <em>has wandered off.</em></>
+      )}
+    </h1>
+    <p class="hero__lead" style="margin-inline: auto;">
+      {t.notFound.leadBefore}<a href={localizePath('/', locale)} style="color: var(--accent);">{t.notFound.home}</a>{t.notFound.mid}<a href={localizePath('/posts/', locale)} style="color: var(--accent);">{t.notFound.writing}</a>{t.notFound.after}
+    </p>
+  </section>
+</BaseLayout>

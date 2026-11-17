@@ -1,0 +1,88 @@
+---
+title: "Two common misreadings of PDN target impedance"
+description: "Z_target = V_ripple / I_transient is where PDN design starts, and engineers regularly misread the number. One misreading is enough to put a decade between the PI simulation and the bench."
+pubDate: 2026-04-15
+tags: ["PI", "PDN", "Decoupling", "PIPro"]
+category: "pi"
+---
+
+Almost every power-integrity design starts from this formula:
+
+```text
+              V_ripple
+Z_target  =  ─────────
+             I_transient
+```
+
+It is simple to write down, and it is regularly misread — take two numbers off the ASIC datasheet, divide, done.
+This note is about two common misreadings, and what they cost.
+
+## Misreading 1: `I_transient` is not the average current
+
+`I_max` on a datasheet is usually a peak of the average. **It is not the transient step.**
+
+What the PDN actually sees is **the derivative of the current**. A di/dt step produces a voltage disturbance V = L·di/dt.
+For target impedance, that means:
+
+| Quantity | Value |
+| --- | --- |
+| ASIC average maximum current | 50 A |
+| Transient step ΔI (inside one clock cycle) | 8 A |
+| `I_transient` (the one that goes into Z_target) | **8 A**, not 50 A |
+
+If you compute Z_target with 50 A, you get a number **about 6× smaller than the real requirement**.
+You will over-stack capacitors. PIPro will draw a PDN that looks perfect —
+and the measured ripple will still be large, because the problem lives at higher frequency, where the di/dt is.
+
+## Misreading 2: `V_ripple` is not the datasheet tolerance
+
+The supply tolerance on an ASIC datasheet is usually a **DC + low-frequency** allowance,
+something like 1.0 V ± 3%. Feed that 30 mV in as `V_ripple` and the Z_target comes out too loose.
+
+The real V_ripple budget should be:
+
+```text
+V_ripple_budget = V_tolerance - V_dc_drop - V_aging - V_other_corner
+                = 30 mV    - 10 mV     - 5 mV    - 5 mV
+                = 10 mV
+```
+
+Which is to say the PDN's true budget for transient movement is **10 mV**, not 30 mV.
+A Z_target computed from 30 mV is **3× too optimistic**.
+
+## Putting it together: a small real sum
+
+Suppose:
+
+- ΔI = 10 A (the transient step inside one die)
+- V_ripple_budget = 8 mV (the budget that actually exists at the VRM output)
+
+```text
+Z_target = 8 mV / 10 A = 0.8 mΩ
+```
+
+That number has to hold in the frequency domain from DC out to 1/(2π·t_rise).
+If t_rise = 100 ps, then the PDN's |Z| must stay **under 0.8 mΩ from DC to 1.6 GHz**.
+
+That usually means:
+
+- VRM output plus bulk capacitance owns the low band
+- The MLCC array owns the middle band
+- Package capacitors plus on-die capacitance own the high band
+- Miss any one band, and the ASIC sees a transient voltage droop
+
+## What a PIPro run tends to skip
+
+Besides the picture of |Z| against Z_target, a few things deserve a look of their own:
+
+1. **Anti-resonance peaks.** Neighboring capacitors resonate with each other. PIPro draws them by default, and they are easy to ignore
+2. **The VRM's output impedance.** A default run often treats the VRM as an ideal short. In fact its output is inductive
+3. **Package plus solder balls.** A design whose off-chip PDN looks perfect can be ruined in the high band once the package is included
+
+---
+
+PI design is a **full-band** problem. Miss the target in any one band
+and the transient voltage the ASIC sees walks out of the budget.
+
+Next time, a concrete case: building a GDDR6 PDN in PIPro,
+and watching an anti-resonance push |Z| through the target.

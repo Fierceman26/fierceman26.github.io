@@ -18,6 +18,7 @@ import {
   smoothstep,
   watchTheme,
 } from './modes';
+import { siphCopy } from './copy';
 
 const THIN_UM = 0.22;
 
@@ -61,9 +62,10 @@ export function mountSlab(root: HTMLElement): void {
   });
 
   function sentence(): string {
-    if (s < 0.45) return '芯层画得很厚，光线在两个界面之间全反射。厚度是夸大的，用来把反射看清楚。';
-    if (s < 0.82) return '芯层往 220 nm 收。折返还在，但一条细光线已经盛不下这个尺寸。';
-    return '与下方 λ0 同一比例。220 nm 只有波长的大约七分之一，截面上是一条不变形的亮带，包层里留下衰减的尾巴。';
+    const slab = siphCopy().slab;
+    if (s < 0.45) return slab.thick;
+    if (s < 0.82) return slab.mid;
+    return slab.thin;
   }
 
   function draw(): void {
@@ -102,10 +104,11 @@ export function mountSlab(root: HTMLElement): void {
     ctx.lineWidth = 1.25;
     ctx.strokeRect(padL + 0.5, midY - half + 0.5, span - 1, half * 2 - 1);
 
+    const slab = siphCopy().slab;
     if (half > 28 && s < 0.75) {
-      label(ctx, '硅  n ≈ 3.5', padL + span / 2, midY, pal, 13, 'center', 'middle');
+      label(ctx, slab.silicon, padL + span / 2, midY, pal, 13, 'center', 'middle');
     }
-    label(ctx, '氧化硅  n ≈ 1.44', padL + 8, top + 12, pal, 12, 'left', 'middle');
+    label(ctx, slab.oxide, padL + 8, top + 12, pal, 12, 'left', 'middle');
 
     if (rayA > 0.03) {
       const path = rayPath(padL + 6, padL + span - 6, midY, half);
@@ -131,7 +134,7 @@ export function mountSlab(root: HTMLElement): void {
         ctx.lineTo(hit.x, hit.y - Math.min(36, half * 0.45));
         ctx.stroke();
         ctx.setLineDash([]);
-        label(ctx, '法线', hit.x + 8, Math.min(midY - 8, hit.y + 16), pal, 11, 'left', 'top');
+        label(ctx, siphCopy().slab.normal, hit.x + 8, Math.min(midY - 8, hit.y + 16), pal, 11, 'left', 'top');
       }
       ctx.restore();
     }
@@ -145,7 +148,7 @@ export function mountSlab(root: HTMLElement): void {
     label(ctx, 'λ0 = 1550 nm', padL + lambdaPx / 2, barY + 18, pal, 12, 'center', 'top');
     label(ctx, '220 nm', padL + mark + 4, barY - 8, pal, 11, 'left', 'bottom');
 
-    const scaleNote = s > 0.9 ? '芯层与 λ0 同一比例' : '厚芯是示意图，λ0 的比例尺始终为真';
+    const scaleNote = s > 0.9 ? siphCopy().slab.scaleTrue : siphCopy().slab.scaleExaggerated;
     label(ctx, scaleNote, w - padR, top + 12, pal, 11, 'right', 'middle');
 
     if (live.textContent !== sentence()) live.textContent = sentence();

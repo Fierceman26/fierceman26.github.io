@@ -3,24 +3,40 @@
 // 提交经 FormSubmit 转发到 SITE.email（对外专用邮箱，非个人邮箱）。
 // 同时提供 mailto 作为备用通道。
 import { SITE } from '~/consts';
+import { useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
 
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const c = useUI(locale).comments;
 const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
+const subjectTemplate = locale === 'zh'
+  ? '[FIERCEMAN · JOURNAL] 留言来自 {name}'
+  : '[FIERCEMAN · JOURNAL] Note from {name}';
+const copy = {
+  errName: c.errName,
+  errShort: c.errShort,
+  ok: c.ok,
+  errActivation: c.errActivation,
+  errSend: c.errSend,
+  errNet: c.errNet,
+  sending: c.sending,
+};
 ---
 
-<section class="comments" id="comments" aria-label="留言">
+<section class="comments" id="comments" aria-label={c.aria}>
   <div class="comments__head">
-    <span class="comments__label">Leave a note</span>
+    <span class="comments__label">{c.label}</span>
     <span class="comments__line" aria-hidden="true"></span>
   </div>
 
   <p class="comments__note">
-    不用注册任何账号，填个昵称就能留言。留言会直接到我这里，我看到了会回。
+    {c.note}
   </p>
 
   <form class="reply-form" id="reply-form" novalidate>
     <div class="reply-form__grid">
       <label class="reply-form__field">
-        <span class="reply-form__label">昵称</span>
+        <span class="reply-form__label">{c.name}</span>
         <input
           class="reply-form__input"
           type="text"
@@ -28,12 +44,12 @@ const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
           maxlength="40"
           required
           autocomplete="nickname"
-          placeholder="随便写一个"
+          placeholder={c.namePh}
         />
       </label>
       <label class="reply-form__field">
         <span class="reply-form__label">
-          回信地址<span class="reply-form__opt">（选填，方便我回你）</span>
+          {c.reply}<span class="reply-form__opt">{c.replyOpt}</span>
         </span>
         <input
           class="reply-form__input"
@@ -47,14 +63,14 @@ const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
     </div>
 
     <label class="reply-form__field">
-      <span class="reply-form__label">留言</span>
+      <span class="reply-form__label">{c.message}</span>
       <textarea
         class="reply-form__input reply-form__textarea"
         name="message"
         rows="5"
         maxlength="2000"
         required
-        placeholder="哪一段看不懂、哪里跑不通、或者你那边实测结果不一样……"
+        placeholder={c.messagePh}
       ></textarea>
     </label>
 
@@ -69,17 +85,17 @@ const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
     />
 
     <div class="reply-form__actions">
-      <button class="reply-form__submit" type="submit">发送</button>
+      <button class="reply-form__submit" type="submit">{c.send}</button>
       <p class="reply-form__status" id="reply-form-status" role="status" aria-live="polite"></p>
     </div>
   </form>
 
   <p class="comments__alt">
-    不想用表单？直接 <a href={`mailto:${SITE.email}`}>发邮件给我</a>。
+    {c.altBefore} <a href={`mailto:${SITE.email}`}>{c.altLink}</a>{c.altAfter}
   </p>
 </section>
 
-<script is:inline define:vars={{ endpoint }}>
+<script is:inline define:vars={{ endpoint, copy, subjectTemplate }}>
   (() => {
     const form = document.getElementById('reply-form');
     const status = document.getElementById('reply-form-status');
@@ -98,13 +114,13 @@ const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
       const message = form.message.value.trim();
       const reply = form.reply.value.trim();
 
-      if (!name) { setStatus('写个昵称吧。', 'error'); form.name.focus(); return; }
-      if (message.length < 4) { setStatus('内容太短了，多写两句。', 'error'); form.message.focus(); return; }
+      if (!name) { setStatus(copy.errName, 'error'); form.name.focus(); return; }
+      if (message.length < 4) { setStatus(copy.errShort, 'error'); form.message.focus(); return; }
 
       form.dataset.busy = '1';
       const btn = form.querySelector('.reply-form__submit');
       const original = btn.textContent;
-      btn.textContent = '发送中…';
+      btn.textContent = copy.sending;
       setStatus('', '');
 
       try {
@@ -115,7 +131,7 @@ const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
             name,
             reply,
             message,
-            _subject: `[FIERCEMAN · JOURNAL] 留言来自 ${name}`,
+            _subject: subjectTemplate.replace('{name}', name),
             _template: 'table',
             _captcha: 'false',
           }),
@@ -124,13 +140,13 @@ const endpoint = `https://formsubmit.co/ajax/${SITE.email}`;
         const data = await res.json().catch(() => ({}));
         if (res.ok && (data.success === true || data.success === 'true')) {
           form.reset();
-          setStatus('已收到，谢谢。我会看的。', 'ok');
+          setStatus(copy.ok, 'ok');
         } else {
           const msg = (data && data.message) || '';
-          setStatus(msg.includes('Activation') ? '通道正在激活，稍后再试或直接发邮件。' : '没发出去，稍后再试或直接发邮件。', 'error');
+          setStatus(msg.includes('Activation') ? copy.errActivation : copy.errSend, 'error');
         }
       } catch (err) {
-        setStatus('网络没通，重试一次或直接发邮件。', 'error');
+        setStatus(copy.errNet, 'error');
       } finally {
         form.dataset.busy = '0';
         btn.textContent = original;

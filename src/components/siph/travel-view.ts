@@ -31,6 +31,7 @@ import {
   watchTheme,
 } from './modes';
 import { clearPortraitCache, paintPortrait } from './portrait-draw';
+import { siphCopy } from './copy';
 
 const L = TRAVEL_LENGTH_UM;
 const WORLD = { x0: -0.55, x1: 0.55, y0: -0.5, y1: 0.5 };
@@ -76,7 +77,7 @@ export function mountTravel(root: HTMLElement): void {
     const mag = magnification(geom);
     label(
       ctx,
-      `端面放大约 ${mag.toFixed(0)} 倍`,
+      siphCopy().travel.mag(mag.toFixed(0)),
       geom.inset.x + geom.inset.w - 8,
       geom.inset.y + geom.inset.h - 10,
       pal,
@@ -355,7 +356,7 @@ function drawPrism(
     ctx.fill();
   }
 
-  label(ctx, '硅条 · 与 z 同一比例', geom.originX, geom.originY - geom.umToPx * 0.42 - 14, pal, 12, 'left', 'bottom');
+  label(ctx, siphCopy().travel.strip, geom.originX, geom.originY - geom.umToPx * 0.42 - 14, pal, 12, 'left', 'bottom');
 }
 
 function crestZ(phase: number, beta: number): number | null {
@@ -426,7 +427,7 @@ function drawGraph(
 
   label(
     ctx,
-    'Re{E}  纵轴是示意',
+    siphCopy().travel.axis,
     geom.zToX(0),
     top + 12,
     pal,
@@ -530,11 +531,12 @@ function liveText(mode: ModeId, compare: boolean, mag: number): string {
   const b = mode === 'te' ? TM0 : TE0;
   const lg = Math.round(guidedWavelengthNm(a.neff));
   const vp = phaseVelocityOverC(a.neff).toFixed(3);
-  const head = `${a.name}  neff ${a.neff.toFixed(4)}，导波波长 ${lg} nm，相速度 ${vp} c。端面约放大 ${mag.toFixed(0)} 倍，长条本身不放大。`;
+  const travel = siphCopy().travel;
+  const head = travel.head(a.name, a.neff.toFixed(4), lg, vp, mag.toFixed(0));
   if (!compare) return head;
   const lg2 = Math.round(guidedWavelengthNm(b.neff));
   const vp2 = phaseVelocityOverC(b.neff).toFixed(3);
-  return `${head} 虚线是 ${b.name}：${lg2} nm，${vp2} c。两条曲线只是放在一起比较，没有相加成一个场。`;
+  return `${head} ${travel.compareTail(b.name, lg2, vp2)}`;
 }
 
 function clamp(n: number, a: number, b: number): number {

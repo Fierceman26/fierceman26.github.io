@@ -1,0 +1,67 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import FormattedDate from '~/components/FormattedDate.astro';
+import { findCategory } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { entryLabel, useUI } from '~/i18n/ui';
+import { loadPosts } from '~/lib/posts';
+
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
+const posts = await loadPosts(locale);
+
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const y = post.data.pubDate.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(post);
+}
+const years = Array.from(byYear.keys()).sort((a, b) => b - a);
+---
+
+<BaseLayout title={t.writing.title} description={t.writing.description}>
+  <section class="container hero">
+    <div class="hero__masthead">
+      <span>{t.writing.kicker}</span>
+      <span style="color: var(--ink);">·</span>
+      <span>{entryLabel(posts.length, locale)}</span>
+    </div>
+    <h1 class="hero__title" style="font-size: clamp(2.4rem, 5vw, 3.8rem);">
+      {t.writing.title}
+    </h1>
+    <p class="hero__lead">
+      {t.writing.lead}
+    </p>
+  </section>
+
+  <section class="container archive">
+    {years.map((year) => (
+      <div class="archive__group">
+        <h2 class="archive__year">{year}</h2>
+        <ul class="archive__list">
+          {byYear.get(year)!.map((post) => (
+            <li class="archive__item">
+              <div class="archive__date">
+                <FormattedDate date={post.data.pubDate} />
+              </div>
+              <a class="archive__title" href={localizePath(`/posts/${post.id}/`, locale)}>
+                {post.data.title}
+              </a>
+              <div class="archive__tags">
+                {post.data.category
+                  ? (findCategory(post.data.category)?.title ?? post.data.category)
+                  : (post.data.tags[0] ?? '')}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    {posts.length === 0 && (
+      <p class="meta" style="padding-block: 3rem; text-align: center;">
+        {t.writing.empty}
+      </p>
+    )}
+  </section>
+</BaseLayout>
