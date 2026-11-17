@@ -15,6 +15,10 @@ function mdxFigureComponents() {
     { tag: '<NeffWindow', marker: 'components/siph/NeffWindow.astro', line: "import NeffWindow from '~/components/siph/NeffWindow.astro';\n" },
     { tag: '<ModePortrait', marker: 'components/siph/ModePortrait.astro', line: "import ModePortrait from '~/components/siph/ModePortrait.astro';\n" },
     { tag: '<ModeTravel', marker: 'components/siph/ModeTravel.astro', line: "import ModeTravel from '~/components/siph/ModeTravel.astro';\n" },
+    { tag: '<CpoReach', marker: 'components/siph/CpoReach.astro', line: "import CpoReach from '~/components/siph/CpoReach.astro';\n" },
+    { tag: '<CpoEls', marker: 'components/siph/CpoEls.astro', line: "import CpoEls from '~/components/siph/CpoEls.astro';\n" },
+    { tag: '<CpoMod', marker: 'components/siph/CpoMod.astro', line: "import CpoMod from '~/components/siph/CpoMod.astro';\n" },
+    { tag: '<CpoLoop', marker: 'components/siph/CpoLoop.astro', line: "import CpoLoop from '~/components/siph/CpoLoop.astro';\n" },
   ];
   return {
     name: 'mdx-figure-components',

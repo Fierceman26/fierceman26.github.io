@@ -1,0 +1,71 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">示意图</p>
+    <p class="siph-widget__title">微环，还是两臂</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">看哪一种调制器</legend>
+    <label>
+      微环 MRM
+      <input type="radio" name="cpo-mod" value="mrm" checked />
+    </label>
+    <label>
+      马赫-曾德尔 MZM
+      <input type="radio" name="cpo-mod" value="mzm" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-panel" data-panel="mrm">
+      <div class="cpo-stage-pad">
+        <svg class="cpo-svg" viewBox="0 0 360 128" role="img" aria-label="一根直波导旁边耦合着三只小环">
+          <line class="ink" x1="18" y1="102" x2="342" y2="102"></line>
+          <circle class="accent" cx="70" cy="62" r="26"></circle>
+          <circle class="accent" cx="180" cy="62" r="26"></circle>
+          <circle class="accent" cx="290" cy="62" r="26"></circle>
+        </svg>
+        <p class="cpo-note">每一只环只对一个波长谐振，所以密集波分是顺着这个尺寸排开的。环很小，功耗大约 1–2 pJ/bit。波长一漂，就要闭环热调谐把它拉回来。</p>
+      </div>
+    </div>
+    <div class="cpo-panel" data-panel="mzm">
+      <div class="cpo-stage-pad">
+        <svg class="cpo-svg" viewBox="0 0 360 132" role="img" aria-label="光分成上下两臂再合上，其中一臂有一段电极">
+          <path class="ink" d="M16 66 H62"></path>
+          <path class="ink" d="M62 66 L104 32 H256 L300 66"></path>
+          <path class="ink" d="M62 66 L104 100 H256 L300 66"></path>
+          <path class="ink" d="M300 66 H344"></path>
+          <rect class="hot" x="152" y="24" width="64" height="16"></rect>
+        </svg>
+        <p class="cpo-note">光分成两臂再合上，靠相位差决定相长还是相消。臂要做长，驱动电压也高。它不靠一只环对准波长，整片温度一起变时，不必做微环那套控温。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cpo-cmp">
+    <div class="cpo-cmp__h"> </div>
+    <div class="cpo-cmp__h is-mrm">MRM</div>
+    <div class="cpo-cmp__h is-mzm">MZM</div>
+    <div class="cpo-cmp__k">尺寸</div>
+    <div class="is-mrm">小，一圈波导</div>
+    <div class="is-mzm">大，两臂要做长</div>
+    <div class="cpo-cmp__k">温度</div>
+    <div class="is-mrm">必须闭环热调谐</div>
+    <div class="is-mzm">抗温漂，控温简单</div>
+    <div class="cpo-cmp__k">波分</div>
+    <div class="is-mrm">天然支持 DWDM</div>
+    <div class="is-mzm">不靠谐振拣波长</div>
+    <div class="cpo-cmp__k">能耗</div>
+    <div class="is-mrm">约 1–2 pJ/bit</div>
+    <div class="is-mzm">驱动电压高</div>
+  </div>
+
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    环和臂的长短是相对示意，不是版图，也没有补作者没写的电压或面积。MZM 一栏的「不靠谐振拣波长」是在解释它为什么不是靠微环做波分。两种调制器会在不同算力密度里并存。
+  </figcaption>
+</figure>
