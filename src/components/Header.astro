@@ -1,13 +1,27 @@
 ---
-import { SITE, NAV, issueLabel } from '~/consts';
+import { SITE, issueLabel } from '~/consts';
+import { LOCALE_STORAGE_KEY, alternatePath, localizePath, otherLocale, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
 
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
 const issue = issueLabel(new Date());
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pathname = Astro.url.pathname;
+const other = otherLocale(locale);
+const otherHref = alternatePath(pathname, other);
+
+function isCurrent(href: string): boolean {
+  const here = pathname.replace(/\/$/, '') || '/';
+  const item = href.replace(/\/$/, '') || '/';
+  if (here === item) return true;
+  if (item === '/' || item === '/en') return false;
+  return here.startsWith(item);
+}
 ---
 
 <header class="site-header">
   <div class="container site-header__inner">
-    <a href="/" class="site-header__brand" aria-label="返回首页">
+    <a href={localizePath('/', locale)} class="site-header__brand" aria-label={t.homeAria}>
       {SITE.shortTitle}
       <small>JOURNAL · EST. 2026</small>
     </a>
@@ -16,38 +30,51 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
       {issue}
     </div>
 
-    <nav class="site-header__nav" aria-label="主导航">
-      {NAV.map((item) => {
-        const itemPath = item.href.replace(/\/$/, '') || '/';
-        const isCurrent = pathname === itemPath || (itemPath !== '/' && pathname.startsWith(itemPath));
+    <nav class="site-header__nav" aria-label={t.navAria}>
+      {t.nav.map((item) => {
+        const href = localizePath(item.href, locale);
         return (
-          <a href={item.href} aria-current={isCurrent ? 'page' : undefined}>
+          <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
             {item.label}
           </a>
         );
       })}
-      <button
-        type="button"
-        class="theme-toggle"
-        id="theme-toggle"
-        aria-label="切换明暗模式"
-        title="切换明暗模式"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      </button>
+      <div class="site-header__tools">
+        <a
+          href={otherHref}
+          class="lang-toggle"
+          id="lang-toggle"
+          data-locale-target={other}
+          aria-label={t.langLabel}
+          title={t.langLabel}
+        >
+          <span class={locale === 'zh' ? 'is-active' : undefined} lang="zh-CN">中</span>
+          <span class="lang-toggle__sep" aria-hidden="true">/</span>
+          <span class={locale === 'en' ? 'is-active' : undefined} lang="en">EN</span>
+        </a>
+        <button
+          type="button"
+          class="theme-toggle"
+          id="theme-toggle"
+          aria-label={t.themeLabel}
+          title={t.themeLabel}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
     </nav>
   </div>
 </header>
 
-<script>
+<script define:vars={{ storageKey: LOCALE_STORAGE_KEY }}>
   // 暗色模式切换 —— localStorage 持久化，未设置时跟随系统
   const STORAGE_KEY = 'theme-preference';
   const root = document.documentElement;
 
-  const getStored = () => localStorage.getItem(STORAGE_KEY) as 'light' | 'dark' | null;
-  const apply = (value: 'light' | 'dark' | null) => {
+  const getStored = () => localStorage.getItem(STORAGE_KEY);
+  const apply = (value) => {
     if (value === 'light' || value === 'dark') {
       root.setAttribute('data-theme', value);
     } else {
@@ -55,27 +82,39 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
     }
   };
 
-  // 初始化（脚本可能在 DOM 完成前就执行，先尝试一次）
   apply(getStored());
+
+  const rememberLocale = (node) => {
+    const target = node && node.getAttribute('data-locale-target');
+    if (target === 'en' || target === 'zh') {
+      try { localStorage.setItem(storageKey, target); } catch (err) { /* ignore */ }
+    }
+  };
 
   document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('theme-toggle');
-    if (!button) return;
+    if (button) {
+      button.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        let next;
 
-    button.addEventListener('click', () => {
-      const current = root.getAttribute('data-theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      let next: 'light' | 'dark';
+        if (!current) {
+          next = systemPrefersDark ? 'light' : 'dark';
+        } else {
+          next = current === 'dark' ? 'light' : 'dark';
+        }
 
-      if (!current) {
-        // 当前在跟随系统：点击 = 切到相反值
-        next = systemPrefersDark ? 'light' : 'dark';
-      } else {
-        next = current === 'dark' ? 'light' : 'dark';
-      }
+        localStorage.setItem(STORAGE_KEY, next);
+        apply(next);
+      });
+    }
 
-      localStorage.setItem(STORAGE_KEY, next);
-      apply(next);
-    });
+    const lang = document.getElementById('lang-toggle');
+    if (lang) {
+      // pointerdown 比导航更早，新标签页打开时偏好也已经写下。
+      lang.addEventListener('pointerdown', () => rememberLocale(lang));
+      lang.addEventListener('click', () => rememberLocale(lang));
+    }
   });
 </script>

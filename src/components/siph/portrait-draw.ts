@@ -17,6 +17,7 @@ import {
   strokeCore,
   worldToScreen,
 } from './modes';
+import { siphCopy } from './copy';
 
 const SPOTS: Array<[number, number]> = [];
 for (const x of [-0.36, -0.16, 0, 0.16, 0.36]) {
@@ -60,13 +61,14 @@ export function paintPortrait(
     label(ctx, mode === 'te' ? 'Ex' : 'Ey', core.x + core.w + 6, core.y + core.h / 2, pal, 12, 'left', 'middle');
   }
   if (opts.title && view.w >= 200) {
-    label(ctx, '氧化硅', view.x + 8, view.y + view.h - 10, pal, 11, 'left', 'bottom');
+    label(ctx, siphCopy().portrait.oxide, view.x + 8, view.y + view.h - 10, pal, 11, 'left', 'bottom');
   }
 }
 
 function drawTitle(ctx: CanvasRenderingContext2D, view: ViewRect, mode: ModeId, pal: Palette): void {
-  const title = mode === 'te' ? 'TE0 · 准横电' : 'TM0 · 准横磁';
-  const sub = mode === 'te' ? '主导电场 Ex，沿宽度' : '主导电场 Ey，沿厚度';
+  const p = siphCopy().portrait;
+  const title = mode === 'te' ? p.teTitle : p.tmTitle;
+  const sub = mode === 'te' ? p.teSub : p.tmSub;
   label(ctx, title, view.x + 8, view.y + 14, pal, 13, 'left', 'middle');
   if (view.w > 210) label(ctx, sub, view.x + 8, view.y + 32, pal, 11, 'left', 'middle');
 }

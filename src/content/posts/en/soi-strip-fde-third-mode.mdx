@@ -1,0 +1,67 @@
+---
+title: "The third mode a 500 nm strip should not have kept"
+description: "On 220 nm SOI, a fully etched strip 500 nm wide, at 1550 nm, FDE hands back an extra solution sitting near the oxide index. That is not a guided mode."
+pubDate: 2026-11-17
+tags: ["MODE", "FDE", "SOI", "Waveguide"]
+category: "siph"
+featured: false
+draft: false
+---
+
+220 nm SOI, a strip 500 nm wide, fully etched, buried in oxide, wavelength 1550 nm.
+I ran FDE on that cross-section in Ansys Lumerical MODE, and the solver handed back three modes.
+The first two are guided. The third has an neff stuck to the silica, and about −1.5 dB/cm of negative loss.
+**That is not a guided mode.**
+
+Propagation is along z. The cross-section is xy. The core is `Si (Silicon) - Palik`, the background is `SiO2 (Glass) - Palik`.
+Three objects in the layout: the waveguide `Si_wg`, the solve region `FDE`, and a mesh override `wg_mesh` near the waveguide.
+The FDE window is about 4 µm, eight trial modes, a global mesh of dx = dy = 20 nm, PML on all four sides.
+`wg_mesh` pulls the mesh near the waveguide down to 5 nm.
+
+## The three solutions
+
+| Mode | neff | TE fraction | loss |
+| --- | --- | --- | --- |
+| mode1, TE0 | 2.445347 | 0.9835 | ~ 0 |
+| mode2, TM0 | 1.771059 | 0.0444 | ~ 0 |
+| mode3 | 1.492897 | ≈ 0.70 | ≈ −1.5 dB/cm |
+
+A TE fraction near 1 is TE. Near 0 is TM. 0.9835 and 0.0444 are clean on both sides.
+
+On this same 500 nm strip, TE is bound more tightly than TM, so TE0 has the higher neff and a narrower |E|².
+The two figures are that difference.
+
+<Figure
+  src="/images/siph/mode1_E2.png"
+  alt="TE0 |E|² of a 220 nm SOI strip, 500 nm wide, at 1550 nm, neff = 2.445"
+  caption="TE0 |E|², neff = 2.445. The field is held inside the silicon core."
+  width={750}
+  height={600}
+/>
+
+<Figure
+  src="/images/siph/mode2_E2.png"
+  alt="TM0 |E|² of the same waveguide, neff = 1.771, bound more loosely than TE0"
+  caption="TM0 |E|², neff = 1.771. Bound more loosely than TE0; the energy reaches into the cladding."
+  width={750}
+  height={600}
+/>
+
+The frame for this comparison comes from Lukas Chrostowski and Michael Hochberg, *Silicon Photonics Design: From Devices to Systems* (Cambridge, 2015). Chapter 2 uses FDE on waveguides that are uniform along the direction of propagation. Chapter 3 compares how TE and TM are bound in a strip. The book supplies only that frame. The neff, the polarization fractions, and the field plots above are from this simulation.
+
+## The one stuck to the cladding index
+
+mode3 has neff = 1.492897, close to `n_SiO2` ≈ 1.44.
+The loss is about −1.5 dB/cm, and the sign is backwards: the solver is reporting gain.
+That is a numerical artifact of a radiating field meeting the PML, not the waveguide amplifying light.
+The TE fraction is ≈ 0.70, so the polarization is not clean either. Throw it out.
+
+Three roots were found among eight trial modes. Remove this one and the guided modes left are TE0 and TM0.
+So at 1550 nm this 500 nm strip is single-moded for both TE and TM.
+
+The first version of the script saved the `.lms` before Find Modes was clicked.
+Open the file and all you see is the layout: `Si_wg`, the FDE window, the mesh.
+The mode fields appear only after you click Find Modes again in the GUI.
+That is useful while you are learning the interface. It is not a simulation result.
+
+I did not sweep the width at which higher-order modes appear. The next note sweeps width and finds the cutoff.

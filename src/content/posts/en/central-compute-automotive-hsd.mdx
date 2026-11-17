@@ -1,0 +1,111 @@
+---
+title: "High-speed circuits in a central-compute car: the pains, and a loop from simulation back to the bench"
+description: "Central compute plus zonal control puts an automated-driving SoC, about 15 m of harness, and a 900 V-class SiC stage on the same vehicle. This note sets five high-speed pains that tend to detonate in DV/PV against the Keysight ADS path from channel, power, and package back to measured models."
+pubDate: 2026-11-17
+tags: ["ADS", "SIPro", "Signal Integrity", "Automotive"]
+category: "hsd"
+featured: false
+draft: false
+---
+
+Sorting through the electrical architecture of a new intelligent electric vehicle, the main line is already fairly clear. The car is moving from distributed domain control to central computing plus zonal control. Once a flagship automated-driving SoC, a lidar controller, a 900 V-class silicon-carbide high-voltage platform, and a fully by-wire chassis are on the same vehicle, the complexity, the bandwidth density, and the harshness of the electromagnetic environment in the car's high-speed circuits locally meet, and in places pass, what a data-center server asks for.
+
+This note is written from the point of view of a high-speed interconnect engineer. It sets down, as something that can be checked against, the technical domains that need to be taken apart in the most advanced cars now, five engineering difficulties that tend to detonate in DV/PV, and the full-path practice I have seen in Keysight EDA — PathWave ADS at the center — aimed at those pains.
+
+## 1. Five technical domains in the high-speed circuits of a flagship car
+
+Read against a central-compute cluster, the high-speed electronics of the vehicle fall roughly into five domains.
+
+| Domain | Typical hardware | Core high-speed interfaces and protocols | Typical rate and modulation |
+| --- | --- | --- | --- |
+| 1. Central compute for driving and the cabin | Flagship automated-driving SoC (deployable as two dice) plus a next-generation cabin SoC | PCIe Gen 5.0 / 6.0, UCIe (chiplet interconnect) | 32 GT/s (NRZ) to 64 GT/s (PAM4) |
+| 2. Very-high-bandwidth memory | Memory for an end-to-end driving model, shared graphics memory for the central computer | LPDDR5X / LPDDR6 | 8533 Mbps to 10667 Mbps (a single device, in a high-bandwidth configuration, can reach on the order of hundreds of GB/s) |
+| 3. Long-reach in-vehicle backbone | Central switch out to several zonal controllers | Automotive multi-gigabit Ethernet (IEEE 802.3ch: 2.5G/5G/10GBASE-T1) | Up to 10 Gbps–25 Gbps (PAM4 + TSN) |
+| 4. Sensing, and video to many screens | Many high-resolution cameras, 4D mm-wave radar, lidar, plus an AR-HUD and rear-seat screens | GMSL3, FPD-Link IV, MIPI A-PHY / ASA, MIPI C-PHY/D-PHY, DP 2.1 | 12 Gbps–24 Gbps (asymmetric long-reach SerDes, coax with PoC) |
+| 5. Radio and the wireless link | A smart shark-fin antenna, a digital key, V2X, satellite connectivity | 5G-A (mm-wave / sub-6 GHz), C-V2X, UWB, Wi-Fi 7 | RF roughly 6 GHz to 77 GHz (mm-wave radar) |
+
+## 2. Five design constraints the coming architecture actually imposes
+
+Space in the vehicle is tight. The harness is extremely long — up to about 15 m — and it has to live with a 900 V-class high-voltage system in a strong electromagnetic environment. The hardware team is up against five hard constraints.
+
+### 1. Under PAM4, the signal-integrity margin thins in a hurry
+
+In PCIe Gen 6.0 and in 10GBASE-T1 automotive Ethernet, modulation moves from NRZ to PAM4. At the same Nyquist frequency PAM4 has three vertical eyes. Eye height shrinks to about a third of NRZ, and the SNR loss is more than 9.5 dB. On a 16-to-20-layer HDI board for an in-vehicle supercomputer, a via stub, fiber weave, and a small impedance discontinuity are each enough to bring in serious inter-symbol interference and mode conversion, and the bit error rate will not converge.
+
+### 2. Power integrity and simultaneous switching noise on very-high-bandwidth memory
+
+Flagship driving chips are mostly on a process on the order of 5 nm now, and they commonly carry an end-to-end model on many channels of LPDDR5X or LPDDR6. Core voltage is down around 0.5 V to 0.75 V, and the transient \(di/dt\) can reach hundreds of amperes per microsecond. Once the fast-switching DQ/DQS couples into the low-voltage supply network, rail collapse and simultaneous switching noise eat the timing margin of the read and write eyes directly.
+
+### 3. A joint model of a harness about 15 m long and the PoC network
+
+Cameras and lidars sit around the body. The data travels GMSL3 or MIPI A-PHY, through several stretches of harness and waterproof connectors, to the central domain controller. Cameras also commonly use PoC, power over coax: one coax carries both a multi-gigabit signal and DC power. The parasitic capacitance and the resonances of the bias inductor, across a wide band, easily ruin return loss. The S-parameters of the harness also drift under vibration and across −40 °C to 125 °C. If the method is still build-and-test, the problem is easily dragged all the way to DV/PV before it shows.
+
+### 4. Cross-scale EMC/EMI between a 900 V-class SiC drive and the low-voltage high-speed digital domain
+
+A 900 V-class silicon-carbide drive switches very fast. \(dv/dt\) can exceed 50 V/ns, and through the chassis ground return and through radiation it becomes a strong broadband electromagnetic pulse. If a high-speed differential pair on the central computer or on an intelligent-chassis controller is even slightly asymmetric, common-mode noise turns quickly into differential interference, and it threatens the communication reliability of links that carry functional safety, steer-by-wire among them.
+
+### 5. Not enough efficiency in co-design from wafer to package to PCB
+
+The boundary of the design has moved from the board alone out to advanced packaging — 2.5D and 3D IC, BGA — designed together with the board. Traditional simulation, cut into segments, has a hard time treating, in one environment, the full-wave three-dimensional electromagnetic coupling of a nanometer-scale silicon interposer, a micrometer-scale package substrate, and millimeter-scale PCB traces. The simulation cycle gets pulled visibly longer.
+
+## 3. Against those pains, the full path in Keysight EDA
+
+Set against the five difficulties above, what Keysight EDA offers, with PathWave ADS at the center, is a closed path from chip package, to the supercomputer PCB, to the vehicle harness, to a pre-compliance look at EMC on the real car. Read it by the problem, not by a list of tools.
+
+### 1. Channel simulation for high-speed serial links: PCIe 5/6, automotive Ethernet, GMSL / A-PHY
+
+The practice is the ADS Channel Simulator, together with System Designer for PCIe and Ethernet, and SIPro.
+
+Import the domain-controller PCB (Allegro, Mentor, and the other formats) into SIPro. Run a hybrid three-dimensional electromagnetic extraction on the high-speed pairs, the BGA fanout, and the back-drilled vias, and take out multi-port S-parameters that are forced to satisfy causality and passivity. Then put the IBIS-AMI models of the controller and the endpoint — CTLE, DFE, FFE included — into the channel simulator, for a statistical eye at a BER on the order of \(10^\{-12\}\) to \(10^\{-15\}\), and for a bit-by-bit PAM4 transient. For 802.3ch automotive Ethernet and for automotive SerDes, the built-in COM (Channel Operating Margin) 4.0 assessment can be run directly, and the PoC bias network can be optimized across a wide band.
+
+Compared with a traditional pure 3D finite-element tool, SIPro is accelerated, at the level of the algorithm, for dense PCB routing. Keeping a close match to full-wave three-dimensional electromagnetic results, the extraction is on the order of 5 to 10 times faster. AMI Modeler can also let the chip team generate an encrypted AMI model directly and hand it to a Tier-1.
+
+### 2. PI and SI together on LPDDR5X / LPDDR6
+
+The practice is ADS Memory Designer plus PIPro.
+
+Use PIPro first for DC drop and electro-thermal coupling on a multi-level power tree, and confirm that the copper temperature rise stays under control at high compute load. Then run the AC impedance analysis, and use the optimizer to search capacitance value, count, and mounting inductance until the PDN target impedance is pushed down. In Memory Designer, connect dozens of DQ, DQS, and CA nets with Smart Bus, stack on the power-to-signal coupling model extracted by PIPro (a power-aware S-parameter), and simulate directly the dynamic read and write eyes that include SSO and SSN. It also writes a compliance report against the JEDEC LPDDR5X specification.
+
+The flow compresses, hard, the hand-wiring of what used to be over a hundred ports. Modeling time can come down by more than 80 percent. With the parallel speedup of Design Cloud, a full-channel transient and electromagnetic simulation that used to take days has a chance of coming down to a few hours.
+
+### 3. Chiplets, and package-to-board co-design
+
+The practice is Chiplet PHY Designer (W3650B) plus 3D Interconnect Designer.
+
+Stack the chip package and the main board in three dimensions inside ADS (Smart Mount), extract in one pass the continuous electromagnetic field from the die bump, through the package microvia, to the PCB pad, and finish forward-clock jitter tracking for a die-to-die link such as UCIe inside Chiplet PHY Designer. The point is that the package team and the board team no longer have to work through a wall of data. System-level SI and PI can be checked before tapeout.
+
+### 4. EMC when high voltage and high-speed digital share a car, and a fast board-level patrol
+
+The practice is EMPro plus EP-Scan, and it can be combined with PIPro-EMI.
+
+Put the radiation sources of the high-speed digital board and the high-frequency conducted interference of the SiC inverter into the same model. Simulate the near-field and far-field radiated emissions at the gaps of the domain controller's metal housing and at the vehicle connectors, and deal with a common-mode radiation overage while the design is still a layout. On an ordinary respin, use the lighter EP-Scan to scan automatically for impedance continuity, reference splits, length match, and crosstalk hotspots, and to compare the electrical difference between PCB revisions.
+
+This is the SI engineer's experience, frozen into rules that can be executed on their own, so a layout engineer can catch most of the basic integrity defects before the board is released.
+
+### 5. The part that is genuinely hard to copy: simulation and measurement from the same source
+
+Automotive electronics, in the end, has to pass hardware compliance on a bench and in the car. Keysight builds both the EDA and the instruments for high-speed digital and for the physical layer of in-vehicle networks — oscilloscopes, VNAs, bit-error-rate testers — so the simulation side and the lab side can share one compliance algorithm.
+
+The compliance checks ADS runs for PCIe, LPDDR5, 10GBASE-T1, or MIPI A-PHY can stay consistent, at the level of the underlying algorithm, with what a UXR real-time oscilloscope and an AE2000L automotive SerDes vector-network system use in the lab. The hardware team can also measure, with a VNA and PLTS, the S-parameters of a real harness of about 15 m and of the waterproof connectors, import them into ADS, and mix them with the virtual PCB. The other way around: when a prototype eye closes, the real waveform captured on the scope is brought back into ADS for the root cause, to shrink the gap that says "simulation passed, the bench failed."
+
+## 4. Industry cases that can be set alongside
+
+The public cases below line up, respectively, with an in-house compute chip, an automotive-Ethernet backbone, and iteration on a dense board. They do not point at one particular car company, but the method can be set directly against the pains above. The effect numbers in the text all come from public case statements. The exact boundary should still be read from the original material.
+
+**Case 1: high-speed interface work at advanced chip teams, Broadcom among them.** Developing a high-performance ASIC with a leading DDR interface means walking a large number of combinations across silicon, package, and PCB. Building that DDR simulation chain by hand is very slow. After ADS Memory Designer and a chip-package-board flow were brought in, the team could walk topology, termination, and package routing faster, in pursuit of a first tapeout and a first board release that both work. Sarcina Technology, using ADS for the full SI/PI path on CPU, GPU, and network-processor packages, has also reported a high rate of first-pass design success. For the package and the surrounding high-speed circuits of an in-house driving chip or a lidar controller, the method can be borrowed directly.
+
+**Case 2: Continental's compliance work on automotive Ethernet.** Moving through 100BASE-T1 and 1000BASE-T1 toward multi-gigabit, mode conversion in the harness, return loss, and the electromagnetic environment across hot and cold stretch the debug cycle badly. After Keysight's automotive-Ethernet design flow and automated compliance — physical-layer SI, protocol decode and trigger, the conformance package — Continental cut overall test and validation development time by more than 30 percent, and improved hardware interoperability across PHY vendors.
+
+**Case 3: SECO and IPS, getting more out of dense high-speed digital boards.** As layer count and the density of high-speed nets rise, a dedicated SI engineer easily becomes the bottleneck on respin checks. SECO integrated EP-Scan and ADS SIPro into the flow, so the hardware team could pre-check high-speed nets and compare revisions before the final SI signoff. Engineering productivity rose by about 25 percent. After IPS brought in the ADS high-speed digital suite across the board, design efficiency on complex high-speed digital PCBs roughly doubled.
+
+## 5. Three steps, if this is going to land in a development flow
+
+If a car company or a domain-controller team wants this method in daily work, the stable way is three steps, not the whole tool chain on day one.
+
+Step one, shift left. Early in schematic and layout, give every hardware engineer EP-Scan, and establish a company baseline for high-speed routing checks — impedance, length match, a crosstalk threshold — so the basic problems are stopped at layout.
+
+Step two, deep co-design on the core domain controller. Inside the SI/PI group that sits with the in-house chip team and the central domain controller, connect ADS SIPro and PIPro, Memory Designer, and the Channel Simulator, and add Design Cloud compute where it is needed. Build an end-to-end model from the chip package, to the PCB, to the measured S-parameters of a harness about 15 m long.
+
+Step three, close the loop between the virtual and the real. Connect the EDA room to the VNA in the automotive EMC and high-speed lab — an AE2000L, for example — and to the high-bandwidth oscilloscope. Back-annotate every vehicle harness test and every DV-bench dataset into the ADS model library, and accumulate, over time, the dedicated models and check baselines of automotive-grade high-speed interconnect.
+
+A simulator does not replace the bench or the certification on the car. Putting the channel, the supply, the package, and the harness into one model that can be back-annotated from measurement is the most direct way to move a problem out of firefighting in DV/PV and up in front of layout and tapeout.

@@ -1,17 +1,21 @@
 ---
 import '~/styles/siph-widgets.css';
+import { siphCopy } from './copy';
+import { useLocale } from '~/i18n/routing';
+
+const c = siphCopy(useLocale(Astro.currentLocale, Astro.url.pathname));
 ---
 
 <figure class="siph-widget" data-siph="slab">
   <div class="siph-widget__accent" aria-hidden="true"></div>
   <div class="siph-widget__head">
-    <p class="siph-widget__kicker">示意图</p>
-    <p class="siph-widget__title">芯层收到 220 nm，光线这幅图就不够用</p>
+    <p class="siph-widget__kicker">{c.schematic}</p>
+    <p class="siph-widget__title">{c.slab.title}</p>
   </div>
   <div class="siph-widget__controls">
-    <button class="siph-widget__play" type="button" data-play aria-pressed="false">播放</button>
+    <button class="siph-widget__play" type="button" data-play aria-pressed="false">{c.play}</button>
     <label class="siph-widget__slider">
-      <span>厚度</span>
+      <span>{c.slab.thickness}</span>
       <input type="range" data-thick min="0" max="1000" step="1" value="0" aria-valuemin="0" aria-valuemax="1000" />
     </label>
   </div>
@@ -21,7 +25,7 @@ import '~/styles/siph-widgets.css';
   <p class="siph-widget__live" data-live aria-live="polite"></p>
   <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
   <figcaption>
-    滑杆从很厚收到 220 nm。厚的时候画全反射，厚度是故意夸大的；收到右边，芯层与 λ0 用同一比例，光线换成不变形的亮带和包层里的尾巴。这里先不区分 TE 和 TM。
+    {c.slab.caption}
   </figcaption>
 </figure>
 

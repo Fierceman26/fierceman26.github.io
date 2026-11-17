@@ -1,0 +1,88 @@
+---
+title: "A few decibels an MZM EOE budget tends to forget"
+description: "An optical I/O budget always carries a few losses that look small: bias-point drift, TIA input-referred noise, retiming jitter. Each one can cost another 6 dB of margin against a 1e-12 BER."
+pubDate: 2026-05-03
+tags: ["MZM", "EOE", "Link Budget", "Photonics"]
+category: "eoe"
+---
+
+Pluggable optical modules in the data center are giving way to **optical I/O** — the signal leaves the ASIC and is modulated directly,
+then travels as light. In that architecture the EOE budget (electrical → optical → electrical) is much tighter than a conventional electrical link,
+because **nonlinearity at the optical end, detector noise, and the limited SNR of an analog receive front end**
+stack together, and there is not much room left for digital equalization.
+
+Below are a few terms I keep dropping when I run a budget in the ADS Photonics Designer Suite.
+
+## 1. Process drift of the MZM bias point
+
+In theory an MZM sits at the quadrature bias point (the Q-point), where the small-signal linearity is best.
+In practice the bias point drifts with temperature, wavelength, and the modulator's own thermo-optic coefficient.
+
+If ADS is given only an ideal MZM, the budget comes out **2–3 dB** too optimistic.
+In OMA (optical modulation amplitude) that is a 30–50% loss.
+
+The right way to do this in a system simulation:
+
+- Give the MZM a **bias control loop** model, even a simplified first-order loop
+- In a corner run, sweep the bias error out to about ±5°
+
+## 2. TIA input-referred noise
+
+The receiver is a photodetector plus a TIA. Budget tables often count only the PD's shot noise
+and **leave out the TIA's input-referred current noise**.
+
+Typical numbers:
+
+| Contributor | Noise (in a 16 GHz bandwidth) |
+| --- | --- |
+| PD shot noise (1 mA photocurrent) | ~22 nA RMS |
+| TIA input current noise | ~80 nA RMS |
+| Total | ~83 nA RMS |
+
+Which is to say **the TIA is the dominant noise source**, not the PD. The budget has to include it.
+
+## 3. Retiming jitter → timing noise
+
+If the receiver has a CDR, the BER after retiming is not only the voltage noise of the eye.
+It is also the jitter of the **sampling instant**.
+
+In the ADS envelope simulator, above a 30 GHz baud rate, CDR jitter
+is usually on the order of 0.5–1 ps RMS. On a UI whose eye is 16 ps wide, that is **3–6%**,
+and it comes straight out of the timing margin.
+
+> A rule of thumb: at a BER target of 1e-12, leave jitter its own 6 dB of budget. That is easier than discovering, afterwards, that there was not enough.
+
+## A conservative budget template
+
+The EOE budget I use now looks roughly like this, in dB:
+
+```text
+Transmitter
+  Laser RIN ............... 1.5
+  MZM ER (extinction) ..... 6.0  (10 dB ER)
+  MZM bias drift .......... 2.0  (PVT corner)
+  Driver linearity ........ 0.8
+
+Channel
+  Fiber attenuation ....... 0.3  (50 m)
+  Connector losses ........ 1.5  (3 × 0.5 dB)
+
+Receiver
+  PD responsivity ......... 0
+  TIA input noise ......... 4.0  (the dominant term)
+  TIA bandwidth ........... 1.2
+  Retiming jitter ......... 6.0
+
+Margins
+  Aging + temperature .... 3.0
+  Manufacturing tolerance . 2.0
+  ──────────────────────────────
+  Total budget ............ 28.3 dB
+```
+
+Take that number off the OMA you actually have, and what remains is the window in which the link can close an eye and stay closed.
+
+---
+
+An optical I/O budget is tight not because any single term is terrible, but because **none of them can be skipped**.
+The next note will be the concrete steps for building this budget model in ADS Photonics, starting from the official MZM_EOE example.

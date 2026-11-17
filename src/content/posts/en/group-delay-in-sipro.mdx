@@ -1,0 +1,112 @@
+---
+title: "A few SIPro paths for group delay"
+description: "On a DDR5 channel, a few nanoseconds of intra-pair skew is enough to close the eye. This is a note from one end-to-end pass at SIPro, starting from the layout — which moves actually helped, and which only comforted the numbers."
+pubDate: 2026-05-18
+updatedDate: 2026-05-19
+tags: ["ADS", "SIPro", "DDR5", "Signal Integrity"]
+category: "hsd"
+featured: true
+---
+
+> A working note. The conclusions may not travel, but every step was run on a real design.
+
+Lately I have been tuning group delay on a DDR5-6400 channel. The delay difference inside the differential pair sits around **18 ps**.
+By the usual accounting, that has already eaten a third of the eye margin. What SIPro gives you is a view at the level of network parameters.
+You can see, on the layout, which segment contributed how much. How to actually "tune" it is left to you.
+
+Below is a comparison of the paths from this pass — not a tutorial. Closer to a work log.
+
+## Start by measuring
+
+Every optimization starts with a measurement. The group-delay view in SIPro does not lie,
+but it is easy to **misread the unit**. Read group delay along the frequency axis and the curve itself is on the order of nanoseconds.
+The skew you care about is the **difference** between the two lines of the pair, and that difference jitters on the order of picoseconds.
+
+```python
+# Pull group-delay data from ADS Python
+from keysight.ads import datalink
+
+ds = datalink.open("path/to/sim.ds")
+gd_p = ds.get_named("GD(S(2,1))")   # positive leg
+gd_n = ds.get_named("GD(S(4,3))")   # negative leg
+skew = (gd_p - gd_n) * 1e12          # to ps
+print(f"max intra-pair skew = {skew.abs().max():.2f} ps")
+```
+
+This step produces the **objective**. Every change after it is an attempt to make that number smaller.
+
+## Path A: length tuning
+
+The classic move. Add a length-tuning serpentine in SIPro
+and bring the short leg up to the length of the long one.
+
+In practice:
+
+- **The length you add** scales with `√(L · C)`, but the "length" SIPro sees on the layout
+  is geometric length, not electrical length. The difference comes from Dk, copper thickness, and the reference-layer stack.
+- In the breakout at the BGA, **length matching inside the fanout** is the hardest part — the traces change layers,
+  and the Dk is not the same. Forcing the match on the main signal layer distorts the differential mode.
+
+This time I changed the approach inside the fanout. **Both legs drop symmetrically through the same via stub**,
+and I did not compensate length on the main signal layer. Intra-pair skew fell from 18 ps to about 9 ps.
+
+## Path B: a consistent reference
+
+A quieter source — **a broken reference**.
+
+On a DDR5 channel we regularly cross a split plane.
+DQ and DQS, in particular, leave some BGA balls and borrow a stretch that has no solid reference.
+Group delay then wobbles in a way that is hard to see by eye as "it is here."
+
+I used a crude method that worked. On SIPro's net visualization I **highlighted the two legs separately**
+and checked whether each segment saw the same reference net.
+The moment the two legs cite different pieces of stitched GND on different segments, they will contribute skew.
+
+The fix: change the BGA pin order so both legs see the same unbroken plane on every segment.
+
+## Path C: symmetry of the via stub
+
+A via is small, but the delay difference from an **asymmetric stub** can kill the signal above 6 GHz.
+
+```text
+Stubs on the two legs of the pair:
+  positive:  drilled-thru, stub 5.2 mil
+  negative:  back-drilled, stub 0.8 mil
+```
+
+That structural asymmetry does not explode the group delay in SIPro immediately. SIPro solves
+linear network parameters. A stub brings in a high-frequency resonance,
+and the visible damage to group delay sits at a higher band.
+
+**Conclusion:** before you tune intra-pair skew, check whether the via stubs were treated the same way. The same treatment (both back-drilled, or both thru)
+matters more than "which one is shorter."
+
+## How you know a change actually worked
+
+One group-delay run in SIPro is not enough. You have to feed the S-parameters back into a channel simulation
+and look at the eye. SIPro gives you the channel itself. The eye is the channel plus the driver, the receiver, and the equalization.
+
+What I do is run a channel simulation on every revision of the design
+and write down three numbers:
+
+| Revision | intra-pair skew | eye height | eye width |
+| --- | --- | --- | --- |
+| Baseline | 18 ps | 38 mV | 0.51 UI |
+| Path A | 9 ps  | 51 mV | 0.58 UI |
+| A + B  | 5 ps  | 58 mV | 0.61 UI |
+| A + B + C | 4 ps | 60 mV | 0.62 UI |
+
+On this revision, path C **paid the least**. When the PVT corners are all run,
+the benefit of C shows up on the worst case. It is a slow benefit.
+
+---
+
+## A few rules I kept
+
+1. **Do not length-match first.** Make the reference consistent first, make the vias symmetric first, and length-match last.
+   Length matching is compensatory. It spends a lot of layout area, and it moves around at the PVT corners.
+2. **Every change goes through channel sim.** The SIPro view can flatter you. The number is real only after it is put back into the channel.
+3. **A flat group delay is not a small skew.** Skew is the difference inside the pair. Flat only means one leg looks tidy on its own.
+
+Next time I want to try a sweep with SIPro's net parametrization — let the length-tuning
+length move on its own, and watch the skew curve that comes out of channel sim. If that run closes, it gets a note of its own.

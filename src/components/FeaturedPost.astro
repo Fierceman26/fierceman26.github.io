@@ -1,15 +1,19 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import type { JournalPost } from '~/lib/posts';
 import FormattedDate from './FormattedDate.astro';
 import { findCategory } from '~/consts';
+import { localizePath, useLocale } from '~/i18n/routing';
+import { useUI } from '~/i18n/ui';
 
 interface Props {
-  post: CollectionEntry<'posts'>;
+  post: JournalPost;
   readingTime?: string;
 }
 
+const locale = useLocale(Astro.currentLocale, Astro.url.pathname);
+const t = useUI(locale);
 const { post, readingTime } = Astro.props;
-const href = `/posts/${post.id}/`;
+const href = localizePath(`/posts/${post.id}/`, locale);
 const category = post.data.category ? findCategory(post.data.category) : null;
 ---
 
@@ -17,37 +21,37 @@ const category = post.data.category ? findCategory(post.data.category) : null;
   <article class="featured">
     <div>
       <div class="featured__eyebrow">
-        Feature · {category ? category.title : 'Essay'}
+        {t.post.feature} · {category ? category.title : t.post.essay}
       </div>
       <h2 class="featured__title">
         <a href={href}>{post.data.title}</a>
       </h2>
       <p class="featured__lead">{post.data.description}</p>
       <a href={href} class="card__footer">
-        Read the full piece<span aria-hidden="true">→</span>
+        {t.post.readFull}<span aria-hidden="true">→</span>
       </a>
     </div>
     <aside>
       <div class="meta" style="display: grid; gap: 0.5rem;">
         <div>
-          <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Published</strong>
+          <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">{t.post.published}</strong>
           <FormattedDate date={post.data.pubDate} />
         </div>
         {post.data.updatedDate && (
           <div>
-            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Last revised</strong>
+            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">{t.post.lastRevised}</strong>
             <FormattedDate date={post.data.updatedDate} />
           </div>
         )}
         {readingTime && (
           <div>
-            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Reading</strong>
+            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">{t.post.reading}</strong>
             {readingTime}
           </div>
         )}
         {post.data.tags.length > 0 && (
           <div>
-            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">Filed under</strong>
+            <strong style="display:block; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: 0.18em;">{t.post.filed}</strong>
             {post.data.tags.join(' · ')}
           </div>
         )}

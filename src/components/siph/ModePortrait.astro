@@ -1,29 +1,33 @@
 ---
 import '~/styles/siph-widgets.css';
+import { siphCopy } from './copy';
+import { useLocale } from '~/i18n/routing';
+
+const c = siphCopy(useLocale(Astro.currentLocale, Astro.url.pathname));
 ---
 
-<figure class="siph-widget" data-siph="portrait" aria-label="TE0 与 TM0 的截面示意图">
+<figure class="siph-widget" data-siph="portrait" aria-label={c.portrait.aria}>
   <div class="siph-widget__accent" aria-hidden="true"></div>
   <div class="siph-widget__head">
-    <p class="siph-widget__kicker">示意图</p>
-    <p class="siph-widget__title">TE0 的电场沿宽度，TM0 沿厚度</p>
+    <p class="siph-widget__kicker">{c.schematic}</p>
+    <p class="siph-widget__title">{c.portrait.title}</p>
   </div>
   <div class="siph-widget__controls">
-    <div class="siph-widget__seg" role="group" aria-label="选择模">
+    <div class="siph-widget__seg" role="group" aria-label={c.portrait.choose}>
       <button type="button" data-mode="te" aria-pressed="true">TE0</button>
       <button type="button" data-mode="tm" aria-pressed="false">TM0</button>
-      <button type="button" data-mode="both" aria-pressed="false">并排</button>
+      <button type="button" data-mode="both" aria-pressed="false">{c.portrait.both}</button>
     </div>
-    <button class="siph-widget__play" type="button" data-play aria-pressed="false">播放</button>
+    <button class="siph-widget__play" type="button" data-play aria-pressed="false">{c.play}</button>
     <label class="siph-widget__slider">
-      <span>相位</span>
-      <input type="range" data-phase min="0" max="359" step="1" value="0" aria-label="时间相位，单位度" />
+      <span>{c.portrait.phase}</span>
+      <input type="range" data-phase min="0" max="359" step="1" value="0" aria-label={c.portrait.phaseAria} />
     </label>
   </div>
   <ul class="siph-legend">
-    <li><i class="swatch-heat"></i> |E|² 包络，各自归一</li>
-    <li><i class="swatch-te"></i> 瞬时 E 的正向</li>
-    <li><i class="swatch-tm"></i> 反向</li>
+    <li><i class="swatch-heat"></i> {c.portrait.heat}</li>
+    <li><i class="swatch-te"></i> {c.portrait.forward}</li>
+    <li><i class="swatch-tm"></i> {c.portrait.reverse}</li>
   </ul>
   <div class="siph-widget__stage" data-stage>
     <canvas data-canvas aria-hidden="true"></canvas>
@@ -31,7 +35,7 @@ import '~/styles/siph-widgets.css';
   <p class="siph-widget__live" data-live aria-live="polite"></p>
   <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
   <figcaption>
-    500 nm × 220 nm 的硅条，按比例画在氧化硅里。箭头是主导电场：TE0 水平，TM0 竖直，随 cos(ωt) 一起伸缩、反向。色块是定性的 |E|²，不是 FDE 网格。暂停时相位停在箭头最长的一帧。
+    {c.portrait.caption}
   </figcaption>
 </figure>
 

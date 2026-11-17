@@ -1,15 +1,15 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
 import { SITE } from '~/consts';
+import { ui } from '~/i18n/ui';
+import { loadPosts } from '~/lib/posts';
 import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection('posts', ({ data }) => !data.draft))
-    .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+  const posts = await loadPosts('zh');
 
   return rss({
     title: SITE.title,
-    description: SITE.description,
+    description: ui.zh.metaDescription,
     site: context.site ?? 'https://example.github.io',
     items: posts.map((post) => ({
       title: post.data.title,

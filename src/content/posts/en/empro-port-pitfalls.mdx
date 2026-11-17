@@ -1,0 +1,131 @@
+---
+title: "The port pitfalls that show up once a layout reaches EMPro"
+description: "\"needs at least one excitation\" is the usual first stall after a layout is pushed into EMPro. This note sorts the common root causes, and the fix that belongs to each."
+pubDate: 2026-05-11
+tags: ["EMPro", "ADS", "FEM", "Port", "Debug"]
+category: "hsd"
+---
+
+The first EMPro run dies with **"needs at least one excitation"**.
+For a lot of people that is the first wall in the ADS EM flow. On the surface the ports were never set.
+Underneath, the causes split into several kinds — and the fixes are not the same fix.
+
+Below, in root-cause order.
+
+## 1. A pcell instance's pins were never refreshed
+
+The common one. You change a parameter on a pcell instance (finger width, spacing),
+then you run EMPro directly. It reports "no excitation."
+
+Why: in the rfpro view, a port hangs on the concrete pin coordinates of a pcell instance
+(names like `X1.1`, `X1.2`). After the parameter change the pin has moved,
+but the coordinates cached in the rfpro view are the old ones. The pin the port points at **does not exist** on the new layout.
+
+The fix is to force a refresh inside the worker.
+
+```python
+import empro
+
+# After a pcell parameter change, refresh is mandatory
+empro.activeProject.layout.refresh()
+
+# Then set up the analysis
+analysis = empro.toolkit.analysis.runAnalysis(...)
+```
+
+Note that it is `layout.refresh()`, not `save()`. Saving only writes the file.
+It does not re-parse the pin geometry of the instance.
+
+## 2. Momentum merged the ports
+
+Easy to hit when the same rfpro view is shared across simulators (FEM ↔ Momentum).
+
+Momentum has a `TouchingPortsReduction` option, **on by default**.
+It merges ports that share the same reference pin. FEM does not do this.
+
+What you see: 14 ports on FEM, 8 after you switch to Momentum.
+A few ports were collapsed — disastrous for a differential pair, because the positive and negative ports share GND,
+get merged, and the differential excitation disappears.
+
+Two fixes, pick one:
+
+- Turn `TouchingPortsReduction` off in the Momentum setup
+- Or redesign the port topology so the two ends of the pair do not share a reference pin
+
+I prefer the second. Turn the option off and the port count explodes — Momentum is not as good as FEM
+at a strongly coupled multi-port problem.
+
+## 3. The port hangs on a top-level pin instead of an instance pin
+
+This is a **stability** problem. It does not always break immediately.
+
+If the port hangs on a standalone top-level pin (`P1`, `P2`),
+any layout edit can invalidate that pin.
+Hang it on a pcell instance pin (`X1.1`, `X1.2`) and it is much more stable.
+
+```python
+# Not recommended — a top-level pin, dead as soon as a pcell parameter changes
+ports.append(empro.analysis.Port(top_pin="P1", reference_pin="P2"))
+
+# Preferred — an instance pin, which follows the pcell
+ports.append(empro.analysis.Port(top_pin="X1.1", reference_pin="X1.2"))
+```
+
+`X1.1` means pin 1 of instance `X1`. After a pcell parameter change the pin number stays,
+and the physical location moves with it.
+
+## 4. The reference pin was never written
+
+EMPro's Port constructor wants the **reference given explicitly**.
+Unlike some EM tools, it will not infer one from the GND net.
+
+```python
+# Silently ignored. The run then says "no excitation"
+ports.append(empro.analysis.Port(top_pin="X1.1"))  # ← reference missing
+
+# Correct: they have to be a pair
+ports.append(empro.analysis.Port(top_pin="X1.1", reference_pin="X1.GND"))
+```
+
+If the port really is single-ended and there is no reference pin,
+you have to build a virtual minus terminal with `empro.analysis.createVirtualPinForMinusTerminal(...)`
+and hang it on the bottom GND.
+
+## 5. The EM Setup view itself was never saved
+
+The most hidden of the set. You changed the ports in the main ADS window and **did not save the view**.
+
+The EMPro worker loads the port configuration from the rfpro view's XML.
+If the XML was not refreshed, the port configuration is still the old one.
+
+The fix: `keysight.ads.de.save_design()` before you touch the layout, then update the view.
+Or, more thoroughly, delete the whole `<workspace>/<lib>/<cell>/sipi/` directory
+and let SIPro extract it again.
+
+```python
+import shutil
+from pathlib import Path
+
+# A complete clear of the SIPro cache
+ws = Path("workspace_root")
+for sub in ["sipi", "simulation"]:
+    target = ws / "lib" / "cell" / sub
+    if target.exists():
+        shutil.rmtree(target)
+
+# Then create_pro_view again
+```
+
+---
+
+## A diagnostic checklist
+
+After "needs at least one excitation," walk this order:
+
+1. Did `empro.activeProject.layout.refresh()` actually run
+2. Does the Port constructor include `reference_pin`
+3. Across simulators, check `TouchingPortsReduction`
+4. Has the SIPro cache (the `sipi/` directory) been cleared
+5. If it still will not go — delete the rfpro view and build it again
+
+Ninety percent of cases stop at step 1 or step 2. The remaining ten percent need the rest.
