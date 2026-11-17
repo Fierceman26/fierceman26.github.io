@@ -360,11 +360,17 @@ a:hover {
 /* 移动端：导航折叠 */
 @media (max-width: 720px) {
   .site-header__inner {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
   }
   .site-header__issue { display: none; }
   .site-header__nav {
-    gap: 1rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.85rem;
+  }
+  .site-header__nav .theme-toggle {
+    margin-left: auto;
   }
   .site-header__nav a span.label-long { display: none; }
 }
@@ -936,6 +942,20 @@ a:hover {
   font-style: italic;
   color: var(--ink-soft);
   font-size: 1.08rem;
+}
+
+.prose p.eq {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  text-align: center;
+  color: var(--ink);
+  margin: 1.35rem auto;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.prose p.eq sub {
+  font-size: 0.72em;
 }
 .prose blockquote p:last-child { margin-bottom: 0; }
 

@@ -7,7 +7,15 @@ import sitemap from '@astrojs/sitemap';
 // it looks for props.components.Figure and fails the build. This plugin
 // injects the import before that compiler runs.
 function mdxFigureComponents() {
-  const importLine = "import Figure from '~/components/Figure.astro';\n";
+  // MDX only resolves a component that is already in scope. Inject the import
+  // when a post uses the tag, so notes don't repeat the same import block.
+  const widgets = [
+    { tag: '<Figure', marker: 'components/Figure.astro', line: "import Figure from '~/components/Figure.astro';\n" },
+    { tag: '<SlabLimit', marker: 'components/siph/SlabLimit.astro', line: "import SlabLimit from '~/components/siph/SlabLimit.astro';\n" },
+    { tag: '<NeffWindow', marker: 'components/siph/NeffWindow.astro', line: "import NeffWindow from '~/components/siph/NeffWindow.astro';\n" },
+    { tag: '<ModePortrait', marker: 'components/siph/ModePortrait.astro', line: "import ModePortrait from '~/components/siph/ModePortrait.astro';\n" },
+    { tag: '<ModeTravel', marker: 'components/siph/ModeTravel.astro', line: "import ModeTravel from '~/components/siph/ModeTravel.astro';\n" },
+  ];
   return {
     name: 'mdx-figure-components',
     hooks: {
@@ -19,15 +27,17 @@ function mdxFigureComponents() {
                 name: 'inject-mdx-figure',
                 enforce: 'pre',
                 transform(code, id) {
-                  if (!id.endsWith('.mdx')) return;
-                  if (!code.includes('<Figure')) return;
-                  if (code.includes('components/Figure.astro')) return;
+                  const path = id.split('?')[0];
+                  if (!path.endsWith('.mdx')) return;
+                  const needed = widgets.filter((item) => code.includes(item.tag) && !code.includes(item.marker));
+                  if (needed.length === 0) return;
+                  const block = needed.map((item) => item.line).join('');
                   const fence = code.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n/);
                   if (fence) {
                     const at = fence[0].length;
-                    return code.slice(0, at) + importLine + code.slice(at);
+                    return code.slice(0, at) + block + code.slice(at);
                   }
-                  return importLine + code;
+                  return block + code;
                 },
               },
             ],
