@@ -1,0 +1,93 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">示意图</p>
+    <p class="siph-widget__title">激光器放在封装外</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">激光器放在哪里</legend>
+    <label>
+      前面板 ELS
+      <input type="radio" name="cpo-els" value="front" checked />
+    </label>
+    <label>
+      留在封装里
+      <input type="radio" name="cpo-els" value="inside" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-panel" data-panel="front">
+      <div class="cpo-stage-pad">
+        <div class="cpo-face">
+          <p class="cpo-kicker">前面板 · 可热插拔</p>
+          <div class="cpo-die is-on">
+            <b>ELS</b>
+            <small>外置激光器，持续发光</small>
+          </div>
+        </div>
+        <div class="cpo-fiber">
+          <i aria-hidden="true"></i>
+          <span>保偏光纤，把光送进 PIC</span>
+        </div>
+        <div class="cpo-pkg">
+          <p class="cpo-kicker">封装内结温 85–105 °C</p>
+          <div class="cpo-dies">
+            <div class="cpo-die">
+              <b>ASIC</b>
+              <small>交换或 GPU 的热</small>
+            </div>
+            <div class="cpo-die">
+              <b>PIC</b>
+              <small>只受光，激光不在这里</small>
+            </div>
+          </div>
+        </div>
+        <p class="cpo-note">激光离开热点。坏了可以在面板上换，不必拆封装。</p>
+      </div>
+    </div>
+
+    <div class="cpo-panel" data-panel="inside">
+      <div class="cpo-stage-pad">
+        <div class="cpo-face">
+          <p class="cpo-kicker">前面板</p>
+          <div class="cpo-die is-ghost">
+            <b>空位</b>
+            <small>激光没有放在面板上</small>
+          </div>
+        </div>
+        <div class="cpo-pkg">
+          <p class="cpo-kicker">封装内结温 85–105 °C</p>
+          <div class="cpo-dies">
+            <div class="cpo-die">
+              <b>ASIC</b>
+              <small>热点</small>
+            </div>
+            <div class="cpo-die">
+              <b>PIC</b>
+              <small>调制在这里</small>
+            </div>
+            <div class="cpo-die is-on">
+              <b>激光器</b>
+              <small>和热点在同一只封装里</small>
+            </div>
+          </div>
+        </div>
+        <p class="cpo-note">激光器怕热，寿命也有限。片上集成这一条，行业后来普遍放下了。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-heat"></i>封装里的热，85–105 °C</li>
+    <li><i class="swatch-te"></i>激光器所在的位置</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    结温按笔记里的 85–105 °C。外置光源（ELS）放在前面板，经保偏光纤给 PIC 送光，并且可以热插拔。左边这一档是已经普遍放弃的片上激光，用来对照热点为什么留不住它。
+  </figcaption>
+</figure>

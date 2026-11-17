@@ -1,0 +1,87 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">示意图</p>
+    <p class="siph-widget__title">电要走多远</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">电互连放在哪一段</legend>
+    <label>
+      可插拔
+      <input type="radio" name="cpo-reach" value="plug" checked />
+    </label>
+    <label>
+      封装内
+      <input type="radio" name="cpo-reach" value="cpo" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-panel" data-panel="plug">
+      <div class="cpo-stage-pad">
+        <div class="cpo-col">
+          <div class="cpo-chip">
+            <b>SerDes</b>
+            <small>交换或计算芯片上的电口</small>
+          </div>
+          <div class="cpo-wire cpo-wire--long">
+            <b aria-hidden="true"></b>
+            <span>数厘米 PCB</span>
+          </div>
+          <div class="cpo-chip">
+            <b>前面板模块</b>
+            <small>可插拔，拔下来就能换</small>
+          </div>
+          <div class="cpo-meter">
+            <p class="cpo-meter__name">这段电通道的插入损耗</p>
+            <p class="cpo-loss__num">超过 30–40 dB</p>
+            <div class="cpo-meter__track" aria-hidden="true">
+              <i class="cpo-meter__fill cpo-meter__fill--full"></i>
+            </div>
+          </div>
+          <p class="cpo-note">DSP 和重定时器要把这截损耗补回来，功耗跟着上去。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cpo-panel" data-panel="cpo">
+      <div class="cpo-stage-pad">
+        <div class="cpo-col">
+          <div class="cpo-chip">
+            <b>SerDes</b>
+            <small>同一只封装里</small>
+          </div>
+          <div class="cpo-wire cpo-wire--short">
+            <b aria-hidden="true"></b>
+            <span>毫米，甚至亚毫米</span>
+          </div>
+          <div class="cpo-chip">
+            <b>EIC / PIC</b>
+            <small>光引擎收进封装</small>
+          </div>
+          <div class="cpo-meter">
+            <p class="cpo-meter__name">电走的距离</p>
+            <p class="cpo-loss__num">短距</p>
+            <p class="cpo-loss__sub">这段没有另给分贝。短条不是按 30–40 dB 换算出来的。</p>
+            <div class="cpo-meter__track" aria-hidden="true">
+              <i class="cpo-meter__fill cpo-meter__fill--short"></i>
+            </div>
+          </div>
+          <p class="cpo-note">距离缩短之后，整体光互连的功耗可以降低 50%–70%。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-te"></i>酒红是电走的那一截</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    可插拔：SerDes 穿过数厘米 PCB 到前面板，插入损耗超过 30–40 dB。封装内：同一段电收到毫米或亚毫米。短条只表示这段厘米走线不再主导，不是测到的另一个分贝数。
+  </figcaption>
+</figure>
