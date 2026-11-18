@@ -1125,6 +1125,45 @@ html[lang='zh-CN'] .hero__title {
   margin: 1.8rem auto;
   border-radius: 4px;
 }
+
+/* Markdown 裸图：包一层，才能在位图角落压上出处。Figure 组件用同一枚角标。 */
+.prose .post-img {
+  position: relative;
+  display: block;
+  margin: 1.8rem auto;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.prose .post-img img {
+  margin: 0;
+  border-radius: 0;
+}
+
+.img-credit {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  max-width: 100%;
+  padding: 1px 6px 2px;
+  border-radius: 2px 0 0 0;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
+  /* 贴着图的外缘，落在 matplotlib 留白里，不盖住刻度。
+     纸色不随暗色主题反转，避免白底曲线图角落一块深色贴纸。 */
+  color: rgba(21, 22, 26, 0.78);
+  background: rgba(250, 250, 246, 0.78);
+}
+
 .prose figcaption {
   text-align: center;
   font-family: var(--font-sans);
@@ -1385,7 +1424,45 @@ html[lang='zh-CN'] .hero__title {
 }
 
 /* -------------------------------------------------------------------------
-   15. 杂项：阅读进度、回顶
+   15. 文章水印（仅 .post-article）
+   斜向重复的品牌 + 站点。颜色跟着 --ink，浅色纸上是淡墨，暗色纸上是淡字。
+   叠在正文上面，但透明度低，笔画落在字上时几乎看不出来，落在行间才显出来。
+   pointer-events / user-select 都关掉，不挡选择、链接、右键。
+   ------------------------------------------------------------------------- */
+.post-article {
+  position: relative;
+}
+
+.article-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  color: var(--ink);
+  opacity: 0.145;
+}
+
+.article-watermark svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.article-watermark text {
+  fill: currentColor;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+/* -------------------------------------------------------------------------
+   16. 杂项：阅读进度、回顶
    ------------------------------------------------------------------------- */
 .reading-progress {
   position: fixed;
@@ -1398,6 +1475,25 @@ html[lang='zh-CN'] .hero__title {
   transition: width 0.08s linear;
 }
 
+@media print {
+  .article-watermark,
+  .img-credit {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* 打印会把淡灰吃掉一截，稍微加重，纸上仍能认出出处。 */
+  .article-watermark {
+    opacity: 0.22;
+    color: #15161a;
+  }
+
+  .img-credit {
+    color: rgba(21, 22, 26, 0.82);
+    background: rgba(250, 250, 246, 0.9);
+  }
+}
+
 /* 减少动效（用户偏好） */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -1407,7 +1503,7 @@ html[lang='zh-CN'] .hero__title {
 }
 
 /* -------------------------------------------------------------------------
-   16. 手机阅读
+   17. 手机阅读
    桌面杂志版式不动。窄屏把字号、行长和标题收成一条阅读栏，
    卷期大字和栏目空高退到后面。
    ------------------------------------------------------------------------- */
