@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { journalPwa } from './src/pwa/integration.mjs';
+import { rehypeImageMark } from './src/lib/rehype-image-mark.mjs';
 
 // <Figure /> in MDX posts, without a per-file import.
 // The MDX compiler only uses a component that is already in scope; otherwise
@@ -91,6 +92,7 @@ export default defineConfig({
     journalPwa(),
   ],
   markdown: {
+    rehypePlugins: [rehypeImageMark],
     shikiConfig: {
       themes: {
         light: 'github-light',

@@ -7,6 +7,7 @@ import { SITE, slugifyTag, findCategory } from '~/consts';
 import { localizePath, useLocale } from '~/i18n/routing';
 import { categoryView, readTime, useUI } from '~/i18n/ui';
 import { loadPosts, type JournalPost } from '~/lib/posts';
+import { REPOST_MARK } from '~/lib/repost-mark.mjs';
 
 interface Props {
   post: JournalPost;
@@ -40,7 +41,24 @@ const older = idx < all.length - 1 ? all[idx + 1] : null;
 >
   <div class="reading-progress" id="reading-progress"></div>
 
-  <article>
+  <article class="post-article">
+    {/*
+      斜向重复水印，只盖在这篇正文上。pointer-events 关掉，不挡选择、链接和右键。
+      字是品牌加站点，中英文页同一句。
+    */}
+    <div class="article-watermark" aria-hidden="true">
+      <svg focusable="false" aria-hidden="true">
+        <defs>
+          <pattern id="article-watermark" width="420" height="220" patternUnits="userSpaceOnUse">
+            <text class="article-watermark__text" text-anchor="middle" transform="rotate(-24 210 118)">
+              <tspan x="210" y="118">{REPOST_MARK}</tspan>
+            </text>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#article-watermark)" />
+      </svg>
+    </div>
+
     <header class="post-header container">
       {category && categoryText && (
         <div class="post-header__category">
