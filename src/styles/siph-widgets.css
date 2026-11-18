@@ -1073,3 +1073,276 @@
     min-width: 6.2rem;
   }
 }
+
+/* CouplerPick: append only. Do not rewrite earlier widget rules. */
+
+.coupler-sheet .cpo-choice {
+  flex-wrap: wrap;
+}
+
+.coupler-label {
+  fill: currentColor;
+  font-size: 9px;
+  font-family: var(--font-sans);
+  opacity: 0.72;
+}
+
+.coupler-half,
+.coupler-fde,
+.coupler-split {
+  fill: none;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.coupler-half {
+  stroke: currentColor;
+  opacity: 0.28;
+}
+
+.coupler-fde {
+  stroke: #5b3a7a;
+  opacity: 0.7;
+}
+
+.coupler-split {
+  stroke: var(--accent, #7a1631);
+  opacity: 0.45;
+}
+
+.coupler-line {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.coupler-line--thru,
+.coupler-pt--thru {
+  stroke: var(--accent, #7a1631);
+}
+
+.coupler-pt--thru {
+  fill: var(--accent, #7a1631);
+}
+
+.coupler-line--cross,
+.coupler-pt--cross {
+  stroke: #1e3f66;
+}
+
+.coupler-pt--cross {
+  fill: #1e3f66;
+}
+
+.coupler-pt--tm {
+  fill: none;
+  stroke: #1e3f66;
+  stroke-width: 1.6;
+}
+
+:root[data-theme='dark'] .coupler-line--cross,
+:root[data-theme='dark'] .coupler-pt--cross,
+:root[data-theme='dark'] .coupler-pt--tm {
+  stroke: #9ec3dd;
+}
+
+:root[data-theme='dark'] .coupler-pt--cross {
+  fill: #9ec3dd;
+}
+
+:root[data-theme='dark'] .coupler-fde {
+  stroke: #c9b3de;
+}
+
+.swatch-cross {
+  background: #1e3f66;
+}
+
+:root[data-theme='dark'] .swatch-cross {
+  background: #9ec3dd;
+}
+
+.coupler-guide,
+.coupler-ring {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.coupler-guide {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.coupler-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.coupler-sheet:has(input[name='coupler-l'][value='l0']:checked) .coupler-guide[data-l='l0'],
+.coupler-sheet:has(input[name='coupler-l'][value='l4']:checked) .coupler-guide[data-l='l4'],
+.coupler-sheet:has(input[name='coupler-l'][value='l8']:checked) .coupler-guide[data-l='l8'],
+.coupler-sheet:has(input[name='coupler-l'][value='l10447']:checked) .coupler-guide[data-l='l10447'],
+.coupler-sheet:has(input[name='coupler-l'][value='l12']:checked) .coupler-guide[data-l='l12'],
+.coupler-sheet:has(input[name='coupler-l'][value='l18']:checked) .coupler-guide[data-l='l18'],
+.coupler-sheet:has(input[name='coupler-l'][value='l22']:checked) .coupler-guide[data-l='l22'] {
+  opacity: 0.45;
+}
+
+.coupler-sheet:has(input[name='coupler-l'][value='l0']:checked) .coupler-ring[data-pt='l0-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l0']:checked) .coupler-ring[data-pt='l0-cross'],
+.coupler-sheet:has(input[name='coupler-l'][value='l4']:checked) .coupler-ring[data-pt='l4-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l4']:checked) .coupler-ring[data-pt='l4-cross'],
+.coupler-sheet:has(input[name='coupler-l'][value='l8']:checked) .coupler-ring[data-pt='l8-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l8']:checked) .coupler-ring[data-pt='l8-cross'],
+.coupler-sheet:has(input[name='coupler-l'][value='l10447']:checked) .coupler-ring[data-pt='l10447-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l10447']:checked) .coupler-ring[data-pt='l10447-cross'],
+.coupler-sheet:has(input[name='coupler-l'][value='l12']:checked) .coupler-ring[data-pt='l12-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l12']:checked) .coupler-ring[data-pt='l12-cross'],
+.coupler-sheet:has(input[name='coupler-l'][value='l18']:checked) .coupler-ring[data-pt='l18-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l18']:checked) .coupler-ring[data-pt='l18-cross'],
+.coupler-sheet:has(input[name='coupler-l'][value='l22']:checked) .coupler-ring[data-pt='l22-thru'],
+.coupler-sheet:has(input[name='coupler-l'][value='l22']:checked) .coupler-ring[data-pt='l22-cross'] {
+  opacity: 1;
+}
+
+.coupler-sheet .cpo-panel {
+  display: none;
+}
+
+.coupler-sheet:has(input[name='coupler-l'][value='l0']:checked) .cpo-panel[data-panel='l0'],
+.coupler-sheet:has(input[name='coupler-l'][value='l4']:checked) .cpo-panel[data-panel='l4'],
+.coupler-sheet:has(input[name='coupler-l'][value='l8']:checked) .cpo-panel[data-panel='l8'],
+.coupler-sheet:has(input[name='coupler-l'][value='l10447']:checked) .cpo-panel[data-panel='l10447'],
+.coupler-sheet:has(input[name='coupler-l'][value='l12']:checked) .cpo-panel[data-panel='l12'],
+.coupler-sheet:has(input[name='coupler-l'][value='l18']:checked) .cpo-panel[data-panel='l18'],
+.coupler-sheet:has(input[name='coupler-l'][value='l22']:checked) .cpo-panel[data-panel='l22'] {
+  display: block;
+}
+
+.coupler-readout {
+  margin: 0.55rem 0 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--ink);
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coupler-sheet * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .prose:has(.coupler-sheet) table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prose:has(.coupler-sheet) th,
+  .prose:has(.coupler-sheet) td {
+    min-width: 6.2rem;
+  }
+}
+
+/* CouplerPick: keep dots filled, follow system dark, and stay inside the column.
+   Appended after the widget block. Earlier rules are unchanged. */
+
+.coupler-sheet {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.coupler-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+.cpo-svg .coupler-pt--thru {
+  fill: var(--accent, #7a1631);
+  stroke: var(--accent, #7a1631);
+  stroke-width: 0;
+}
+
+.cpo-svg .coupler-pt--cross {
+  fill: #1e3f66;
+  stroke: #1e3f66;
+  stroke-width: 0;
+}
+
+.cpo-svg .coupler-pt--tm {
+  fill: none;
+  stroke: #1e3f66;
+  stroke-width: 1.6;
+}
+
+.cpo-svg .coupler-line--thru {
+  stroke: var(--accent, #7a1631);
+}
+
+.cpo-svg .coupler-line--cross {
+  stroke: #1e3f66;
+}
+
+.cpo-svg .coupler-fde {
+  stroke: #5b3a7a;
+}
+
+:root[data-theme='dark'] .cpo-svg .coupler-line--cross,
+:root[data-theme='dark'] .cpo-svg .coupler-pt--cross,
+:root[data-theme='dark'] .cpo-svg .coupler-pt--tm {
+  stroke: #9ec3dd;
+}
+
+:root[data-theme='dark'] .cpo-svg .coupler-pt--cross {
+  fill: #9ec3dd;
+}
+
+:root[data-theme='dark'] .cpo-svg .coupler-fde {
+  stroke: #c9b3de;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .coupler-line--cross,
+  :root:not([data-theme='light']) .coupler-pt--cross,
+  :root:not([data-theme='light']) .coupler-pt--tm,
+  :root:not([data-theme='light']) .cpo-svg .coupler-line--cross,
+  :root:not([data-theme='light']) .cpo-svg .coupler-pt--cross,
+  :root:not([data-theme='light']) .cpo-svg .coupler-pt--tm {
+    stroke: #9ec3dd;
+  }
+
+  :root:not([data-theme='light']) .coupler-pt--cross,
+  :root:not([data-theme='light']) .cpo-svg .coupler-pt--cross {
+    fill: #9ec3dd;
+  }
+
+  :root:not([data-theme='light']) .coupler-fde,
+  :root:not([data-theme='light']) .cpo-svg .coupler-fde {
+    stroke: #c9b3de;
+  }
+
+  :root:not([data-theme='light']) .swatch-cross {
+    background: #9ec3dd;
+  }
+}
+
+.coupler-readout,
+.coupler-sheet .cpo-note {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}

@@ -1,0 +1,158 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet coupler-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">扫描结果</p>
+    <p class="siph-widget__title">直段一长，交叉就上来</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">直段长度</legend>
+    <label>
+      0 µm
+      <input type="radio" name="coupler-l" value="l0" />
+    </label>
+    <label>
+      4 µm
+      <input type="radio" name="coupler-l" value="l4" />
+    </label>
+    <label>
+      8 µm
+      <input type="radio" name="coupler-l" value="l8" />
+    </label>
+    <label>
+      10.447 µm
+      <input type="radio" name="coupler-l" value="l10447" checked />
+    </label>
+    <label>
+      12 µm
+      <input type="radio" name="coupler-l" value="l12" />
+    </label>
+    <label>
+      18 µm
+      <input type="radio" name="coupler-l" value="l18" />
+    </label>
+    <label>
+      22 µm
+      <input type="radio" name="coupler-l" value="l22" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <svg class="cpo-svg coupler-svg" viewBox="0 0 340 200" role="img" aria-label="TE0 直通和交叉透过随直段长度变化。10.447 微米是这次 varFDTD 全器件里的 50/50，不是流片直段。FDE 给出的一半耦合长度 18.963 微米在更右边。">
+        <line class="faint" x1="40" y1="16" x2="324" y2="16"></line>
+        <line class="faint" x1="40" y1="51" x2="324" y2="51"></line>
+        <line class="faint" x1="40" y1="86" x2="324" y2="86"></line>
+        <line class="faint" x1="40" y1="121" x2="324" y2="121"></line>
+        <line class="faint" x1="40" y1="156" x2="324" y2="156"></line>
+        <line class="coupler-half" x1="40" y1="86" x2="324" y2="86"></line>
+        <text class="coupler-label" x="36" y="20" text-anchor="end">1</text>
+        <text class="coupler-label" x="36" y="55" text-anchor="end">0.75</text>
+        <text class="coupler-label" x="36" y="90" text-anchor="end">0.5</text>
+        <text class="coupler-label" x="36" y="125" text-anchor="end">0.25</text>
+        <text class="coupler-label" x="36" y="160" text-anchor="end">0</text>
+        <text class="coupler-label" x="10" y="90" text-anchor="middle" transform="rotate(-90 10 90)">T</text>
+        <text class="coupler-label" x="40.00" y="174" text-anchor="middle">0</text>
+        <text class="coupler-label" x="91.64" y="174" text-anchor="middle">4</text>
+        <text class="coupler-label" x="143.27" y="174" text-anchor="middle">8</text>
+        <text class="coupler-label" x="194.91" y="174" text-anchor="middle">12</text>
+        <text class="coupler-label" x="272.36" y="174" text-anchor="middle">18</text>
+        <text class="coupler-label" x="324.00" y="174" text-anchor="middle">22</text>
+        <text class="coupler-label" x="182" y="194" text-anchor="middle">L (µm)</text>
+        <line class="coupler-fde" x1="284.80" y1="16" x2="284.80" y2="156"></line>
+        <line class="coupler-split" x1="174.86" y1="16" x2="174.86" y2="156"></line>
+        <polyline class="coupler-line coupler-line--thru" points="40.00,21.71 65.82,26.50 91.64,39.04 117.45,51.82 143.27,65.10 169.09,83.46 194.91,101.13 220.73,115.65 246.55,130.70 272.36,143.19 298.18,150.80 324.00,155.29"></polyline>
+        <polyline class="coupler-line coupler-line--cross" points="40.00,154.12 65.82,147.44 91.64,137.03 117.45,125.12 143.27,108.97 169.09,90.80 194.91,75.64 220.73,59.30 246.55,42.33 272.36,32.30 298.18,25.15 324.00,17.82"></polyline>
+        <circle class="coupler-pt coupler-pt--thru" cx="40.00" cy="21.71" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="65.82" cy="26.50" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="91.64" cy="39.04" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="117.45" cy="51.82" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="143.27" cy="65.10" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="169.09" cy="83.46" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="194.91" cy="101.13" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="220.73" cy="115.65" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="246.55" cy="130.70" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="272.36" cy="143.19" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="298.18" cy="150.80" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--thru" cx="324.00" cy="155.29" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="40.00" cy="154.12" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="65.82" cy="147.44" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="91.64" cy="137.03" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="117.45" cy="125.12" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="143.27" cy="108.97" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="169.09" cy="90.80" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="194.91" cy="75.64" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="220.73" cy="59.30" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="246.55" cy="42.33" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="272.36" cy="32.30" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="298.18" cy="25.15" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--cross" cx="324.00" cy="17.82" r="3.2"></circle>
+        <circle class="coupler-pt coupler-pt--tm" cx="174.86" cy="68.50" r="4"></circle>
+        <circle class="coupler-pt coupler-pt--tm" cx="174.86" cy="134.96" r="4"></circle>
+        <line class="coupler-guide" data-l="l0" x1="40.00" y1="16" x2="40.00" y2="156"></line>
+        <line class="coupler-guide" data-l="l4" x1="91.64" y1="16" x2="91.64" y2="156"></line>
+        <line class="coupler-guide" data-l="l8" x1="143.27" y1="16" x2="143.27" y2="156"></line>
+        <line class="coupler-guide" data-l="l10447" x1="174.86" y1="16" x2="174.86" y2="156"></line>
+        <line class="coupler-guide" data-l="l12" x1="194.91" y1="16" x2="194.91" y2="156"></line>
+        <line class="coupler-guide" data-l="l18" x1="272.36" y1="16" x2="272.36" y2="156"></line>
+        <line class="coupler-guide" data-l="l22" x1="324.00" y1="16" x2="324.00" y2="156"></line>
+        <circle class="coupler-ring" data-pt="l0-thru" cx="40.00" cy="21.71" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l0-cross" cx="40.00" cy="154.12" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l4-thru" cx="91.64" cy="39.04" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l4-cross" cx="91.64" cy="137.03" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l8-thru" cx="143.27" cy="65.10" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l8-cross" cx="143.27" cy="108.97" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l10447-thru" cx="174.86" cy="87.60" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l10447-cross" cx="174.86" cy="88.69" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l12-thru" cx="194.91" cy="101.13" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l12-cross" cx="194.91" cy="75.64" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l18-thru" cx="272.36" cy="143.19" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l18-cross" cx="272.36" cy="32.30" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l22-thru" cx="324.00" cy="155.29" r="7"></circle>
+        <circle class="coupler-ring" data-pt="l22-cross" cx="324.00" cy="17.82" r="7"></circle>
+      </svg>
+
+      <div class="cpo-panel" data-panel="l0">
+        <p class="coupler-readout">TE0，L = 0 µm · T<sub>through</sub> = 0.959200 · T<sub>cross</sub> = 0.013399 · 0.1207 dB</p>
+        <p class="cpo-note">只有两段 S 弯，直段为 0。交叉大约占两臂输出的 1.4%。这是实测功率。把它换成等效直段，要另加单段模型的假设。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l4">
+        <p class="coupler-readout">TE0，L = 4 µm · T<sub>through</sub> = 0.835418 · T<sub>cross</sub> = 0.135513 · 0.1281 dB</p>
+        <p class="cpo-note">交叉已经明显起来，还远不到 50/50。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l8">
+        <p class="coupler-readout">TE0，L = 8 µm · T<sub>through</sub> = 0.649275 · T<sub>cross</sub> = 0.335901 · 0.0649 dB</p>
+        <p class="cpo-note">直通仍高于交叉，正在往 50/50 靠近。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l10447">
+        <p class="coupler-readout">TE0，L = 10.447 µm · T<sub>through</sub> = 0.488585 · T<sub>cross</sub> = 0.480795 · 0.1351 dB</p>
+        <p class="cpo-note">varFDTD 全器件里的 50/50，分光 50.40% / 49.60%。同一几何的 TM0 是 0.624966 / 0.150251，不是 50/50。无 S 弯的三维拟合大约 37.4 µm。这里的 10.447 µm 不是流片直段。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l12">
+        <p class="coupler-readout">TE0，L = 12 µm · T<sub>through</sub> = 0.391906 · T<sub>cross</sub> = 0.574034 · 0.1505 dB</p>
+        <p class="cpo-note">已经越过 50/50，交叉高于直通。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l18">
+        <p class="coupler-readout">TE0，L = 18 µm · T<sub>through</sub> = 0.091475 · T<sub>cross</sub> = 0.883600 · 0.1096 dB</p>
+        <p class="cpo-note">靠近 FDE 的 L<sub>c</sub>/2 = 18.963 µm。在这次 varFDTD 全器件里，交叉已经很高。不要把和 FDE 的差距拆成 S 弯一份、算法一份。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l22">
+        <p class="coupler-readout">TE0，L = 22 µm · T<sub>through</sub> = 0.005038 · T<sub>cross</sub> = 0.987016 · 0.0346 dB</p>
+        <p class="cpo-note">接近完全交叉。若用单段 sin² 模型粗估，varFDTD 这边的 L<sub>c</sub> 大约 24.6 µm。那是相位分支和等效耦合假设下的估计，不是测得的分解。三维无 S 弯的拟合大约是 37.4 µm。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-te"></i>TE0 直通</li>
+    <li><i class="swatch-cross"></i>TE0 交叉</li>
+    <li><i class="swatch-tm"></i>TM0 对照</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    圆点来自这一次 varFDTD 全器件扫描，含两端 S 弯。10.447 µm 是插值后再实跑确认的 50/50，分光 50.40% / 49.60%，不是流片直段。紫色虚线是 FDE 均匀直段的 L<sub>c</sub>/2 = 18.963 µm。TM0 只有同一几何下的两个对照点。若用单段 sin² 模型把这条曲线粗估成 L<sub>c</sub> ≈ 24.6 µm，那只是估计，不是测得的分解。无 S 弯的三维拟合大约是 37.4 µm，网格还没有做收敛。
+  </figcaption>
+</figure>
