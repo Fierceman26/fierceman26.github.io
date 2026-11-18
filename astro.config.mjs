@@ -25,6 +25,8 @@ function mdxFigureComponents() {
     { tag: '<CouplerPick', marker: 'components/siph/CouplerPick.astro', line: "import CouplerPick from '~/components/siph/CouplerPick.astro';\n" },
     { tag: '<YCombine', marker: 'components/siph/YCombine.astro', line: "import YCombine from '~/components/siph/YCombine.astro';\n" },
     { tag: '<YBranchPick', marker: 'components/siph/YBranchPick.astro', line: "import YBranchPick from '~/components/siph/YBranchPick.astro';\n" },
+    { tag: '<RingPass', marker: 'components/mdx/RingPass.astro', line: "import RingPass from '~/components/mdx/RingPass.astro';\n" },
+    { tag: '<RingCouplerPick', marker: 'components/mdx/RingCouplerPick.astro', line: "import RingCouplerPick from '~/components/mdx/RingCouplerPick.astro';\n" },
   ];
   return {
     name: 'mdx-figure-components',
