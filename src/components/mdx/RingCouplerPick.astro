@@ -1,0 +1,150 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet ringc-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">扫描结果</p>
+    <p class="siph-widget__title">开口弧上的 t 和 κ，还不是一只环</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">中心线半径</legend>
+    <label>
+      5 µm
+      <input type="radio" name="ring-r" value="r5" />
+    </label>
+    <label>
+      10 µm
+      <input type="radio" name="ring-r" value="r10" checked />
+    </label>
+  </fieldset>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">边到边间隙</legend>
+    <label>
+      150 nm
+      <input type="radio" name="ring-gap" value="g150" />
+    </label>
+    <label>
+      200 nm
+      <input type="radio" name="ring-gap" value="g200" />
+    </label>
+    <label>
+      250 nm
+      <input type="radio" name="ring-gap" value="g250" checked />
+    </label>
+    <label>
+      300 nm
+      <input type="radio" name="ring-gap" value="g300" />
+    </label>
+    <label>
+      400 nm
+      <input type="radio" name="ring-gap" value="g400" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <svg class="cpo-svg ringc-svg" viewBox="0 0 340 200" role="img" aria-label="十档二维半变分时域开口弧耦合扫描的直通和交叉耦合功率。">
+        <text class="ringc-label" x="16" y="28">总线输入</text>
+        <text class="ringc-label" x="324" y="28" text-anchor="end">直通</text>
+        <text class="ringc-label" x="324" y="132" text-anchor="end">开口弧</text>
+        <path class="ringc-guide" d="M 20 48 H 320" />
+        <path class="ringc-guide" d="M 80 118 A 44 44 0 0 1 260 118" />
+                <g data-case="r5-g150">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="286.99" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="306.99" y="168" width="12.96" height="16" />
+        </g>
+        <g data-case="r5-g200">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="294.44" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="314.44" y="168" width="5.55" height="16" />
+        </g>
+        <g data-case="r5-g250">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="297.58" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="317.58" y="168" width="2.41" height="16" />
+        </g>
+        <g data-case="r5-g300">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="298.94" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="318.94" y="168" width="1.06" height="16" />
+        </g>
+        <g data-case="r5-g400">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="299.80" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="319.80" y="168" width="0.20" height="16" />
+        </g>
+        <g data-case="r10-g150">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="277.93" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="297.93" y="168" width="22.07" height="16" />
+        </g>
+        <g data-case="r10-g200">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="290.27" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="310.27" y="168" width="9.73" height="16" />
+        </g>
+        <g data-case="r10-g250">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="295.74" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="315.74" y="168" width="4.26" height="16" />
+        </g>
+        <g data-case="r10-g300">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="298.13" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="318.13" y="168" width="1.87" height="16" />
+        </g>
+        <g data-case="r10-g400">
+          <rect class="ringc-bar ringc-bar--t" x="20.00" y="168" width="299.64" height="16" />
+          <rect class="ringc-bar ringc-bar--k" x="319.64" y="168" width="0.36" height="16" />
+        </g>
+        <rect class="ringc-frame" x="20" y="168" width="300" height="16" />
+        <text class="ringc-label" x="20" y="160">|t|² 与 |κ|²</text>
+        <text class="ringc-label" x="320" y="160" text-anchor="end">1</text>
+      </svg>
+
+      <div class="cpo-panel" data-panel="r5-g150">
+        <p class="ringc-readout">TE0，R = 5 µm，间隙 150 nm · |t| = 0.97807 · |κ| = 0.20787 · 超额损耗 0.00071 dB · |r| = 0.01118 · φ<sub>c</sub> = 95.92°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r5-g200">
+        <p class="ringc-readout">TE0，R = 5 µm，间隙 200 nm · |t| = 0.99069 · |κ| = 0.13599 · 超额损耗 0.00019 dB · |r| = 0.00488 · φ<sub>c</sub> = 96.01°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r5-g250">
+        <p class="ringc-readout">TE0，R = 5 µm，间隙 250 nm · |t| = 0.99596 · |κ| = 0.08969 · 超额损耗 0.000066 dB · |r| = 0.00222 · φ<sub>c</sub> = 95.97°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r5-g300">
+        <p class="ringc-readout">TE0，R = 5 µm，间隙 300 nm · |t| = 0.99824 · |κ| = 0.05931 · 超额损耗 0.000024 dB · |r| = 0.00112 · φ<sub>c</sub> = 95.94°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r5-g400">
+        <p class="ringc-readout">TE0，R = 5 µm，间隙 400 nm · |t| = 0.99966 · |κ| = 0.02600 · 超额损耗 0.000013 dB · |r| = 0.00059 · φ<sub>c</sub> = 95.86°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r10-g150">
+        <p class="ringc-readout">TE0，R = 10 µm，间隙 150 nm · |t| = 0.96252 · |κ| = 0.27130 · 超额损耗 −0.00018 dB · |r| = 0.02013 · φ<sub>c</sub> = 104.41°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r10-g200">
+        <p class="ringc-readout">TE0，R = 10 µm，间隙 200 nm · |t| = 0.98365 · |κ| = 0.18008 · 超额损耗 −0.000011 dB · |r| = 0.00890 · φ<sub>c</sub> = 104.51°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r10-g250">
+        <p class="ringc-readout">TE0，R = 10 µm，间隙 250 nm · |t| = 0.99287 · |κ| = 0.11925 · 超额损耗 −0.000017 dB · |r| = 0.00400 · φ<sub>c</sub> = 104.68°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r10-g300">
+        <p class="ringc-readout">TE0，R = 10 µm，间隙 300 nm · |t| = 0.99687 · |κ| = 0.07901 · 超额损耗 −0.000005 dB · |r| = 0.00187 · φ<sub>c</sub> = 104.74°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+      <div class="cpo-panel" data-panel="r10-g400">
+        <p class="ringc-readout">TE0，R = 10 µm，间隙 400 nm · |t| = 0.99940 · |κ| = 0.03471 · 超额损耗 −0.000001 dB · |r| = 0.00059 · φ<sub>c</sub> = 104.73°</p>
+        <p class="cpo-note">φ<sub>c</sub> 是最近接近面上交叉耦合相对直通的相位，不能直接代入 βL + φ<sub>c</sub> = 2πm。这是 90° 开口弧，不是闭环，也不是三维验收。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-te"></i>直通 |t|²</li>
+    <li><i class="swatch-ring-k"></i>交叉 |κ|²</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    条形图只画出开口弧耦合段的直通和交叉基模功率。|r| 大约只有百分之零点几到百分之二，在条里几乎看不见。φ<sub>c</sub> 是去嵌入到最近接近面之后的相对相位，不能直接写进谐振条件。5 µm 和 10 µm 是扫描档，不是设计半径。这是 2.5D 变分时域的仿真输出功率，不是实测，也没有网格收敛。
+  </figcaption>
+</figure>
