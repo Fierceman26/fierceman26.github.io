@@ -1581,3 +1581,249 @@
   fill: currentColor;
   opacity: 0.55;
 }
+/* Ring resonator widgets — append only. Do not rewrite existing rules. */
+
+.ringpass-sheet .cpo-panel,
+.ringc-sheet .cpo-panel,
+.ringc-svg g[data-case] {
+  display: none;
+}
+
+.ringpass-sheet [data-ch] {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.ringpass-sheet:has(input[name='ringpass-in'][value='lossless']:checked) [data-ch='lossless'],
+.ringpass-sheet:has(input[name='ringpass-in'][value='critical']:checked) [data-ch='critical'],
+.ringpass-sheet:has(input[name='ringpass-in'][value='adddrop']:checked) [data-ch='adddrop'] {
+  opacity: 1;
+}
+
+.ringpass-sheet:has(input[name='ringpass-in'][value='lossless']:checked) .cpo-panel[data-panel='lossless'],
+.ringpass-sheet:has(input[name='ringpass-in'][value='critical']:checked) .cpo-panel[data-panel='critical'],
+.ringpass-sheet:has(input[name='ringpass-in'][value='adddrop']:checked) .cpo-panel[data-panel='adddrop'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g150']:checked) .cpo-panel[data-panel='r5-g150'],
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g150']:checked) .ringc-svg g[data-case='r5-g150'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g200']:checked) .cpo-panel[data-panel='r5-g200'],
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g200']:checked) .ringc-svg g[data-case='r5-g200'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g250']:checked) .cpo-panel[data-panel='r5-g250'],
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g250']:checked) .ringc-svg g[data-case='r5-g250'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g300']:checked) .cpo-panel[data-panel='r5-g300'],
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g300']:checked) .ringc-svg g[data-case='r5-g300'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g400']:checked) .cpo-panel[data-panel='r5-g400'],
+.ringc-sheet:has(input[name='ring-r'][value='r5']:checked):has(input[name='ring-gap'][value='g400']:checked) .ringc-svg g[data-case='r5-g400'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g150']:checked) .cpo-panel[data-panel='r10-g150'],
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g150']:checked) .ringc-svg g[data-case='r10-g150'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g200']:checked) .cpo-panel[data-panel='r10-g200'],
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g200']:checked) .ringc-svg g[data-case='r10-g200'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g250']:checked) .cpo-panel[data-panel='r10-g250'],
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g250']:checked) .ringc-svg g[data-case='r10-g250'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g300']:checked) .cpo-panel[data-panel='r10-g300'],
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g300']:checked) .ringc-svg g[data-case='r10-g300'] {
+  display: block;
+}
+
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g400']:checked) .cpo-panel[data-panel='r10-g400'],
+.ringc-sheet:has(input[name='ring-r'][value='r10']:checked):has(input[name='ring-gap'][value='g400']:checked) .ringc-svg g[data-case='r10-g400'] {
+  display: block;
+}
+
+.ringpass-guide,
+.ringc-guide {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  opacity: 0.28;
+}
+
+.ringpass-guide-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  opacity: 0.28;
+}
+
+.ringpass-label,
+.ringc-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  fill: var(--ink);
+  opacity: 0.72;
+}
+
+.ringpass-bus,
+.ringpass-drop,
+.ringc-bar {
+  stroke: none;
+}
+
+.ringpass-bus {
+  fill: var(--accent);
+}
+
+.ringpass-bus--dim {
+  fill: var(--accent);
+  opacity: 0.22;
+}
+
+.ringpass-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+}
+
+.ringpass-ring--lit {
+  stroke: #1e3f66;
+}
+
+.ringpass-drop {
+  fill: #1e3f66;
+}
+
+.ringpass-port,
+.ringc-svg .ringpass-port {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.ringc-bar--t {
+  fill: var(--accent);
+}
+
+.ringc-bar--k {
+  fill: #1e3f66;
+}
+
+.ringc-frame {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+
+.swatch-ring-k {
+  background: #1e3f66;
+}
+
+html[data-theme='dark'] .ringpass-ring--lit,
+html.dark .ringpass-ring--lit {
+  stroke: #9ec3dd;
+}
+
+html[data-theme='dark'] .ringpass-drop,
+html.dark .ringpass-drop,
+html[data-theme='dark'] .ringc-bar--k,
+html.dark .ringc-bar--k {
+  fill: #9ec3dd;
+}
+
+html[data-theme='dark'] .swatch-ring-k,
+html.dark .swatch-ring-k {
+  background: #9ec3dd;
+}
+
+/* Override a site-wide rule that can blank .cpo-svg rect/circle fills. */
+.ringpass-svg .ringpass-bus,
+.ringpass-svg .ringpass-drop,
+.ringc-svg .ringc-bar--t {
+  fill: var(--accent);
+}
+
+.ringpass-svg .ringpass-bus--dim {
+  fill: var(--accent);
+}
+
+.ringpass-svg .ringpass-port {
+  fill: var(--ink);
+}
+
+.ringpass-svg .ringpass-drop,
+.ringc-svg .ringc-bar--k {
+  fill: #1e3f66;
+}
+
+html[data-theme='dark'] .ringpass-svg .ringpass-drop,
+html.dark .ringpass-svg .ringpass-drop,
+html[data-theme='dark'] .ringc-svg .ringc-bar--k,
+html.dark .ringc-svg .ringc-bar--k {
+  fill: #9ec3dd;
+}
+
+.ringpass-readout,
+.ringc-readout {
+  margin: 0.55rem 0 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.ringc-sheet .cpo-choice {
+  flex-wrap: wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringpass-sheet *,
+  .ringc-sheet * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .prose:has(.ringpass-sheet) table,
+  .prose:has(.ringc-sheet) table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prose:has(.ringpass-sheet) th,
+  .prose:has(.ringpass-sheet) td,
+  .prose:has(.ringc-sheet) th,
+  .prose:has(.ringc-sheet) td {
+    min-width: 6.2rem;
+  }
+
+  .ringpass-readout,
+  .ringc-readout {
+    font-size: 0.84rem;
+  }
+}

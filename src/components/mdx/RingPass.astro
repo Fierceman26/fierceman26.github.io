@@ -1,0 +1,72 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet ringpass-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">理想模型</p>
+    <p class="siph-widget__title">无损全通不会陷波，上下路另有出口</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">理想响应</legend>
+    <label>
+      无损全通
+      <input type="radio" name="ringpass-in" value="lossless" checked />
+    </label>
+    <label>
+      全通临界
+      <input type="radio" name="ringpass-in" value="critical" />
+    </label>
+    <label>
+      上下路对称
+      <input type="radio" name="ringpass-in" value="adddrop" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <svg class="cpo-svg ringpass-svg" viewBox="0 0 340 200" role="img" aria-label="理想全通和上下路环在无损、临界耦合和对称无耗时的端口去向。">
+        <text class="ringpass-label" x="16" y="24">总线输入</text>
+        <text class="ringpass-label" x="324" y="24" text-anchor="end">透过</text>
+        <text class="ringpass-label" x="324" y="188" text-anchor="end" data-ch="adddrop">下载</text>
+
+        <path class="ringpass-guide" d="M 20 48 H 320" />
+        <circle class="ringpass-guide-ring" cx="170" cy="118" r="44" />
+        <path class="ringpass-guide ringpass-guide--drop" data-ch="adddrop" d="M 20 170 H 320" />
+
+        <rect class="ringpass-bus" data-ch="lossless" x="20" y="40" width="300" height="16" rx="2" />
+        <circle class="ringpass-ring" data-ch="lossless" cx="170" cy="118" r="36" />
+
+        <rect class="ringpass-bus ringpass-bus--dim" data-ch="critical" x="20" y="40" width="300" height="16" rx="2" />
+        <circle class="ringpass-ring ringpass-ring--lit" data-ch="critical" cx="170" cy="118" r="36" />
+
+        <rect class="ringpass-bus ringpass-bus--dim" data-ch="adddrop" x="20" y="40" width="300" height="16" rx="2" />
+        <circle class="ringpass-ring" data-ch="adddrop" cx="170" cy="118" r="36" />
+        <rect class="ringpass-drop" data-ch="adddrop" x="20" y="162" width="300" height="16" rx="2" />
+
+        <circle class="ringpass-port" cx="20" cy="48" r="4.2" />
+        <circle class="ringpass-port" cx="320" cy="48" r="4.2" />
+        <circle class="ringpass-port" data-ch="adddrop" cx="20" cy="170" r="4.2" />
+        <circle class="ringpass-port" data-ch="adddrop" cx="320" cy="170" r="4.2" />
+      </svg>
+
+      <div class="cpo-panel" data-panel="lossless">
+        <p class="ringpass-readout">a = 1，耦合器无耗：对任意 φ 都有 T<sub>t</sub> = 1</p>
+        <p class="cpo-note">这是理想全通，只有相位和色散，没有振幅陷波。看见陷波必须以 a &lt; 1 为前提。这不是这次仿真的场。</p>
+      </div>
+      <div class="cpo-panel" data-panel="critical">
+        <p class="ringpass-readout">全通临界：t = a &lt; 1，谐振处总线透过为零</p>
+        <p class="cpo-note">欠耦合是 t &gt; a，过耦合是 t &lt; a。两种都能有陷波，不能只凭深度反推。这不是这次仿真的场。</p>
+      </div>
+      <div class="cpo-panel" data-panel="adddrop">
+        <p class="ringpass-readout">上下路、a = 1 且 t<sub>1</sub> = t<sub>2</sub>：透过暗掉，功率从 drop 口出去</p>
+        <p class="cpo-note">透过为零的条件是 t<sub>1</sub> = a t<sub>2</sub>，和全通的 t = a 不是同一句话。这不是这次仿真的场。</p>
+      </div>
+    </div>
+  </div>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    这是理想传输模型，不是这次弯曲 FDE 或开口弧变分时域的场，也还没有闭环。全通只有一根总线；上下路的下载口是真实的第二只输出。
+  </figcaption>
+</figure>
