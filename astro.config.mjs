@@ -23,6 +23,8 @@ function mdxFigureComponents() {
     { tag: '<SolverPick', marker: 'components/siph/SolverPick.astro', line: "import SolverPick from '~/components/siph/SolverPick.astro';\n" },
     { tag: '<BendLossPick', marker: 'components/siph/BendLossPick.astro', line: "import BendLossPick from '~/components/siph/BendLossPick.astro';\n" },
     { tag: '<CouplerPick', marker: 'components/siph/CouplerPick.astro', line: "import CouplerPick from '~/components/siph/CouplerPick.astro';\n" },
+    { tag: '<YCombine', marker: 'components/siph/YCombine.astro', line: "import YCombine from '~/components/siph/YCombine.astro';\n" },
+    { tag: '<YBranchPick', marker: 'components/siph/YBranchPick.astro', line: "import YBranchPick from '~/components/siph/YBranchPick.astro';\n" },
   ];
   return {
     name: 'mdx-figure-components',

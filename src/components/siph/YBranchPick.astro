@@ -1,0 +1,88 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet ybranch-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">扫描结果</p>
+    <p class="siph-widget__title">两臂对得很齐，还是只收回六成</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">分叉长度</legend>
+    <label>
+      10 µm
+      <input type="radio" name="ybranch-l" value="l10" />
+    </label>
+    <label>
+      20 µm
+      <input type="radio" name="ybranch-l" value="l20" />
+    </label>
+    <label>
+      40 µm
+      <input type="radio" name="ybranch-l" value="l40" checked />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <svg class="cpo-svg ybranch-svg" viewBox="0 0 340 200" role="img" aria-label="三次三维本征模展开扫描的功率预算：两臂基模、右侧更高阶、全模输入反射和仍未计入部分。">
+        <text class="ybranch-label" x="20" y="28">输入 TE0</text>
+        <text class="ybranch-label" x="320" y="40" text-anchor="end">上臂</text>
+        <text class="ybranch-label" x="320" y="132" text-anchor="end">下臂</text>
+
+        <path class="ybranch-guide" d="M 28 88 H 120 L 250 48 H 300" />
+        <path class="ybranch-guide" d="M 120 88 L 250 128 H 300" />
+
+        <g data-l="l10">
+          <rect class="ybranch-bar ybranch-bar--up" x="20" y="168" width="89.6" height="16" />
+          <rect class="ybranch-bar ybranch-bar--dn" x="109.6" y="168" width="89.6" height="16" />
+          <rect class="ybranch-bar ybranch-bar--ho" x="199.2" y="168" width="28.5" height="16" />
+          <rect class="ybranch-bar ybranch-bar--r" x="227.7" y="168" width="1.1" height="16" />
+          <rect class="ybranch-bar ybranch-bar--miss" x="228.8" y="168" width="91.2" height="16" />
+        </g>
+        <g data-l="l20">
+          <rect class="ybranch-bar ybranch-bar--up" x="20" y="168" width="93.4" height="16" />
+          <rect class="ybranch-bar ybranch-bar--dn" x="113.4" y="168" width="93.4" height="16" />
+          <rect class="ybranch-bar ybranch-bar--ho" x="206.8" y="168" width="17.2" height="16" />
+          <rect class="ybranch-bar ybranch-bar--r" x="224.0" y="168" width="1.4" height="16" />
+          <rect class="ybranch-bar ybranch-bar--miss" x="225.4" y="168" width="94.6" height="16" />
+        </g>
+        <g data-l="l40">
+          <rect class="ybranch-bar ybranch-bar--up" x="20" y="168" width="96.3" height="16" />
+          <rect class="ybranch-bar ybranch-bar--dn" x="116.3" y="168" width="96.3" height="16" />
+          <rect class="ybranch-bar ybranch-bar--ho" x="212.6" y="168" width="10.0" height="16" />
+          <rect class="ybranch-bar ybranch-bar--r" x="222.6" y="168" width="1.4" height="16" />
+          <rect class="ybranch-bar ybranch-bar--miss" x="224.0" y="168" width="96.0" height="16" />
+        </g>
+        <rect class="ybranch-frame" x="20" y="168" width="300" height="16" />
+        <text class="ybranch-label" x="20" y="160">功率预算</text>
+        <text class="ybranch-label" x="320" y="160" text-anchor="end">1</text>
+      </svg>
+
+      <div class="cpo-panel" data-panel="l10">
+        <p class="ybranch-readout">TE0，L = 10 µm · 上/下 0.2986 / 0.2986 · 总和 0.5972 · 2.238 dB · 基模反射 0.00328</p>
+        <p class="cpo-note">全模反射 0.00374；右侧全模透过 0.6922，其中更高阶约 0.0950；仍缺 0.304。右侧是双臂超模，不能拆到上、下臂。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l20">
+        <p class="ybranch-readout">TE0，L = 20 µm · 上/下 0.3113 / 0.3113 · 总和 0.6226 · 2.058 dB · 基模反射 0.00275</p>
+        <p class="cpo-note">全模反射 0.00451；右侧全模透过 0.6800，其中更高阶约 0.0574；仍缺 0.315。不能指定为辐射或未选模。</p>
+      </div>
+      <div class="cpo-panel" data-panel="l40">
+        <p class="ybranch-readout">TE0，L = 40 µm · 上/下 0.3211 / 0.3211 · 总和 0.6422 · 1.923 dB · 基模反射 0.00363</p>
+        <p class="cpo-note">全模反射 0.00480；右侧全模透过 0.6755，其中更高阶约 0.0333；仍缺 0.320。选模略升，右侧全模透过没有跟着变好，不是收敛结论。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-te"></i>上臂 TE0</li>
+    <li><i class="swatch-y-dn"></i>下臂 TE0</li>
+    <li><i class="swatch-y-ho"></i>右侧更高阶</li>
+    <li><i class="swatch-y-miss"></i>仍未计入</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    条形图先画出两只分端口的基模透过，再补上右侧截面更高阶和全模输入反射，剩下的是仍未计入部分。右侧更高阶来自内部 20×20 S 的双臂超模，不能拆到上、下臂。这是仿真输出功率，不是实测；求解器读回是 10 个模，没有模态数或网格收敛。全模反射大约只有 0.5%，在条里几乎看不见。
+  </figcaption>
+</figure>
