@@ -117,7 +117,7 @@ import '~/styles/siph-widgets.css';
 
       <div class="cpo-panel" data-panel="l0">
         <p class="coupler-readout">TE0，L = 0 µm · T<sub>through</sub> = 0.959200 · T<sub>cross</sub> = 0.013399 · 0.1207 dB</p>
-        <p class="cpo-note">只有两段 S 弯，直段为 0。交叉大约占两臂输出的 1.4%。这是实测功率。把它换成等效直段，要另加单段模型的假设。</p>
+        <p class="cpo-note">只有两段 S 弯，直段为 0。交叉大约占两臂输出的 1.4%。这是仿真输出功率。把它换成等效直段，要另加单段模型的假设。</p>
       </div>
       <div class="cpo-panel" data-panel="l4">
         <p class="coupler-readout">TE0，L = 4 µm · T<sub>through</sub> = 0.835418 · T<sub>cross</sub> = 0.135513 · 0.1281 dB</p>
@@ -141,7 +141,7 @@ import '~/styles/siph-widgets.css';
       </div>
       <div class="cpo-panel" data-panel="l22">
         <p class="coupler-readout">TE0，L = 22 µm · T<sub>through</sub> = 0.005038 · T<sub>cross</sub> = 0.987016 · 0.0346 dB</p>
-        <p class="cpo-note">接近完全交叉。若用单段 sin² 模型粗估，varFDTD 这边的 L<sub>c</sub> 大约 24.6 µm。那是相位分支和等效耦合假设下的估计，不是测得的分解。三维无 S 弯的拟合大约是 37.4 µm。</p>
+        <p class="cpo-note">接近完全交叉。若用单段 sin² 模型粗估，varFDTD 这边的 L<sub>c</sub> 大约 24.6 µm。那是相位分支和等效耦合假设下的估计，不是仿真输出里单独拆出的分解。三维无 S 弯的拟合大约是 37.4 µm。</p>
       </div>
     </div>
   </div>
@@ -153,6 +153,6 @@ import '~/styles/siph-widgets.css';
   </ul>
   <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
   <figcaption>
-    圆点来自这一次 varFDTD 全器件扫描，含两端 S 弯。10.447 µm 是插值后再实跑确认的 50/50，分光 50.40% / 49.60%，不是流片直段。紫色虚线是 FDE 均匀直段的 L<sub>c</sub>/2 = 18.963 µm。TM0 只有同一几何下的两个对照点。若用单段 sin² 模型把这条曲线粗估成 L<sub>c</sub> ≈ 24.6 µm，那只是估计，不是测得的分解。无 S 弯的三维拟合大约是 37.4 µm，网格还没有做收敛。
+    圆点来自这一次 varFDTD 全器件扫描，含两端 S 弯。10.447 µm 是插值后再实跑确认的 50/50，分光 50.40% / 49.60%，不是流片直段。紫色虚线是 FDE 均匀直段的 L<sub>c</sub>/2 = 18.963 µm。TM0 只有同一几何下的两个对照点。若用单段 sin² 模型把这条曲线粗估成 L<sub>c</sub> ≈ 24.6 µm，那只是估计，不是仿真输出里单独拆出的分解。无 S 弯的三维拟合大约是 37.4 µm，网格还没有做收敛。
   </figcaption>
 </figure>
