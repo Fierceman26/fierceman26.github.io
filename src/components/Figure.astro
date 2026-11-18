@@ -1,4 +1,6 @@
 ---
+import { REPOST_MARK } from '~/lib/repost-mark.mjs';
+
 interface Props {
   src: string;
   alt: string;
@@ -12,7 +14,7 @@ const {
   src,
   alt,
   caption,
-  credit = 'Fierceman · fierceman26.github.io',
+  credit,
   width,
   height,
 } = Astro.props;
@@ -28,8 +30,10 @@ const {
       loading="lazy"
       decoding="async"
     />
+    <span class="img-credit" aria-hidden="true">{REPOST_MARK}</span>
   </div>
-  <div class="figure__credit">{credit}</div>
+  {/* 默认出处在图内角标上。再写一行同样的图下署名会和角标叠在一起，所以只在传入别的 credit 时保留。 */}
+  {credit && <div class="figure__credit">{credit}</div>}
   {caption && <figcaption>{caption}</figcaption>}
 </figure>
 
@@ -38,15 +42,20 @@ const {
     margin: 1.8rem 0 1.2rem;
   }
 
+  .figure__frame {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
   .figure__frame img {
     margin: 0;
     width: 100%;
     height: auto;
-    border-radius: 4px;
+    border-radius: 0;
   }
 
-  /* Corner credit sits under the plate, right-aligned.
-     It stays off the bitmap so axis ticks and the mode stay readable. */
+  /* 只有传入额外 credit 时才出现。默认出处在图内角标，避免和说明叠成两行同样的字。 */
   .figure__credit {
     margin: 0.35rem 0 0;
     text-align: right;
