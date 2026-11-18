@@ -1,0 +1,77 @@
+---
+import '~/styles/siph-widgets.css';
+---
+
+<figure class="siph-widget cpo-sheet ycombine-sheet">
+  <div class="siph-widget__accent" aria-hidden="true"></div>
+  <div class="siph-widget__head">
+    <p class="siph-widget__kicker">理想合波</p>
+    <p class="siph-widget__title">偶通道能回去，奇通道进不了基模</p>
+  </div>
+  <fieldset class="cpo-choice">
+    <legend class="cpo-sr">合波输入</legend>
+    <label>
+      同相等幅
+      <input type="radio" name="ycombine-in" value="even" checked />
+    </label>
+    <label>
+      反相等幅
+      <input type="radio" name="ycombine-in" value="odd" />
+    </label>
+    <label>
+      只从一臂入射
+      <input type="radio" name="ycombine-in" value="one" />
+    </label>
+  </fieldset>
+
+  <div class="siph-widget__stage">
+    <div class="cpo-stage-pad">
+      <svg class="cpo-svg ycombine-svg" viewBox="0 0 340 200" role="img" aria-label="理想 Y 合波器在同相、反相和单臂入射时，干线基模是否被点亮。">
+        <text class="ycombine-label" x="36" y="24">干线</text>
+        <text class="ycombine-label" x="304" y="48" text-anchor="end">上臂</text>
+        <text class="ycombine-label" x="304" y="168" text-anchor="end">下臂</text>
+
+        <path class="ycombine-guide" d="M 36 100 H 128 L 292 56 H 316" />
+        <path class="ycombine-guide" d="M 128 100 L 292 144 H 316" />
+
+        <path class="ycombine-stem" data-ch="even" d="M 32 90 H 128 L 132 100 L 128 110 H 32 Z" />
+        <path class="ycombine-arm ycombine-arm--upper" data-ch="even" d="M 128 90 L 292 46 H 316 V 66 H 292 L 136 108 Z" />
+        <path class="ycombine-arm ycombine-arm--lower" data-ch="even" d="M 128 110 L 292 154 H 316 V 134 H 292 L 136 92 Z" />
+
+        <path class="ycombine-stem" data-ch="odd" d="M 32 90 H 128 L 132 100 L 128 110 H 32 Z" />
+        <path class="ycombine-arm ycombine-arm--upper" data-ch="odd" d="M 128 90 L 292 46 H 316 V 66 H 292 L 136 108 Z" />
+        <path class="ycombine-arm ycombine-arm--lower" data-ch="odd" d="M 128 110 L 292 154 H 316 V 134 H 292 L 136 92 Z" />
+
+        <path class="ycombine-stem" data-ch="one" d="M 32 90 H 128 L 132 100 L 128 110 H 32 Z" />
+        <path class="ycombine-arm ycombine-arm--upper" data-ch="one" d="M 128 90 L 292 46 H 316 V 66 H 292 L 136 108 Z" />
+        <path class="ycombine-arm ycombine-arm--lower" data-ch="one" d="M 128 110 L 292 154 H 316 V 134 H 292 L 136 92 Z" />
+
+        <circle class="ycombine-port" cx="32" cy="100" r="4.2" />
+        <circle class="ycombine-port" cx="316" cy="56" r="4.2" />
+        <circle class="ycombine-port" cx="316" cy="144" r="4.2" />
+      </svg>
+
+      <div class="cpo-panel" data-panel="even">
+        <p class="ycombine-readout">理想模型 · a<sub>1</sub> = a<sub>2</sub> · b<sub>0</sub> = (a<sub>1</sub> + a<sub>2</sub>) / √2 · 干线基模透过 = 1</p>
+        <p class="cpo-note">等功率、同相的偶输入可以全部合回干线基模。这是理想传输模型，不是这次仿真的数值。</p>
+      </div>
+      <div class="cpo-panel" data-panel="odd">
+        <p class="ycombine-readout">理想模型 · a<sub>1</sub> = −a<sub>2</sub> · b<sub>0</sub> = 0 · 干线基模是暗的</p>
+        <p class="cpo-note">奇通道进不了干线基模。这一半功率不是一根不存在的互补输出，去向要由完整散射决定。</p>
+      </div>
+      <div class="cpo-panel" data-panel="one">
+        <p class="ycombine-readout">理想模型 · 只有一臂单位入射 · 进入干线基模的功率 = 1/2</p>
+        <p class="cpo-note">另外 1/2 不能写成材料吸收。三端口互易无耗网络也不能同时全部匹配。</p>
+      </div>
+    </div>
+  </div>
+
+  <ul class="siph-legend">
+    <li><i class="swatch-te"></i>进入干线基模</li>
+    <li><i class="swatch-cross"></i>进不了干线基模</li>
+  </ul>
+  <p class="siph-widget__credit">Fierceman · fierceman26.github.io</p>
+  <figcaption>
+    这是理想、单模、无反射回路的合波示意，用来分清偶通道和奇通道，不是这一次 3D EME 的场图，也不代表已经跑过马赫–曾德尔。
+  </figcaption>
+</figure>

@@ -1346,3 +1346,238 @@
   overflow-wrap: anywhere;
   min-width: 0;
 }
+
+/* YCombine + YBranchPick: append only. Do not rewrite earlier widget rules. */
+
+.ycombine-label,
+.ybranch-label {
+  fill: currentColor;
+  font-size: 9px;
+  font-family: var(--font-sans);
+  opacity: 0.72;
+}
+
+.ycombine-guide,
+.ybranch-guide {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  opacity: 0.22;
+}
+
+.ycombine-stem,
+.ycombine-arm {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='even']:checked) [data-ch='even'],
+.ycombine-sheet:has(input[name='ycombine-in'][value='odd']:checked) [data-ch='odd'],
+.ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) [data-ch='one'] {
+  opacity: 1;
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='even']:checked) [data-ch='even'].ycombine-stem,
+.ycombine-sheet:has(input[name='ycombine-in'][value='even']:checked) [data-ch='even'].ycombine-arm {
+  fill: var(--accent, #7a1631);
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='odd']:checked) [data-ch='odd'].ycombine-stem {
+  fill: var(--accent, #7a1631);
+  opacity: 0.12;
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='odd']:checked) [data-ch='odd'].ycombine-arm {
+  fill: #1e3f66;
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) [data-ch='one'].ycombine-stem,
+.ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) [data-ch='one'].ycombine-arm--upper {
+  fill: var(--accent, #7a1631);
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) [data-ch='one'].ycombine-stem {
+  opacity: 0.55;
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) [data-ch='one'].ycombine-arm--lower {
+  fill: #1e3f66;
+  opacity: 0.18;
+}
+
+:root[data-theme='dark'] .ycombine-sheet:has(input[name='ycombine-in'][value='odd']:checked) [data-ch='odd'].ycombine-arm,
+:root[data-theme='dark'] .ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) [data-ch='one'].ycombine-arm--lower {
+  fill: #9ec3dd;
+}
+
+.ycombine-port {
+  fill: currentColor;
+  opacity: 0.55;
+}
+
+.ycombine-sheet .cpo-panel,
+.ybranch-sheet .cpo-panel {
+  display: none;
+}
+
+.ycombine-sheet:has(input[name='ycombine-in'][value='even']:checked) .cpo-panel[data-panel='even'],
+.ycombine-sheet:has(input[name='ycombine-in'][value='odd']:checked) .cpo-panel[data-panel='odd'],
+.ycombine-sheet:has(input[name='ycombine-in'][value='one']:checked) .cpo-panel[data-panel='one'],
+.ybranch-sheet:has(input[name='ybranch-l'][value='l10']:checked) .cpo-panel[data-panel='l10'],
+.ybranch-sheet:has(input[name='ybranch-l'][value='l20']:checked) .cpo-panel[data-panel='l20'],
+.ybranch-sheet:has(input[name='ybranch-l'][value='l40']:checked) .cpo-panel[data-panel='l40'] {
+  display: block;
+}
+
+.ybranch-sheet g[data-l] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ybranch-sheet:has(input[name='ybranch-l'][value='l10']:checked) g[data-l='l10'],
+.ybranch-sheet:has(input[name='ybranch-l'][value='l20']:checked) g[data-l='l20'],
+.ybranch-sheet:has(input[name='ybranch-l'][value='l40']:checked) g[data-l='l40'] {
+  opacity: 1;
+}
+
+.ybranch-bar--up {
+  fill: var(--accent, #7a1631);
+}
+
+.ybranch-bar--dn {
+  fill: #5b3a7a;
+}
+
+.ybranch-bar--ho {
+  fill: #1e3f66;
+}
+
+.ybranch-bar--r {
+  fill: currentColor;
+  opacity: 0.55;
+}
+
+.ybranch-bar--miss {
+  fill: currentColor;
+  opacity: 0.16;
+}
+
+:root[data-theme='dark'] .ybranch-bar--dn {
+  fill: #c9b3de;
+}
+
+:root[data-theme='dark'] .ybranch-bar--ho {
+  fill: #9ec3dd;
+}
+
+.swatch-y-dn {
+  background: #5b3a7a;
+}
+
+.swatch-y-ho {
+  background: #1e3f66;
+}
+
+:root[data-theme='dark'] .swatch-y-dn {
+  background: #c9b3de;
+}
+
+:root[data-theme='dark'] .swatch-y-ho {
+  background: #9ec3dd;
+}
+
+.swatch-y-miss {
+  background: currentColor;
+  opacity: 0.28;
+}
+
+.ybranch-frame {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.35;
+}
+
+.ycombine-readout,
+.ybranch-readout {
+  margin: 0.55rem 0 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--ink);
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ycombine-sheet *,
+  .ybranch-sheet * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .prose:has(.ycombine-sheet) table,
+  .prose:has(.ybranch-sheet) table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prose:has(.ycombine-sheet) th,
+  .prose:has(.ycombine-sheet) td,
+  .prose:has(.ybranch-sheet) th,
+  .prose:has(.ybranch-sheet) td {
+    min-width: 6.2rem;
+  }
+
+  .ycombine-readout,
+  .ybranch-readout {
+    font-size: 0.84rem;
+  }
+}
+
+/* Y widgets: .cpo-svg rect/circle { fill: none } outranks the single-class
+   fills above, so the budget bars and port dots do not paint. Repeat those
+   fills on .cpo-svg. Appended after the widget block. Earlier rules unchanged. */
+
+.cpo-svg .ybranch-bar--up {
+  fill: var(--accent, #7a1631);
+}
+
+.cpo-svg .ybranch-bar--dn {
+  fill: #5b3a7a;
+}
+
+.cpo-svg .ybranch-bar--ho {
+  fill: #1e3f66;
+}
+
+.cpo-svg .ybranch-bar--r {
+  fill: currentColor;
+  opacity: 0.55;
+}
+
+.cpo-svg .ybranch-bar--miss {
+  fill: currentColor;
+  opacity: 0.16;
+}
+
+:root[data-theme='dark'] .cpo-svg .ybranch-bar--dn {
+  fill: #c9b3de;
+}
+
+:root[data-theme='dark'] .cpo-svg .ybranch-bar--ho {
+  fill: #9ec3dd;
+}
+
+.cpo-svg .ycombine-port {
+  fill: currentColor;
+  opacity: 0.55;
+}
