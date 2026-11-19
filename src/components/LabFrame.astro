@@ -1,0 +1,63 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface Props {
+  src: string;
+  title: string;
+  height?: number;
+}
+
+const { src, title, height = 420 } = Astro.props;
+
+// 交互附件只允许嵌在无同源权限的 srcdoc 里。public/ 上不放这份 HTML，
+// 避免读者直接打开时脚本跑在站点源上。
+if (typeof title !== 'string' || !title.trim() || /[<>]/.test(title)) {
+  throw new Error('LabFrame title must be plain text');
+}
+if (!/^\/lab\/[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*\.html$/.test(src)) {
+  throw new Error(`LabFrame src is not a sandboxed lab path: ${src}`);
+}
+if (typeof height !== 'number' || !Number.isFinite(height) || height < 160 || height > 960) {
+  throw new Error('LabFrame height must be a number from 160 to 960');
+}
+
+const rel = src.slice('/lab/'.length);
+const root = path.resolve(process.cwd(), 'src/content/labs');
+const file = path.resolve(root, rel);
+const relToRoot = path.relative(root, file);
+if (relToRoot.startsWith('..') || path.isAbsolute(relToRoot)) {
+  throw new Error('LabFrame path escaped the lab directory');
+}
+if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+  throw new Error(`LabFrame file is missing: ${src}`);
+}
+if (fs.statSync(file).size > 100_000) {
+  throw new Error('LabFrame file is too large');
+}
+const html = fs.readFileSync(file, 'utf8');
+if (/<\/iframe/i.test(html) || /<script\b[^>]*\bsrc\s*=/i.test(html) || /javascript\s*:/i.test(html)) {
+  throw new Error('LabFrame refused an unsafe lab file');
+}
+---
+
+<iframe
+  class="lab-frame"
+  title={title}
+  sandbox="allow-scripts"
+  referrerpolicy="no-referrer"
+  loading="lazy"
+  height={height}
+  srcdoc={html}
+></iframe>
+
+<style>
+  .lab-frame {
+    display: block;
+    width: 100%;
+    margin: 1.8rem 0 1.2rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--bg-elev);
+  }
+</style>
