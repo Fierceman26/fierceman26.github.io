@@ -1,0 +1,16 @@
+{
+  "slug": "replace-this-slug",
+  "title": "{{TODO:标题}}",
+  "description": "{{TODO:一句话摘要}}",
+  "pubDate": "YYYY-MM-DD",
+  "tags": ["Topic"],
+  "category": "hsd",
+  "featured": false,
+  "draft": true,
+  "en": {
+    "title": "{{TODO:English title}}",
+    "description": "{{TODO:One sentence.}}",
+    "tags": ["Topic"]
+  },
+  "attachments": []
+}
