@@ -44,6 +44,15 @@ draft: false                      # true 时构建不出现
 3. `npm run dev` 实时预览
 4. 满意后提交 push，GitHub Actions 会自动构建部署
 
+机械的导入和校验可以用发布工具，不必把正文贴进对话。约定见 `scripts/publish/STYLE.md`，空模板在 `scripts/publish/templates/`。
+
+```bash
+node scripts/publish/cli.mjs --input <稿件目录> --dry-run
+node scripts/publish/cli.mjs --input <稿件目录>
+```
+
+脚本不翻译、不改观点、不补公式。默认只在本地准备文件，不提交、不推送。
+
 ## 目录结构
 
 ```
