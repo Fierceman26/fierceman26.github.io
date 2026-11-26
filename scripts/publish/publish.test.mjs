@@ -28,6 +28,7 @@ function makeRepo() {
   { slug: 'siph', title: 'SiPh' },
   { slug: 'pi', title: 'PI' },
   { slug: 'gezhi', title: '格致' },
+  { slug: 'llm', title: 'LLM' },
 ] as const;
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
 `,
@@ -436,7 +437,7 @@ test('the shipped template cannot be published as a post', async () => {
 
 test('conventions come from the current site, not a second list', () => {
   const conventions = loadConventions(realRepo);
-  assert.deepEqual(conventions.categories, ['hsd', 'eoe', 'siph', 'pi', 'gezhi']);
+  assert.deepEqual(conventions.categories, ['hsd', 'eoe', 'siph', 'pi', 'gezhi', 'llm']);
   for (const name of ['Figure', 'BendLossPick', 'LabFrame', 'SolverPick']) {
     assert.ok(conventions.components.includes(name), name);
   }

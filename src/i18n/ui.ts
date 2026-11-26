@@ -7,6 +7,7 @@ const ZH_SUBTITLE: Record<string, string> = {
   siph: '硅光器件',
   pi: '电源完整性',
   gezhi: '格物致知',
+  llm: '从头搭建',
 };
 
 const GEZHI_KEYWORDS_EN = ['School of Mind', 'Liangzhi', 'First Principles', 'Reflection'];
@@ -76,8 +77,8 @@ export const ui = {
     sections: {
       title: '栏目',
       kicker: '栏目',
-      description: '按栏目浏览：HSD 高速数字、EOE 光电链路、SiPh 硅光器件、PI 电源完整性、格致。',
-      lead: '一份日志，五条编辑线。挑今天离你的工作最近的那一条。',
+      description: '按栏目浏览：HSD 高速数字、EOE 光电链路、SiPh 硅光器件、PI 电源完整性、格致、LLM 从头搭建。',
+      lead: '一份日志，六条编辑线。挑今天离你的工作最近的那一条。',
       misc: (n: number) => `另有 ${n} 篇未归入栏目的笔记 ——`,
       browse: '浏览全部文章 →',
     },
@@ -185,8 +186,8 @@ export const ui = {
       title: 'Sections',
       kicker: 'The Sections',
       description:
-        'Browse by section: HSD, EOE, silicon photonics, power integrity, and Gezhi.',
-      lead: 'Five editorial lines, one journal. Pick whichever is closest to your work today.',
+        'Browse by section: HSD, EOE, silicon photonics, power integrity, Gezhi, and LLM.',
+      lead: 'Six editorial lines, one journal. Pick whichever is closest to your work today.',
       misc: (n: number) => `Plus ${n} miscellaneous ${n === 1 ? 'note' : 'notes'} —`,
       browse: 'browse the full archive →',
     },

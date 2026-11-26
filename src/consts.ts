@@ -71,6 +71,14 @@ export const CATEGORIES = [
     taglineZh: '第一性原理、经典，以及只有在事上磨练之后才会显影的那些规律。',
     keywords: ['心学', '致良知', '第一性原理', '省思'],
   },
+  {
+    slug: 'llm',
+    title: 'LLM',
+    subtitle: 'From Scratch',
+    tagline: 'From tokenization and training to inference, building a language model from scratch.',
+    taglineZh: '从分词、训练到推理，把一个语言模型从头搭起来。',
+    keywords: ['tokenizer', 'Transformer', 'training', 'inference', 'attention'],
+  },
 ] as const;
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
