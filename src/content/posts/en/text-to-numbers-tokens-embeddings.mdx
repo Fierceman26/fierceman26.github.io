@@ -1,0 +1,100 @@
+---
+title: "How text becomes numbers: tokens, windows and embeddings"
+description: "Neural networks only understand numbers. This note walks through the four steps text takes before entering GPT: tokenization, vocabulary and BPE, sliding windows for training pairs, and embeddings. It also clears up two easily confused ideas: self-supervised learning and autoregression."
+pubDate: 2026-11-26
+tags: ["LLM", "Tokenization", "BPE", "Embedding", "Self-supervised"]
+category: "llm"
+featured: false
+draft: false
+---
+
+These are study notes on Chapter 2 of *Build a Large Language Model (From Scratch)*.
+Neural networks only understand numbers, so text goes through four steps before it enters the model:
+
+```text
+text → ① tokenize → ② token IDs → ③ sliding window into training pairs → ④ embedding vectors (plus position)
+```
+
+## Tokenization and vocabulary
+
+First split a sentence into tokens, then give each distinct token an integer ID. That gives you a vocabulary:
+
+```python
+tokens = ['Hello', ',', 'world', '.', 'This', 'is', 'a', 'test', '.']
+vocab  = {'!': 0, ',': 1, '.': 2, 'Hello': 3, 'This': 4, 'a': 5, 'again': 6, 'is': 7, 'test': 8, 'world': 9}
+```
+
+The vocabulary works both ways: you can encode to IDs and decode back. The problem is that a word missing from the vocabulary (such as `Goodbye`) raises an error.
+
+## BPE: the tokenizer GPT actually uses
+
+BPE (byte pair encoding) keeps common words whole and splits rare words into smaller pieces. GPT-2's vocabulary size is 50257. Actual splits:
+
+| Input | Split |
+| --- | --- |
+| `Hello, world.` | `Hello` `,` ` world` `.`: 4 tokens. The space attaches to the front of a word |
+| `unbelievableness` | `un` `bel` `iev` `abl` `eness` |
+| `DesignCon PAM4 eye diagram` | `Design` `Con` ` P` `AM` `4` ` eye` ` diagram` |
+| `你好，世界` | 11 tokens, broken into byte fragments |
+
+Two points matter for "why BPE never meets an unknown word":
+
+* BPE's lowest-level unit is the **byte**. Any text can at worst be split into bytes, so there is no such thing as an unknown input. That is why Chinese gets broken into byte fragments.
+* The split is **not linguistic root decomposition**. BPE merges character pieces that often appear together in the corpus, which has nothing to do with linguistics. The `bel` and `iev` in `unbelievableness` are not real word roots.
+
+Two practical consequences:
+
+* Technical terms get split into many pieces. `PAM4` becomes 3 tokens, and the model has to reassemble its meaning from context.
+* An English vocabulary is unkind to Chinese. Five Chinese characters take 11 tokens, so for Chinese use cases prefer a model whose vocabulary includes Chinese.
+
+## Sliding window: making training data automatically
+
+Take a stretch of text. The target y is simply the input x shifted by one position:
+
+```text
+x: The   cat   sat   on
+y: cat   sat   on    the
+```
+
+One window contains **4 training samples at once**:
+
+```text
+sees "The"            → should predict " cat"
+sees "The cat"        → should predict " sat"
+sees "The cat sat"    → should predict " on"
+sees "The cat sat on" → should predict " the"
+```
+
+A common misconception: if the window moves one token at a time and supplies an endless stream of data, accuracy will improve a lot. Accuracy really comes from large and diverse data. Windows with stride 1 overlap heavily and carry highly redundant information. The book sets the stride equal to the window length by default to reduce overlap and avoid overfitting.
+
+## Self-supervised vs. autoregressive: two easily confused ideas
+
+| Concept | Meaning | When |
+| --- | --- | --- |
+| Self-supervised | The labels come from the data itself, with no manual annotation. The "next word" is a ready-made answer | Training |
+| Autoregressive generation | The model appends the word it just predicted to the input and predicts the next one | Inference (use) |
+
+"Feeding the predicted word back in as new input" describes autoregressive generation. It is what happens when ChatGPT's answer appears word by word. Self-supervised means the labels do not have to be annotated by people.
+
+During training the input is the **real text**, not the model's own predictions. If the model predicts wrongly, the wrong word is not fed into the next step. The training signal is how far the predicted word is from the true word.
+
+## Embedding: IDs become vectors
+
+An integer ID carries no meaning by itself, so the model uses a **learnable table** that maps each ID to a vector. In the example below each token is 8-dimensional; GPT-2 small uses 768:
+
+```python
+tok_emb = torch.nn.Embedding(50257, 8)   # vocabulary size × vector dimension
+pos_emb = torch.nn.Embedding(4, 8)       # context length × vector dimension
+final = tok_emb(ids) + pos_emb(torch.arange(4))   # shape [4, 8]
+```
+
+* The table starts as random numbers and is updated by gradients during training like any other parameter. After training, words with similar meanings end up with nearby vectors.
+* Attention itself does not know word order, so each position also gets a position vector. The final input is the token vector plus the position vector.
+
+## Summary
+
+* Before entering the model, text goes through tokenization, vocabulary, sliding window and embedding.
+* BPE's lowest level is bytes, so it never meets an unknown input, but it splits by statistics, not by word roots.
+* The sliding window lets the text supply its own labels, which is self-supervision. Autoregression is how generation works at inference time, and the two are different things.
+
+The next note moves on to the attention mechanism.
