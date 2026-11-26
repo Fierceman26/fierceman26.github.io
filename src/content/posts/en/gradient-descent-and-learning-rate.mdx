@@ -1,0 +1,97 @@
+---
+title: "Gradient descent: one step tells you where to go and how far"
+description: "Training an LLM is a one-parameter game scaled up a few hundred million times. Starting from loss=(3w−12)², this note explains gradients, forward and backward passes, and why a bigger learning rate is not always better."
+pubDate: 2026-11-26
+tags: ["LLM", "PyTorch", "Gradient descent", "Learning rate"]
+category: "llm"
+featured: false
+draft: false
+---
+
+The first hurdle in learning LLMs is not the Transformer. It is understanding what training actually does.
+This note explains it with a single parameter: the model has one parameter `w`, and the goal is for `w` to learn the value 4 on its own.
+LLM pretraining and fine-tuning are this small game scaled up a few hundred million times.
+
+## A "model" with one parameter
+
+Suppose the loss function is
+
+<p class="eq">loss = (3w − 12)<sup>2</sup></p>
+
+By inspection, the loss is 0 when `w = 4`. But during training nobody tells the model the answer. It only has two things: an initial value (here `w = 0`) and the signal "smaller loss is better".
+
+## A natural intuition: probe one step each way, then bisect
+
+It is tempting to think: from the current `w`, try a step forward and a step backward, see which side gives a smaller loss, pick that direction, then narrow the range like bisection.
+
+That works with one parameter but does not scale. GPT-2 small has about 124 million parameters. Probing two directions for every parameter would be far too expensive.
+
+Gradient descent uses the derivative instead. One derivative gives two things at once:
+
+* **Direction**: a negative gradient means increasing `w` lowers the loss, so `w` should go up.
+* **Magnitude**: the larger the absolute value of the gradient, the steeper the slope and the farther from the optimum.
+
+The derivative in this example is
+
+<p class="eq">d(loss)/dw = 6(3w − 12) = 18w − 72</p>
+
+At `w = 2` the gradient is −36. The update rule is
+
+<p class="eq">w ← w − lr × gradient</p>
+
+No probing and no bisection. One computation tells you which way to go and how far.
+
+## Forward, backward, update: a three-step loop
+
+"Forward" and "backward" do not mean stepping forward or backward along `w`. They are the **two directions of computation**.
+
+| Step | What it does | PyTorch |
+| --- | --- | --- |
+| Forward | Compute from the input all the way to the loss: "how wrong are we now" | `loss = (w*3 - 12)**2` |
+| Backward | Work back from the loss to get each parameter's effect on it (the gradient) | `loss.backward()` |
+| Update | Modify the parameters using the gradient | `optimizer.step()` |
+
+The full training loop is only a few lines:
+
+```python
+import torch
+
+w = torch.tensor(0.0, requires_grad=True)   # requires_grad: tells PyTorch this is a parameter to learn
+optimizer = torch.optim.SGD([w], lr=0.02)    # the optimizer updates parameters using gradients
+
+for step in range(30):
+    loss = (w * 3 - 12) ** 2                 # forward
+    optimizer.zero_grad()                    # clear last round's gradient
+    loss.backward()                          # backward
+    optimizer.step()                         # update: w -= lr * gradient
+```
+
+Starting from `w = 0`, it converges to 4.0000 in under 30 steps, and the loss goes to roughly 0.
+
+LLM training is the same loop: `w` grows from one number to hundreds of millions, the "error" becomes "how far the predicted next word is from the true next word", and every other step is identical.
+
+## Learning rate: bigger steps are faster, until they diverge
+
+`lr` in the update formula sets how big each step is. Write the error as e = `w − 4`. Substituting into the update formula, every step multiplies e by a fixed factor:
+
+<p class="eq">e<sub>new</sub> = (1 − 18 · lr) × e</p>
+
+| Learning rate | e is multiplied by | Actual `w` over the first 6 steps |
+| --- | --- | --- |
+| 0.02 | 0.64 | 1.44, 2.36, 2.95, 3.33, 3.57, 3.73: steadily approaching 4 |
+| 0.1 | −0.8 | 7.2, 1.44, 6.05, 2.36, 5.31, 2.95: swinging back and forth, but still converging |
+| 0.5 | −8 | 36, −252, 2052, −16380, 131076, −1048572: moving farther away each step, diverging |
+
+It converges only when the absolute value of the factor is below 1, so in this example the learning rate must stay under 1/9, about 0.11.
+
+Think of walking to the bottom of a valley. Steps that are too small are slow. Steps that are too large jump over the bottom and land higher on the opposite slope, and the next step throws you even farther.
+
+So a larger learning rate is not always better. LLM training usually uses very small learning rates (on the order of 0.0001), often with a schedule that warms up with small steps and then gradually decays, to balance speed and stability.
+
+## Summary
+
+* Training is a loop: forward computes the error, backward computes the gradient, update changes the parameters.
+* The gradient gives direction and magnitude together. No probing is needed, which is why it scales to hundreds of millions of parameters.
+* The learning rate sets the step size: too small is slow, too large diverges.
+
+The next note covers how text becomes numbers: tokenization, vocabulary and embeddings.
