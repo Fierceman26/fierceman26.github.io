@@ -1,0 +1,169 @@
+---
+title: "2D 均匀光栅耦合器：TE 偏振为何在求解器里叫 TM"
+description: "复盘硅光第五章 220 nm SOI 均匀光栅耦合器 2D FDTD 第一轮基线仿真：从 v1–v4 离线测试全绿却两次翻车，到接入 PyLumerical MCP 与实机探针挖出 6 个深层工程与物理暗坑，并给出能量守恒 99.74%、空气侧主瓣 +10.37° 的完整可复现结果。"
+pubDate: 2026-11-27
+tags: ["grating-coupler", "FDTD", "FDE", "TE", "Lumerical", "MCP"]
+category: "siph"
+featured: false
+draft: false
+---
+
+前几篇一直在片上打转：弯波导、方向耦合器、Y 分支，再到[《开口弧上的 t 和 κ，还不是一只环》](/posts/siph-ring/)。到了第五章（Optical I/O），光要离开硅波导、穿过氧化层射向芯片上方。
+
+做光栅耦合器，最容易走弯路的姿势是一上来就开 3D FDTD、堆光纤模场重叠积分、扫刻蚀深度和占空比。如果底层的板波导有效折射率、监视器符号约定或者求解器极化定义本身就有偏差，优化器只会忠实地去拟合一个错误的世界。
+
+因此这一轮只做一次边界极其克制的 **2D FDTD 基线诊断（report-only）**：不做 3D，不做切趾（apodization），不做聚焦扇形，也不拿光纤耦合效率做验收，先把 220 nm SOI 均匀光栅的核心物理、监视器口径和实机求解链条全部钉死。
+
+## 锁定的第一轮物理口径
+
+整套仿真跑在 Ansys Lumerical 2026 R1 上，所有参数与前几篇保持同一套材料基准：
+
+- **叠层结构**：220 nm SOI 器件硅，2.0 µm 下埋氧化层（BOX SiO<sub>2</sub>），2.0 µm 上包层 SiO<sub>2</sub>，下方为 Si 衬底；坐标原点 y = 0 钉在 BOX 与器件硅的交界面，+x 为传播方向，+y 为芯片法向。
+- **光栅几何**：浅刻蚀 70 nm（槽底剩余 150 nm Si），占空比 DC = 未刻蚀齿宽 / Λ = 0.50，20 个均匀周期。
+- **波长与物理极化**：中心波长 λ = 1550 nm，宽带扫描 1500–1600 nm（101 点，1 nm 步进）；物理极化锁定为 **TE<sub>Ez</sub>**——即 2D 计算平面为 x（传播）× y（芯片法向），电场 E<sub>z</sub> 垂直于该平面，对应 3D 条波导的准 TE<sub>0</sub> 模。
+- **材料色散**：采用内置 `Si (Silicon) - Palik` 与 `SiO2 (Glass) - Palik`，在 1550 nm 现场查询并记录，不拿教材里的 3.47 / 1.444 当常数硬填。
+- **起始周期（绝不手写）**：先用 `lumapi.MODE` 做齿（220 nm）和槽（150 nm）两次一维板波导 FDE（`1D Y:X prop`），按占空比加权得到等效折射率，再用光栅相位匹配公式计算空气侧 θ<sub>air</sub> = +10°（朝向 +x 输出端）对应的起始周期，写入 `neff_and_period.json` 后再由 FDTD 读取建模：
+
+<p class="eq">n<sub>eff</sub> = 0.50 · n<sub>tooth</sub> + 0.50 · n<sub>groove</sub>，&emsp;Λ = λ / (n<sub>eff</sub> − sin θ<sub>air</sub>)</p>
+
+这里不能拿前几篇 500 nm × 220 nm 条波导的 n<sub>eff</sub> ≈ 2.445 来算。2D 截面默认 z 方向无限宽，没有 500 nm 横向限制，220 nm 硅平板在 1550 nm 的 TE 模有效折射率高达 2.848。一旦错套条波导的 n<sub>eff</sub>，算出来的起始周期会偏差 60 nm 以上，主瓣角会直接跑飞。
+
+## 从 v1 到 v4：为什么 86/86 离线测试全绿依然两次翻车
+
+在最终跑通（v5）之前，这轮任务经历了四版非常严格的离线审查迭代：
+
+| 版本 | 发生了什么 | 暴露的问题 |
+| --- | --- | --- |
+| v1 | 审查拒签 | P<sub>in</sub> 误用净通量而非模式展开前向功率；P<sub>down</sub> 靠全谱求和猜符号；FDE 与主瓣场存在静默回退风险。 |
+| v2 | 修正监视器定义 | 锁定 P<sub>in</sub> = T<sub>forward</sub> 与逐点 P<sub>down</sub> = −T，但求解器回退尚未封死。 |
+| v3 | 双审放行，首次上机，8.5 s 报错退出 | `mode.getindex()` 返回 `shape=(1,1)` 二维数组，脚本直接 `complex(val)` 触发 `TypeError`。 |
+| v4 | 补上标量化函数，86/86 离线测试全过，再次放行，0.126 s 报错退出 | 只搬走了 `output\gc_uniform_2d_fdtd_v1` 里的旧回执文件，却留下了空目录本身；脚本检查 `OUT.exists()` 后在 `import lumapi` 前直接退出。 |
+
+表面看，v4 只是栽在了“空目录没删干净”的机械失误上。但真正让人惊出一身冷汗的是：当我们配置好官方 **PyLumerical MCP Server**，查阅其内置的 `mode` / `fdtd` / `pic` 指南，并对本机 Ansys Lumerical 2026 R1 跑了一段 10 秒钟的只读实机 API 探针后，发现**即便当年 v4 清掉了空目录，代码后面还埋着整整 5 个足以让物理结论全盘报废的深水雷**。
+
+## 接入 PyLumerical MCP 与实机探针挖出的 6 个大坑
+
+把官方 `ansys-lumerical-mcp`（`pylumerical-mcp 4.2.0`，stdio 传输）接入工作流，并用实机探针把每个关键接口的真实返回值、单位和场分量全部打印出来后，6 个问题逐一现形：
+
+### 1. 防覆盖守卫把空目录当成已有结果
+
+原脚本的防覆盖红线直接判断 `OUT.exists()`，哪怕目录已被掏空也照样拒绝执行。v5 将 v4 失败回执完整归档至独立目录 `output\v4_fail_receipts_archived\` 并移除空目录，既保全历史证据，也让新运行从零创建输出路径。
+
+### 2. `mode.getindex()` 的第二个参数是频率（Hz），不是波长（m）
+
+原脚本先调用 `mode.getindex(mat, 1550e-9)`，指望传错单位会抛异常再回退到 `c / 1550e-9`。可 Lumerical **根本不报错**——它会把 `1.55e-6` 当作 1.55 µHz（接近直流/极远红外），平静地返回一个完全错误的折射率：
+
+- 错传波长 `1550e-9`：Palik Si 返回 `3.414 + 0.003j`，**Palik SiO<sub>2</sub> 返回 `1.953 + 0.009j`**；
+- 正确传频率 `c / 1550e-9 ≈ 1.9341×10<sup>14</sup> Hz`：Palik Si 返回 **`3.476380`**，**Palik SiO<sub>2</sub> 返回 `1.444002`**（形状 `(1, 1)`、`complex128`），与前几篇材料基准完全一致。
+
+如果不修这一处，后面用 n<sub>clad</sub> sin θ<sub>clad</sub> = sin θ<sub>air</sub> 换算空气侧主瓣角时会彻底失真。
+
+### 3. 把 Si 衬底放进 FDE 窗口，衬底模式直接劫持选模
+
+为了和 FDTD 叠层对齐，FDE 计算域覆盖了 y = −3.5 µm 到 +2.22 µm，把 1.5 µm 厚的底部 Si 衬底也包了进来。1.5 µm 厚的硅衬底比 220 nm 器件硅厚了近 7 倍，它自己就支持一大堆更高 n<sub>eff</sub> 的导模。
+
+实机探针在 220 nm 齿区（`1D Y:X prop`）里扫出的前 10 个模式直接证明了这一点：`mode 1` 到 `mode 8` 的 n<sub>eff</sub> 从 3.467 排到 2.873，其中 `mode 2 (3.442)`、`mode 4 (3.335)`、`mode 6 (3.150)`、`mode 8 (2.873)` 虽然全都是 E<sub>z</sub> 占比 100%，但能量 97%–99.9% 全在底下的衬底里（器件层占比 `dev_frac = 0.0`）。直到 **`mode 9`**（n<sub>eff</sub> = 2.848133，`dev_frac = 0.9995`、`sub_frac = 0.0`），才是真正的 220 nm 器件层平板基模。
+
+正如 PyLumerical 官方 `pic` 指南提醒的，含衬底做模式求解绝不能只按最高 n<sub>eff</sub> 排序选模。v5 加入了器件层能量局域判据（`dev_confinement_frac >= 0.50`），并与不含衬底的 FDE 窗口（y = −2.0 µm 到 +2.22 µm）自动交叉核验：齿区差值 `3.11×10<sup>−15</sup>`，槽区差值 `1.38×10<sup>−14</sup>`，达到浮点机器精度一致。
+
+### 4. Lumerical 2D FDTD 的 TE / TM 极化命名反转（最隐蔽的物理坑）
+
+这是整场排障里最值得记一笔的发现。v5 第一遍跑完 FDTD 时，进程退出码为 0，没有任何报错，但核对输出立刻露出了马脚：1550 nm 处的 P<sub>up</sub> / P<sub>in</sub> 只有 0.193，仅用 E<sub>z</sub> 算出的主瓣角是荒谬的 −85.59°，而 Lumerical 原生 `farfield2d` 却指向 −28.95°。
+
+立刻对 `mode_source` 和监视器六个电磁场分量做了一次只读诊断，真相瞬间大白：
+
+| Lumerical 2D FDTD（XY 平面）的 `mode selection` | 实际激发的电磁场分量 | 220 nm 模 n<sub>eff</sub> | 对应的芯片物理极化 |
+| --- | --- | ---: | --- |
+| `"fundamental TE mode"` | E<sub>x</sub> (38.8%), E<sub>y</sub> (61.2%), **E<sub>z</sub> = 0.0%**, H<sub>z</sub> | 2.0660 | **物理平板 TM 模**（不是我们要的） |
+| `"fundamental TM mode"` | E<sub>x</sub> = 0, E<sub>y</sub> = 0, **E<sub>z</sub> = 100.0%**, H<sub>x</sub>, H<sub>y</sub> | **2.8465** | **物理平板 TE<sub>Ez</sub> 模（对应 3D 条波导 TE<sub>0</sub>）** |
+
+原因在于 Lumerical 2D FDTD 默认计算平面是 XY 平面：它把电场位于 XY 面内（E<sub>x</sub>, E<sub>y</sub>, H<sub>z</sub>）定义为 2D-TE，把电场垂直于 XY 平面（E<sub>z</sub>, H<sub>x</sub>, H<sub>y</sub>）定义为 2D-TM。而在 2D 光栅耦合器截面中，芯片法向是 y、横向宽度方向是 z，物理上对应 3D 准 TE<sub>0</sub> 的偏振恰恰是 E<sub>z</sub>——也就是 Lumerical 2D 里的 `"fundamental TM mode"`。
+
+原 v1–v4 规格一边锁死“物理极化为 TE<sub>Ez</sub>，主瓣只准取 E<sub>z</sub>”，一边又硬性要求把 2D 模式源设成 `"fundamental TE"`，两句话在物理上互相打架，导致监视器里的 E<sub>z</sub> 恒为零。v5 在 `mode_source` 和 `P_in` 上显式选用 `"fundamental TM mode"`，并在调用 `updatesourcemode()` 后直接检查模式剖面场，强制断言 E<sub>z</sub> 能量占比 ≥ 99% 且 n<sub>eff</sub> ≈ 2.8465——用真实电磁场而不是标签名字来锁定物理极化。
+
+### 5. `addmodeexpansion` 监视器类型与属性回读
+
+实测发现 `addmodeexpansion()` 在 2D FDTD 下不接受 `"Linear Y"`，必须设为 `"2D X-normal"`（只有 `addpower()` 接受 `"Linear Y"` / `"Linear X"`）；此外 `mode selection` 的回读字符串带有 `" mode"` 后缀，原脚本无后缀比对会直接失败。
+
+### 6. 数据集字典接口、全局设置与刻蚀槽折射率核验
+
+`lumapi` 的 `getresult(mon, "T")` 返回的是 Python 字典（含 `"T"` 与 `"lambda"` 键），不能直接 `getresult(mon, "lambda")`；全局源/监视器参数应调用 `setglobalsource` / `setglobalmonitor`；FDTD 工程文件标准后缀为 `.fsp`。v5 同时布设了一只无源 `index_check` 折射率监视器，在 70 nm 刻蚀槽凹陷处（y = 185 nm）实测折射率 n = 1.4440，证实凹槽里填充的是 Palik SiO<sub>2</sub> 而非背景空气。
+
+## 建模几何、监视面口径与 PML 裕量实测
+
+下图直接按真实 FDTD 坐标与实测网格绘制，标出了叠层结构、源与五路监视器的位置，以及顶底 8 层 PML 的实际内边界距离：
+
+<Figure
+  src="/images/siph/gc_2d_stack_and_monitors.png"
+  alt="220 纳米 SOI 均匀光栅耦合器 2D FDTD 截面结构图，标出模式源、P_in 模式展开面、P_up 上包层监视面、P_down 衬底监视面以及顶底 PML 内边界安全裕量。"
+  caption="第五章 5.2 均匀光栅 2D FDTD 截面结构、监视面布局与实测 PML 裕量。无限连续层均向仿真域外延伸 1 µm 进入 PML。"
+  width={2180}
+  height={998}
+/>
+
+几个决定结果是否可信的测量口径：
+
+- **P<sub>in</sub> 只取模式展开 `T_forward`**：放在未刻蚀输入平板 x = −5 µm 处（模式源在 x = −10 µm，首个光栅齿在 x = 0），只取朝向 +x 的基模前向功率，既不用 `sourcepower`，也不用会混入反射光的净通量。
+- **P<sub>up</sub> 与 P<sub>down</sub> 严格逐点符号约定**：在 y 法向监视器 +T = +y 的约定下，P<sub>up</sub>（y = +1.22 µm，上包层 SiO<sub>2</sub> 内）逐点取 +T；P<sub>down</sub>（y = −2.50 µm，位于 BOX / 衬底界面下方 0.5 µm，因此 2.0 µm BOX 的反射干涉自然包含在方向性内）逐点取 −T，绝不靠全谱求和反推符号。
+- **PML 内边界实测距离**：从实际 165 个 y 方向网格点读出，顶 PML 厚约 0.450 µm、底 PML 厚约 0.190 µm；P<sub>up</sub> 距顶 PML 内边界 **0.550 µm**，P<sub>down</sub> 距底 PML 内边界 **0.810 µm**，均位于 PML 外部，方向性数据可用。
+
+## 完整仿真结果与物理解读
+
+修正极化后，整套脚本（两次板波导 FDE + 写读周期文件 + 1500–1600 nm 101 点 2D FDTD CPU 求解 + 全套审计）总耗时 **21.5 秒**，其中 FDTD 求解 **5.33 秒**，状态 `status = 2`（能量自动衰减至 `1e-5` 关断）。
+
+### 板波导 FDE 与起始周期
+
+| 参数 | 实测结果 | 备注 |
+| --- | ---: | --- |
+| Palik 折射率 @ 1550 nm | Si: 3.476380 / SiO<sub>2</sub>: 1.444002 | 按 f = c / 1550 nm 实测查询 |
+| 齿区平板模 n<sub>tooth</sub>（220 nm） | 2.848133 | `1D Y:X prop`，与无衬底差 3.11×10<sup>−15</sup> |
+| 槽区平板模 n<sub>groove</sub>（150 nm） | 2.539655 | `1D Y:X prop`，与无衬底差 1.38×10<sup>−14</sup> |
+| 占空比加权 n<sub>eff</sub>（DC = 0.50） | 2.693894 | 0.50 × n<sub>tooth</sub> + 0.50 × n<sub>groove</sub> |
+| 起始周期 Λ（目标 θ<sub>air</sub> = +10°） | 615.019 nm | 先写入 `neff_and_period.json` 再建 FDTD |
+
+### 1500–1600 nm 功率分配、方向性与能量守恒
+
+<Figure
+  src="/images/siph/gc_2d_spectrum_and_directionality.png"
+  alt="1500 至 1600 纳米范围内 2D FDTD 均匀光栅耦合器的各通道归一化功率分布、能量守恒总和与向上辐射方向性光谱。"
+  caption="1500–1600 nm 各通道功率分配与方向性 D(λ)。1550 nm 处 P_up / P_in = 62.09%（−2.07 dB），方向性 D = 65.76%，四通道能量总和为 99.74%。"
+  width={2380}
+  height={875}
+/>
+
+在 1550 nm 处，输入前向基模功率 `P_in = 1.000007`（1500–1600 nm 全谱稳定在 `0.99959–1.00050`）。各输出通道按 `P_in` 归一后非常干净：
+
+| 通道（1550 nm） | 占比 | 对数 / 备注 |
+| --- | ---: | --- |
+| 向上辐射 P<sub>up</sub> / P<sub>in</sub> | 62.09% | −2.07 dB（峰值在 1546 nm，62.14%） |
+| 向下衬底 P<sub>down</sub> / P<sub>in</sub> | 32.32% | −4.90 dB |
+| 右端直通残留 P<sub>through</sub> / P<sub>in</sub> | 4.87% | 20 周期已辐射约 94.4% 的入射功率 |
+| 输入基模回波 \|R<sub>mode</sub>\| / P<sub>in</sub> | 0.45% | +10° 倾角有效避开了二阶布拉格强反射 |
+| **能量守恒审计总和** | **99.74%** | (P<sub>up</sub> + P<sub>down</sub> + P<sub>through</sub> + \|R<sub>mode</sub>\|) / P<sub>in</sub> |
+| **向上方向性 D(1550 nm)** | **65.76%** | P<sub>up</sub> / (P<sub>up</sub> + P<sub>down</sub>)，含 2.0 µm BOX 干涉 |
+
+关于 **3 dB 带宽**：图 (a) 中 `P_up / P_in` 在整个 1500–1600 nm 窗口内都在 56.1%–62.1% 之间，始终远高于半功率线 31.07%，因此按规则如实报告为 **`truncated`（左右两侧均截断，不做外推）**。这在物理上完全合理：这里测的是穿过整个上包层平面的总向上辐射功率，波长变化主要让辐射角随波长色散偏转，而不是让总辐射骤降；工程里常见的 30–50 nm 耦合带宽，是叠加单模光纤固定接受角与高斯模场重叠之后的结果，属于下一轮的任务。
+
+### 1550 nm 主瓣辐射角交叉验证
+
+<Figure
+  src="/images/siph/gc_2d_farfield_radiation.png"
+  alt="1550 纳米处上包层内近场 Ez 窗函数 FFT 与 Lumerical 原生 farfield2d 的主瓣角交叉验证图，以及经 Snell 定律换算后的空气侧辐射角谱。"
+  caption="1550 nm 远场主瓣角核验：(a) 近场 E_z 的 FFT（+7.159°）与 Lumerical 原生 farfield2d（+7.123°）仅差 0.036°；(b) 换算至空气侧主瓣为 +10.37°，与 +10° 起始目标仅差 0.37°。"
+  width={2340}
+  height={900}
+/>
+
+只取上包层 y = +1.22 µm 处的 E<sub>z</sub> 近场做加窗零填充 FFT，得到包层内主瓣角 θ<sub>clad</sub> = **+7.159°**，与 Lumerical 原生 `farfield2d` 给出的 **+7.123°** 仅差 **0.036°**。代入实测 Palik 折射率 n<sub>clad</sub> = 1.444002 换算到空气侧：
+
+<p class="eq">θ<sub>air</sub> = arcsin(1.444002 × sin 7.159°) = +10.368°</p>
+
+与光栅起始周期公式预设的 **+10.0°** 目标只差 **0.37°**。从两步平板 FDE、占空比加权，到 2D FDTD 辐射角与能量守恒，整条物理链条彻底闭环。
+
+## 留给后续工作与 AI EDA 自动化的 5 条经验
+
+1. **离线单测全绿不代表求解器接口和物理对了**。v4 通过了 86/86 离线测试，却完全没拦住 `getindex` 错传波长、衬底模式劫持 FDE 和 2D 极化标签反转。动用商业电磁求解器之前，先跑一个 10 秒钟的实机最小探针，把返回值形状、单位、属性回读和场分量打印出来，胜过盲写一百条 mock 测试。
+2. **用官方 MCP Server 搭配指南替代“凭记忆写脚本”**。接入 `pylumerical-mcp` 后，其内置的 `pic` / `fdtd` / `mode` 文档提前点破了含衬底选模、2D 优先用 CPU、数据集是字典、连续波导延入 PML 等一线细节，省掉了大量试错。
+3. **验收永远看物理不变量，不看退出码为 0**。程序零报错不代表算对了：强制断言源极化 E<sub>z</sub> 占比 ≥ 99%、检查四通道能量守恒（99.74%）、用折射率监视器抽检刻蚀槽材料（1.4440）、用 `farfield2d` 交叉核验自写角谱（差 0.036°），这四道关把所有静默错误都挡在了门外。
+4. **单次运行脚本的防覆盖守卫要审清目录存在语义**。当代码用 `OUT.exists()` 做防覆盖红线时，归档旧文件后必须连同空目录一并迁出或移除，并在启动前用同一条谓词做预检。
+5. **守住“先 2D 基线、再优化和 3D”的节奏**。这轮 20 秒跑通的 2D 诊断已经把 n<sub>eff</sub>、起始周期、极化、方向性与 PML 边界全部钉牢；下一轮无论是切趾匹配单模光纤高斯场、调 BOX 厚度进一步拉高方向性，还是升级到 3D 聚焦光栅，都已经站在了结实的地基上。
