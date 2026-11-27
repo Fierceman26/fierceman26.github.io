@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>高频射频设计 AI 架构对比演示</title>
+<style>
+  html,body{margin:0;padding:0;background:#fff}
+  .rf-viz-wrap{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:#fff;padding:18px;margin:0;color:#0f172a;box-sizing:border-box}
+  .rf-viz-wrap *{box-sizing:border-box}
+  .rf-viz-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .rf-viz-title{font-size:16px;font-weight:700;margin:0;color:#0f172a}
+  .rf-viz-sub{font-size:12px;color:#64748b;margin-top:2px}
+  .rf-viz-tabs{display:inline-flex;background:#f1f5f9;padding:3px;border-radius:9px;gap:4px}
+  .rf-viz-tab{border:none;background:transparent;color:#475569;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;transition:all .2s}
+  .rf-viz-tab.active-layered{background:#2563eb;color:#fff;box-shadow:0 1px 4px rgba(37,99,235,.3)}
+  .rf-viz-tab.active-naive{background:#dc2626;color:#fff;box-shadow:0 1px 4px rgba(220,38,38,.3)}
+  .rf-viz-stage{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow-x:auto;padding:8px 4px}
+  .rf-viz-svg{width:100%;min-width:660px;height:auto;display:block;user-select:none}
+  .rf-viz-node{cursor:pointer;transition:opacity .2s}
+  .rf-viz-node:hover rect.rf-card{filter:drop-shadow(0 3px 6px rgba(15,23,42,.12))}
+  .rf-edge-anim{stroke-dasharray:7 5;animation:rf-flow-dash .85s linear infinite}
+  .rf-edge-slow{stroke-dasharray:6 6;animation:rf-flow-dash 1.8s linear infinite}
+  @keyframes rf-flow-dash{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
+  .rf-viz-panel{margin-top:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px}
+  .rf-viz-phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .rf-viz-pname{font-size:15px;font-weight:700;color:#0f172a}
+  .rf-viz-badges{display:flex;flex-wrap:wrap;gap:6px}
+  .rf-viz-badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px}
+  .rf-b-low{background:#dcfce7;color:#166534}
+  .rf-b-mid{background:#fef3c7;color:#92400e}
+  .rf-b-high{background:#fee2e2;color:#991b1b}
+  .rf-b-info{background:#e0e7ff;color:#3730a3}
+  .rf-viz-pdesc{font-size:13.5px;line-height:1.65;color:#334155;margin:0 0 8px 0}
+  .rf-viz-psave{font-size:12.5px;line-height:1.55;color:#0f766e;background:#f0fdfa;border-left:3px solid #14b8a6;padding:6px 10px;border-radius:4px;margin:0}
+  .rf-viz-psave.warn{color:#991b1b;background:#fef2f2;border-left-color:#ef4444}
+  .rf-viz-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+  .rf-viz-btns{display:flex;gap:8px}
+  .rf-viz-btn{border:1px solid #cbd5e1;background:#fff;color:#1e293b;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;transition:all .15s}
+  .rf-viz-btn:hover{background:#f1f5f9;border-color:#94a3b8}
+  .rf-viz-btn.primary{background:#0f172a;color:#fff;border-color:#0f172a}
+  .rf-viz-btn.primary:hover{background:#334155}
+  .rf-viz-step{font-size:12.5px;color:#64748b;font-weight:600}
+</style>
+</head>
+<body>
+<div id="rf-arch-viz-root" class="rf-viz-wrap">
+  <div class="rf-viz-head">
+    <div>
+      <div class="rf-viz-title">高频射频设计 AI 架构对比演示</div>
+      <div class="rf-viz-sub">点击任意节点或下方按钮，查看各层如何拦截无效全波算力</div>
+    </div>
+    <div class="rf-viz-tabs">
+      <button type="button" class="rf-viz-tab" data-mode="layered">分层降本闭环（推荐）</button>
+      <button type="button" class="rf-viz-tab" data-mode="naive">LLM 直接盲调（高成本对比）</button>
+    </div>
+  </div>
+  <div class="rf-viz-stage"><svg class="rf-viz-svg" viewBox="0 0 760 272" aria-label="高频设计降本架构流程图"></svg></div>
+  <div class="rf-viz-panel">
+    <div class="rf-viz-phead">
+      <div class="rf-viz-pname"></div>
+      <div class="rf-viz-badges"></div>
+    </div>
+    <p class="rf-viz-pdesc"></p>
+    <p class="rf-viz-psave"></p>
+  </div>
+  <div class="rf-viz-foot">
+    <div class="rf-viz-btns">
+      <button type="button" class="rf-viz-btn" data-act="prev">上一步</button>
+      <button type="button" class="rf-viz-btn primary" data-act="play">自动演示</button>
+      <button type="button" class="rf-viz-btn" data-act="next">下一步</button>
+    </div>
+    <div class="rf-viz-step"></div>
+  </div>
+  <script>
+  (function(){
+    var root=document.getElementById("rf-arch-viz-root");
+    if(!root)return;
+    var NS="http://www.w3.org/2000/svg";
+    var svg=root.querySelector(".rf-viz-svg");
+    var pName=root.querySelector(".rf-viz-pname");
+    var pBadges=root.querySelector(".rf-viz-badges");
+    var pDesc=root.querySelector(".rf-viz-pdesc");
+    var pSave=root.querySelector(".rf-viz-psave");
+    var stepEl=root.querySelector(".rf-viz-step");
+    var playBtn=root.querySelector('[data-act="play"]');
+    var DATA={
+      layered:[
+        {id:"planner",t1:"1. LLM 总设计师",t2:"拓扑选型与边界规划",badge:"秒级 · 极低成本",lvl:"low",x:16,y:44,w:126,h:78,latency:"约 1~5 秒",cost:"成本极低",desc:"通用大模型退居幕后担任总设计师：负责拆解射频指标、选择电路拓扑、调用高层物理动作（而非直接改几何坐标），并在失败后复盘失效机理。",save:"核心降本动作：剥夺 LLM 直接盲调底层尺寸与触发全波仿真的权限。"},
+        {id:"guardrail",t1:"2. L0 规则拦截",t2:"DRC 与物理硬校验",badge:"毫秒级 · 零成本",lvl:"low",x:166,y:44,w:126,h:78,latency:"毫秒级",cost:"算力可忽略",desc:"在候选方案触达任何仿真器之前，由确定性脚本强制检查制造工艺规则（DRC）、几何自相交以及基于第一性原理的物理可行性。",save:"核心降本动作：在进入仿真前直接毙掉 100% 不可制造或违背物理常识的畸形方案。"},
+        {id:"fast_eval",t1:"3. L1 低保真快筛",t2:"等效电路 / 粗网格",badge:"秒级 · 低成本",lvl:"low",x:316,y:44,w:126,h:78,latency:"数秒级",cost:"低算力开销",desc:"优先使用传输线理论、集总等效电路、经验公式或空间映射粗模型，快速验证谐振频段与阻抗匹配趋势，把搜索空间大幅收缩至可行域附近。",save:"核心降本动作：用秒级物理快筛替代小时级 3D 求解，滤掉绝大多数劣质候选。"},
+        {id:"optimizer",t1:"4. 数学寻优引擎",t2:"代理模型 + BO/伴随",badge:"秒~分 · 中低成本",lvl:"mid",x:466,y:44,w:126,h:78,latency:"秒至分钟级",cost:"中低算力开销",desc:"将高维连续参数调优交给贝叶斯优化（BO）、伴随梯度法与轻量 ANN 代理模型，在高频轻量内循环中自动完成百轮级精细寻优。",save:"核心降本动作：彻底解耦“语义推理”与“数值寻优”，不消耗 LLM 盲试 Token。"},
+        {id:"fullwave",t1:"5. L2 全波签核",t2:"3D EM 精验与回写",badge:"时级 · 仅 1~3 次",lvl:"high",x:616,y:44,w:126,h:78,latency:"分钟至小时级",cost:"高单次成本 / 极少调用",desc:"仅对处于帕累托前沿的极少数最优候选执行高精度全波 3D EM 验证；真实仿真结果同步回写更新代理模型，并将失败案例沉淀进经验库。",save:"核心降本动作：全流程仅调用 1~3 次昂贵全波求解，总耗时可削减 70%~88%。"}
+      ],
+      naive:[
+        {id:"naive_llm",t1:"1. 通用 LLM 直接盲调",t2:"手改底层几何坐标与网表",badge:"无高频物理直觉",lvl:"mid",x:45,y:50,w:190,h:84,latency:"每轮消耗大量 Token",cost:"探索效率极低",desc:"直接将底层几何尺寸或原始网表暴露给通用大模型，让模型凭文本直觉在高维连续电磁空间里反复猜测线宽、耦合缝隙与匹配参数。",save:"成本失控原因：缺乏物理抽象与数学优化器，极易产出无意义的无效几何结构。"},
+        {id:"naive_em",t1:"2. 触发完整 3D 全波仿真",t2:"每次微调均重跑 FEM / FDTD",badge:"数小时/次 · 算力爆炸",lvl:"high",x:285,y:50,w:190,h:84,latency:"数十分钟至数小时/次",cost:"算力成本爆炸",desc:"没有多保真度拦截漏斗，LLM 每微调一个参数就通过 MCP 触发一次高精度全波电磁场求解，导致几十轮试错耗尽算力与工程排期。",save:"成本失控原因：拿最昂贵的签核级物理引擎去做最盲目的全局粗搜。"},
+        {id:"naive_log",t1:"3. 原始日志回灌上下文",t2:"海量报错与 S 参数直接塞入",badge:"易陷局部最优死循环",lvl:"high",x:525,y:50,w:190,h:84,latency:"上下文迅速膨胀",cost:"Token 与时间双损耗",desc:"未抽象的仿真报告、S 参数曲线和报错信息不断堆叠进对话窗口，模型难以归因真实的寄生与耦合机理，反复在同一物理坑里打转。",save:"成本失控原因：缺乏结构化失败日志与梯度方向指引，陷入高成本死循环。"}
+      ]
+    };
+    var COLORS={low:{bg:"#dcfce7",fg:"#166534"},mid:{bg:"#fef3c7",fg:"#92400e"},high:{bg:"#fee2e2",fg:"#991b1b"}};
+    var state={mode:"layered",step:0,timer:null};
+    function mk(tag,attrs,txt){
+      var node=document.createElementNS(NS,tag);
+      if(attrs){Object.keys(attrs).forEach(function(k){node.setAttribute(k,attrs[k]);});}
+      if(txt!==undefined){node.textContent=txt;}
+      return node;
+    }
+    function addMarker(defs,id,color){
+      var m=mk("marker",{id:id,viewBox:"0 0 10 10",refX:"8",refY:"5",markerWidth:"6",markerHeight:"6",orient:"auto-start-reverse"});
+      m.appendChild(mk("path",{d:"M 0 1 L 10 5 L 0 9 z",fill:color}));
+      defs.appendChild(m);
+    }
+    function render(){
+      var steps=DATA[state.mode];
+      var cur=steps[state.step];
+      var isLayered=state.mode==="layered";
+      root.querySelectorAll(".rf-viz-tab").forEach(function(btn){
+        btn.classList.remove("active-layered","active-naive");
+        if(btn.getAttribute("data-mode")===state.mode){
+          btn.classList.add(isLayered?"active-layered":"active-naive");
+        }
+      });
+      while(svg.firstChild){svg.removeChild(svg.firstChild);}
+      var defs=mk("defs");
+      addMarker(defs,"rf-arr-gray","#94a3b8");
+      addMarker(defs,"rf-arr-blue","#2563eb");
+      addMarker(defs,"rf-arr-teal","#0d9488");
+      addMarker(defs,"rf-arr-red","#dc2626");
+      svg.appendChild(defs);
+      if(isLayered){
+        var fwd=[
+          {d:"M 142 83 L 164 83",on:state.step===0||state.step===1},
+          {d:"M 292 83 L 314 83",on:state.step===1||state.step===2},
+          {d:"M 442 83 L 464 83",on:state.step===2||state.step===3},
+          {d:"M 592 83 L 614 83",on:state.step===3||state.step===4}
+        ];
+        fwd.forEach(function(e){
+          svg.appendChild(mk("path",{d:e.d,fill:"none",stroke:e.on?"#2563eb":"#cbd5e1","stroke-width":e.on?"2.8":"2","marker-end":e.on?"url(#rf-arr-blue)":"url(#rf-arr-gray)",class:e.on?"rf-edge-anim":""}));
+        });
+        var innerOn=state.step===2||state.step===3;
+        svg.appendChild(mk("path",{d:"M 510 122 L 510 164 Q 510 174 500 174 L 389 174 Q 379 174 379 164 L 379 125",fill:"none",stroke:innerOn?"#0d9488":"#5eead4","stroke-width":innerOn?"2.6":"1.8","marker-end":"url(#rf-arr-teal)",class:"rf-edge-anim"}));
+        svg.appendChild(mk("text",{x:"444",y:"192","text-anchor":"middle","font-size":"11.5","font-weight":"600",fill:innerOn?"#0f766e":"#64748b"},"高频轻量内循环：代理模型 / 快筛百轮寻优"));
+        var outerOn=state.step===4;
+        svg.appendChild(mk("path",{d:"M 679 122 L 679 224 Q 679 234 669 234 L 89 234 Q 79 234 79 224 L 79 125",fill:"none",stroke:outerOn?"#2563eb":"#94a3b8","stroke-width":outerOn?"2.6":"1.6","marker-end":outerOn?"url(#rf-arr-blue)":"url(#rf-arr-gray)",class:outerOn?"rf-edge-anim":"rf-edge-slow"}));
+        svg.appendChild(mk("path",{d:"M 565 234 L 565 125",fill:"none",stroke:outerOn?"#2563eb":"#94a3b8","stroke-width":outerOn?"2.4":"1.5","marker-end":outerOn?"url(#rf-arr-blue)":"url(#rf-arr-gray)",class:outerOn?"rf-edge-anim":"rf-edge-slow"}));
+        svg.appendChild(mk("text",{x:"379",y:"254","text-anchor":"middle","font-size":"11.5","font-weight":"600",fill:outerOn?"#1d4ed8":"#64748b"},"低频重量外循环：仅 1~3 次全波签核，真实数据回写代理模型与失败日志"));
+      }else{
+        var nfwd=[
+          {d:"M 235 92 L 283 92",on:state.step===0||state.step===1},
+          {d:"M 475 92 L 523 92",on:state.step===1||state.step===2}
+        ];
+        nfwd.forEach(function(e){
+          svg.appendChild(mk("path",{d:e.d,fill:"none",stroke:e.on?"#dc2626":"#fca5a5","stroke-width":e.on?"2.8":"2","marker-end":"url(#rf-arr-red)",class:e.on?"rf-edge-anim":""}));
+        });
+        svg.appendChild(mk("path",{d:"M 620 134 L 620 202 Q 620 212 610 212 L 150 212 Q 140 212 140 202 L 140 137",fill:"none",stroke:"#dc2626","stroke-width":state.step===2?"2.8":"2","marker-end":"url(#rf-arr-red)",class:"rf-edge-anim"}));
+        svg.appendChild(mk("text",{x:"380",y:"234","text-anchor":"middle","font-size":"12","font-weight":"700",fill:"#b91c1c"},"高成本死循环：几十轮盲目全波试错，算力与 Token 同步失控"));
+      }
+      steps.forEach(function(item,idx){
+        var active=idx===state.step;
+        var g=mk("g",{class:"rf-viz-node"});
+        var strokeCol=active?(isLayered?"#2563eb":"#dc2626"):"#cbd5e1";
+        var fillCol=active?(isLayered?"#eff6ff":"#fef2f2"):"#ffffff";
+        g.appendChild(mk("rect",{class:"rf-card",x:item.x,y:item.y,width:item.w,height:item.h,rx:"10",fill:fillCol,stroke:strokeCol,"stroke-width":active?"2.6":"1.4"}));
+        var cx=item.x+item.w/2;
+        g.appendChild(mk("text",{x:cx,y:item.y+23,"text-anchor":"middle","font-size":"12.5","font-weight":"700",fill:"#0f172a"},item.t1));
+        g.appendChild(mk("text",{x:cx,y:item.y+42,"text-anchor":"middle","font-size":"11",fill:"#475569"},item.t2));
+        var c=COLORS[item.lvl];
+        var bw=item.w-18;
+        g.appendChild(mk("rect",{x:item.x+9,y:item.y+52,width:bw,height:19,rx:"9.5",fill:c.bg}));
+        g.appendChild(mk("text",{x:cx,y:item.y+65,"text-anchor":"middle","font-size":"10.5","font-weight":"600",fill:c.fg},item.badge));
+        g.addEventListener("click",function(){stopPlay();state.step=idx;render();});
+        svg.appendChild(g);
+      });
+      pName.textContent=cur.t1+" · "+cur.t2;
+      while(pBadges.firstChild){pBadges.removeChild(pBadges.firstChild);}
+      var b1=document.createElement("span");
+      b1.className="rf-viz-badge rf-b-info";
+      b1.textContent="耗时："+cur.latency;
+      var b2=document.createElement("span");
+      b2.className="rf-viz-badge rf-b-"+cur.lvl;
+      b2.textContent=cur.cost;
+      pBadges.appendChild(b1);
+      pBadges.appendChild(b2);
+      pDesc.textContent=cur.desc;
+      pSave.textContent=cur.save;
+      pSave.className=isLayered?"rf-viz-psave":"rf-viz-psave warn";
+      stepEl.textContent="步骤 "+(state.step+1)+" / "+steps.length;
+    }
+    function stopPlay(){
+      if(state.timer){clearInterval(state.timer);state.timer=null;}
+      playBtn.textContent="自动演示";
+    }
+    function togglePlay(){
+      if(state.timer){stopPlay();return;}
+      playBtn.textContent="暂停演示";
+      state.timer=setInterval(function(){
+        var len=DATA[state.mode].length;
+        state.step=(state.step+1)%len;
+        render();
+      },2400);
+    }
+    root.querySelectorAll(".rf-viz-tab").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        stopPlay();
+        state.mode=btn.getAttribute("data-mode");
+        state.step=0;
+        render();
+      });
+    });
+    root.querySelector('[data-act="prev"]').addEventListener("click",function(){
+      stopPlay();
+      var len=DATA[state.mode].length;
+      state.step=(state.step-1+len)%len;
+      render();
+    });
+    root.querySelector('[data-act="next"]').addEventListener("click",function(){
+      stopPlay();
+      var len=DATA[state.mode].length;
+      state.step=(state.step+1)%len;
+      render();
+    });
+    playBtn.addEventListener("click",togglePlay);
+    render();
+  })();
+  </script>
+</div>
+</body>
+</html>

@@ -65,11 +65,11 @@ export const CATEGORIES = [
   },
   {
     slug: 'gezhi',
-    title: '格致',
-    subtitle: 'Investigation of Things',
-    tagline: 'First principles, classics, and the patterns that only show up after years in the field.',
-    taglineZh: '第一性原理、经典，以及只有在事上磨练之后才会显影的那些规律。',
-    keywords: ['心学', '致良知', '第一性原理', '省思'],
+    title: 'AI随想',
+    subtitle: 'AI & Engineering Notes',
+    tagline: 'Notes on AI agents, engineering judgment, and the patterns that show up in practice.',
+    taglineZh: '关于 AI 智能体、工程判断，以及在真实实践里显影的那些规律。',
+    keywords: ['AI Agent', '人机协作', '工程实践', '第一性原理'],
   },
   {
     slug: 'llm',

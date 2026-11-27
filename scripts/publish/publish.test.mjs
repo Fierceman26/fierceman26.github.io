@@ -27,7 +27,7 @@ function makeRepo() {
   { slug: 'eoe', title: 'EOE' },
   { slug: 'siph', title: 'SiPh' },
   { slug: 'pi', title: 'PI' },
-  { slug: 'gezhi', title: '格致' },
+  { slug: 'gezhi', title: 'AI随想' },
   { slug: 'llm', title: 'LLM' },
 ] as const;
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];

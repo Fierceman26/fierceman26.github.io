@@ -132,5 +132,5 @@ export default defineConfig({
 - 一篇好的笔记 > 三篇水文。这个站点的设计语言鼓励**少而精**。
 - 标题用 6-12 字最舒服（serif 大字排版会用 18ch max-width）。
 - `description` 字段是首页和列表页的引导句，多花点心思。
-- `category` 用栏目 slug：`hsd` / `eoe` / `siph` / `pi` / `gezhi` / `llm`。它会变成 `/categories/<slug>/`，不要写成 "Signal Integrity" 这种展示名。波导、耦合器归 `siph`；MZM、TIA、链路 budget 仍归 `eoe`。心学与第一性原理归 `gezhi`。从头搭建语言模型归 `llm`。
+- `category` 用栏目 slug：`hsd` / `eoe` / `siph` / `pi` / `gezhi` / `llm`。它会变成 `/categories/<slug>/`，不要写成 "Signal Integrity" 这种展示名。波导、耦合器归 `siph`；MZM、TIA、链路 budget 仍归 `eoe`。AI随想与第一性原理归 `gezhi`。从头搭建语言模型归 `llm`。
 - `tags` 用细分关键词（"SIPro" / "DDR5" / "Python API"）。

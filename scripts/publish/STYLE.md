@@ -34,7 +34,7 @@
 | `draft` | 布尔。`true` 时构建不进列表 |
 | `cover` | 可选，站内 `/images/...` |
 
-当前栏目以代码为准：`hsd` 高速数字，`eoe` 电光链路，`siph` 硅光器件，`pi` 电源完整性，`gezhi` 格致，`llm` 从头搭建。波导和耦合器归 `siph`，不归 `eoe`。
+当前栏目以代码为准：`hsd` 高速数字，`eoe` 电光链路，`siph` 硅光器件，`pi` 电源完整性，`gezhi` AI随想，`llm` 从头搭建。波导和耦合器归 `siph`，不归 `eoe`。
 
 英文不是自动生成的。有 `body.en.mdx` 时，`meta.en` 必须自带 `title`、`description`、`tags`。日期、栏目、`featured`、`draft` 与中文相同。没有英文稿就不要造一份。
 
