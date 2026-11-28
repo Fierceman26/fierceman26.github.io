@@ -30,13 +30,14 @@ export const NAV = [
 // 新增一个分类：直接在这个数组里加一项，并在文章 frontmatter 的 category 字段里用 slug
 // slug 用于 URL（/categories/<slug>/）和 frontmatter 的 category 字段值
 export const CATEGORIES = [
+  // 高速数字与信号/电源完整性（SI / PI / PDN）统一归 hsd，不再单设 pi 栏目。
   {
     slug: 'hsd',
     title: 'HSD',
     subtitle: 'High-Speed Digital',
-    tagline: 'Channel design, signal integrity, and the millivolts that decide if your link closes.',
-    taglineZh: '通道设计、信号完整性，以及决定链路开不开眼的那几毫伏。',
-    keywords: ['SI', 'DDR', 'PCIe', 'channel', 'skew', 'eye'],
+    tagline: 'Channel design, signal & power integrity, and the millivolts that decide if your link closes.',
+    taglineZh: '通道设计、信号与电源完整性，以及决定链路开不开眼的那几毫伏。',
+    keywords: ['SI', 'PI', 'DDR', 'PCIe', 'PDN', 'channel'],
   },
   {
     slug: 'eoe',
@@ -54,14 +55,6 @@ export const CATEGORIES = [
     tagline: 'Strip waveguides, couplers, and the device-level work that feeds an optical link.',
     taglineZh: '条形波导、耦合器，以及支撑光链路的器件级设计。',
     keywords: ['SOI', 'MODE', 'waveguide', 'FDE', 'PIC'],
-  },
-  {
-    slug: 'pi',
-    title: 'PI',
-    subtitle: 'Power Integrity',
-    tagline: 'PDN, target impedance, and what happens when the rail moves before the data does.',
-    taglineZh: 'PDN、目标阻抗，以及电压在数据之前先抖的那些时刻。',
-    keywords: ['PDN', 'IR drop', 'decoupling', 'target Z', 'rail'],
   },
   {
     slug: 'gezhi',

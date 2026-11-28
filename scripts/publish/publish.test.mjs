@@ -26,7 +26,6 @@ function makeRepo() {
   { slug: 'hsd', title: 'HSD' },
   { slug: 'eoe', title: 'EOE' },
   { slug: 'siph', title: 'SiPh' },
-  { slug: 'pi', title: 'PI' },
   { slug: 'gezhi', title: 'AI随想' },
   { slug: 'llm', title: 'LLM' },
   { slug: 'ai-hardware', title: 'AI硬件' },
@@ -78,7 +77,7 @@ function meta(extra = {}) {
     description: '把容差直接当成纹波，PDN 目标会松一截。',
     pubDate: '2026-11-19',
     tags: ['PDN'],
-    category: 'pi',
+    category: 'hsd',
     featured: false,
     draft: false,
     ...extra,
@@ -102,7 +101,7 @@ test('valid import keeps the source and reuses the post frontmatter', async () =
   assert.deepEqual(result.wrote, ['src/content/posts/pi-note.mdx']);
   assert.equal(result.pubDate, '2026-11-19');
   const written = fs.readFileSync(path.join(repo, 'src/content/posts/pi-note.mdx'), 'utf8');
-  assert.match(written, /^---\ntitle: "纹波预算里少掉的一截"\ndescription: "把容差直接当成纹波，PDN 目标会松一截。"\npubDate: 2026-11-19\ntags: \["PDN"\]\ncategory: "pi"\nfeatured: false\ndraft: false\n---\n\n/);
+  assert.match(written, /^---\ntitle: "纹波预算里少掉的一截"\ndescription: "把容差直接当成纹波，PDN 目标会松一截。"\npubDate: 2026-11-19\ntags: \["PDN"\]\ncategory: "hsd"\nfeatured: false\ndraft: false\n---\n\n/);
   assert.ok(written.endsWith(body));
   assert.equal(result.normalized.length, 0);
   assert.equal(result.git.committed, false);
@@ -159,6 +158,7 @@ test('illegal frontmatter, category, and slug are named and not written', async 
   const cases = [
     meta({ title: '' }),
     meta({ category: 'signal-integrity' }),
+    meta({ category: 'pi' }),
     meta({ slug: '../secret' }),
     meta({ featured: 'false' }),
     meta({ pubDate: '2026-11-19T00:00:00Z' }),
@@ -438,7 +438,7 @@ test('the shipped template cannot be published as a post', async () => {
 
 test('conventions come from the current site, not a second list', () => {
   const conventions = loadConventions(realRepo);
-  assert.deepEqual(conventions.categories, ['hsd', 'eoe', 'siph', 'pi', 'gezhi', 'llm', 'ai-hardware']);
+  assert.deepEqual(conventions.categories, ['hsd', 'eoe', 'siph', 'gezhi', 'llm', 'ai-hardware']);
   for (const name of ['Figure', 'BendLossPick', 'LabFrame', 'SolverPick']) {
     assert.ok(conventions.components.includes(name), name);
   }
