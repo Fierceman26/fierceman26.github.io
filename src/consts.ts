@@ -79,6 +79,14 @@ export const CATEGORIES = [
     taglineZh: '从分词、训练到推理，把一个语言模型从头搭起来。',
     keywords: ['tokenizer', 'Transformer', 'training', 'inference', 'attention'],
   },
+  {
+    slug: 'ai-hardware',
+    title: 'AI硬件',
+    subtitle: 'AI Hardware & Edge Systems',
+    tagline: 'From mmWave radar and RF front-ends to edge AI co-design, building intelligent physical hardware.',
+    taglineZh: '从毫米波雷达、射频前端到端侧 AI 联合优化，把智能落进真实物理硬件。',
+    keywords: ['mmWave', '毫米波雷达', '端侧AI', '硬件协同'],
+  },
 ] as const;
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];

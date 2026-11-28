@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>桌面毫米波健康雷达五大展望场景动态演示</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fafaf6;
+    color: #15161a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  .wrap {
+    padding: 12px 13px 12px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .title-box h1 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #15161a;
+    letter-spacing: -0.01em;
+  }
+  .title-box p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: #646770;
+  }
+  .ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .freq-seg {
+    display: inline-flex;
+    background: #ece8dc;
+    padding: 2px;
+    border-radius: 7px;
+    gap: 2px;
+  }
+  .freq-btn {
+    border: none;
+    background: transparent;
+    color: #4b4e57;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 3.5px 7px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .freq-btn.active {
+    background: #7a1631;
+    color: #fff;
+  }
+  .play-btn {
+    border: 1px solid #d5cfc2;
+    background: #fff;
+    color: #15161a;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 3.5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .play-btn:hover {
+    border-color: #7a1631;
+    color: #7a1631;
+  }
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .tab {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ddd7ca;
+    background: #f3f1e9;
+    color: #3f424a;
+    border-radius: 7px;
+    padding: 5px 5px 7px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab:hover {
+    border-color: #a83a55;
+    background: #fff;
+  }
+  .tab.active {
+    background: #131924;
+    border-color: #131924;
+    color: #f8fafc;
+  }
+  .tab-num {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tab.active .tab-num {
+    color: #38bdf8;
+    opacity: 1;
+  }
+  .tab-name {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .tab-prog {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2.5px;
+    width: 0%;
+    background: #38bdf8;
+  }
+  .stage-shell {
+    background: #0c121c;
+    border-radius: 10px;
+    border: 1px solid #1e293b;
+    overflow: hidden;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.12);
+  }
+  .stage-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 7px 10px;
+    background: #111927;
+    border-bottom: 1px solid #1e293b;
+    color: #e2e8f0;
+    font-size: 11px;
+  }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+    animation: pulse-dot 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.8); }
+  }
+  .phase-tag {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 10px;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .canvas-grid {
+    display: grid;
+    grid-template-columns: 1.08fr 1fr;
+    gap: 0;
+    background: #0c121c;
+  }
+  .pane {
+    position: relative;
+    padding: 6px;
+  }
+  .pane + .pane {
+    border-left: 1px solid #1e293b;
+  }
+  .pane-label {
+    position: absolute;
+    top: 10px;
+    left: 11px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #94a3b8;
+    background: rgba(12, 18, 28, 0.82);
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 222px;
+    border-radius: 6px;
+    background: #0a0f18;
+  }
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 8px 10px;
+    background: #101724;
+    border-top: 1px solid #1e293b;
+  }
+  .metric {
+    background: #162032;
+    border: 1px solid #223047;
+    border-radius: 6px;
+    padding: 5px 7px;
+  }
+  .metric-k {
+    font-size: 9.5px;
+    color: #94a3b8;
+    margin-bottom: 1px;
+  }
+  .metric-v {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+  .metric-v.ok { color: #34d399; }
+  .metric-v.warn { color: #fbbf24; }
+  .metric-v.alert { color: #f87171; }
+  .metric-v.cyan { color: #38bdf8; }
+
+  .explain-card {
+    margin-top: 8px;
+    background: #f3f1e9;
+    border: 1px solid #dcd6c8;
+    border-radius: 9px;
+    padding: 9px 11px;
+  }
+  .ex-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .ex-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #15161a;
+  }
+  .ex-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #7a1631;
+    background: rgba(122, 22, 49, 0.1);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .ex-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .ex-item {
+    background: #fafaf6;
+    border: 1px solid #e5e0d4;
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .ex-item b {
+    display: block;
+    font-size: 10px;
+    color: #7a1631;
+    margin-bottom: 2px;
+    letter-spacing: 0.03em;
+  }
+  .ex-item span {
+    display: block;
+    font-size: 11px;
+    line-height: 1.42;
+    color: #2f3239;
+  }
+  .disclaimer {
+    margin-top: 6px;
+    font-size: 10px;
+    color: #7b7e86;
+    text-align: right;
+  }
+
+  @media (max-width: 440px) {
+    .tabs { grid-template-columns: repeat(3, 1fr); }
+    .canvas-grid { grid-template-columns: 1fr; }
+    .pane + .pane { border-left: none; border-top: 1px solid #1e293b; }
+    canvas { height: 195px; }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+    .ex-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="radar-demo-root">
+  <div class="top-bar">
+    <div class="title-box">
+      <h1>桌面毫米波健康雷达 · 五大展望场景动态演示</h1>
+      <p>实时模拟波束锁胸、杂波零陷抑制与微米级体征解调（点击场景或切换载波频段观察变化）</p>
+    </div>
+    <div class="ctrl-group">
+      <div class="freq-seg" role="group" aria-label="载波频段切换">
+        <button type="button" class="freq-btn" data-freq="5.8">5.8 GHz</button>
+        <button type="button" class="freq-btn" data-freq="24">24 GHz</button>
+        <button type="button" class="freq-btn active" data-freq="60">60 GHz</button>
+      </div>
+      <button type="button" class="play-btn" id="toggle-auto">暂停轮播</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="scene-tabs">
+    <button type="button" class="tab active" data-idx="0">
+      <span class="tab-num">01 · 桌面办公</span>
+      <span class="tab-name">HRV 压力与屏气</span>
+      <span class="tab-prog"></span>
+    </button>
+    <button type="button" class="tab" data-idx="1">
+      <span class="tab-num">02 · 床头睡眠</span>
+      <span class="tab-name">呼吸暂停与分期</span>
+      <span class="tab-prog"></span>
+    </button>
+    <button type="button" class="tab" data-idx="2">
+      <span class="tab-num">03 · 坐姿守护</span>
+      <span class="tab-name">颈椎前倾监测</span>
+      <span class="tab-prog"></span>
+    </button>
+    <button type="button" class="tab" data-idx="3">
+      <span class="tab-num">04 · 前沿探索</span>
+      <span class="tab-name">SCG 与双波束 PTT</span>
+      <span class="tab-prog"></span>
+    </button>
+    <button type="button" class="tab" data-idx="4">
+      <span class="tab-num">05 · 私密空间</span>
+      <span class="tab-name">跌倒与体征复核</span>
+      <span class="tab-prog"></span>
+    </button>
+  </div>
+
+  <div class="stage-shell">
+    <div class="stage-head">
+      <div class="live-pill">
+        <span class="live-dot"></span>
+        <span id="stage-title">场景 01 · 深度办公“屏幕呼吸暂停”与 HRV 压力雷达</span>
+      </div>
+      <div class="phase-tag" id="phase-tag">60 GHz · λ=5.0 mm · 0.3 mm → Δφ=43.2°</div>
+    </div>
+    <div class="canvas-grid">
+      <div class="pane">
+        <div class="pane-label" id="left-label">波束空间感知 &amp; 杂波零陷</div>
+        <canvas id="scene-canvas" aria-label="毫米波雷达空间场景动画"></canvas>
+      </div>
+      <div class="pane">
+        <div class="pane-label" id="right-label">实时 I/Q 解调微动波形</div>
+        <canvas id="wave-canvas" aria-label="毫米波雷达生理体征实时波形"></canvas>
+      </div>
+    </div>
+    <div class="metrics-row" id="metrics-row"></div>
+  </div>
+
+  <div class="explain-card">
+    <div class="ex-head">
+      <div class="ex-title" id="ex-title"></div>
+      <div class="ex-badge" id="ex-badge"></div>
+    </div>
+    <div class="ex-grid">
+      <div class="ex-item"><b>痛点切入</b><span id="ex-pain"></span></div>
+      <div class="ex-item"><b>毫米波物理动作</b><span id="ex-phy"></span></div>
+      <div class="ex-item"><b>端侧 AI 闭环联动</b><span id="ex-ai"></span></div>
+    </div>
+  </div>
+  <div class="disclaimer">* 仿真动图用于直观说明物理原理与未来应用形态，面向日常健康趋势追踪与科研实验，不替代临床医疗诊断。</div>
+</div>
+
+<script>
+(function () {
+  var SCENES = [
+    {
+      stageTitle: "场景 01 · 深度办公“屏幕呼吸暂停”与 HRV 压力雷达",
+      leftLabel: "主瓣锁胸 · 旁侧风扇零陷抑制",
+      rightLabel: "呼吸微动 + HRV 自主神经负荷",
+      exTitle: "打断无意识屏气与隐性过载内耗",
+      exBadge: "零佩戴 · 抗风扇强杂波",
+      pain: "写代码或赶稿时常出现浅呼吸与屏气（Email Apnea），佩戴手表又易分心且难实时干预。",
+      phy: "相控阵主瓣死锁胸壁微动，强化学习在旁侧桌面小风扇方向形成深零陷，分离 0.3 mm 心跳间隔。",
+      ai: "端侧监测连续 30 分钟浅呼吸与 HRV 走低，自动切换桌面呼吸节律灯并推送 60 秒深呼吸提示。",
+      metrics: [
+        { k: "呼吸频率", v: "9.2 次/分", cls: "warn" },
+        { k: "心率 / HRV", v: "78 bpm · 31 ms", cls: "alert" },
+        { k: "风扇零陷抑制", v: "-26.4 dB", cls: "ok" },
+        { k: "端侧联动", v: "触发呼吸灯引导", cls: "cyan" }
+      ]
+    },
+    {
+      stageTitle: "场景 02 · 床头无感睡眠分期与睡眠呼吸暂停筛查",
+      leftLabel: "穿透厚被褥 · 夜间胸腹微动追踪",
+      rightLabel: "呼吸中断 (>10s) 与代偿喘气捕捉",
+      exTitle: "隔着厚棉被跑完一整夜的睡眠监测",
+      exBadge: "零异物感 · 穿被监测",
+      pain: "智能手表睡觉勒手腕、经常忘戴或没电，导致最关键的整夜呼吸异常与睡眠周期记录断档。",
+      phy: "床头雷达穿透棉被直达胸腹，正交 I/Q 架构消除翻身造成的距离相位盲点，连续记录微动波形。",
+      ai: "自动标记超过 10 秒的呼吸平直期与随后急促喘气，融合体动与心率漂移生成深睡/浅睡/REM 分期。",
+      metrics: [
+        { k: "呼吸事件", v: "平直期 11.4 s", cls: "alert" },
+        { k: "静息心率", v: "56 bpm", cls: "ok" },
+        { k: "当前分期", v: "深睡 / REM 切换", cls: "cyan" },
+        { k: "被褥穿透裕量", v: "+14.2 dB", cls: "ok" }
+      ]
+    },
+    {
+      stageTitle: "场景 03 · 桌面“电子正骨师”：体态坍塌与颈椎前倾监测",
+      leftLabel: "无摄像头 AoA 测距与俯仰角扫描",
+      rightLabel: "躯干距离偏移与前倾角实时轨迹",
+      exTitle: "不装摄像头也能抓出“乌龟颈”",
+      exBadge: "AoA 空间测角 · 零隐私泄露",
+      pain: "专注或疲劳时头部与肩膀会不自觉前探贴近屏幕，而桌面摄像头全天开着令人浑身不自在。",
+      phy: "相控阵同时测量胸肩距离基准偏移 Δd 与到达角 AoA，构建无图像的上半身粗粒度空间轮廓。",
+      ai: "端侧识别前倾角超标（>18°）或僵硬坐姿持续超过 50 分钟，温和提醒矫正坐姿并起身拉伸。",
+      metrics: [
+        { k: "胸屏距离", v: "41 cm (偏近)", cls: "warn" },
+        { k: "颈椎前倾角", v: "21.6° (超标)", cls: "alert" },
+        { k: "持续僵硬", v: "52 分钟", cls: "warn" },
+        { k: "隐私保护", v: "无图像点云", cls: "ok" }
+      ]
+    },
+    {
+      stageTitle: "场景 04 · 心脏机械波形（SCG）与双波束无袖带血压趋势（PTT）",
+      leftLabel: "相控阵双波束：主动脉 + 颈动脉锁定",
+      rightLabel: "双通道微动脉冲与传导时间差 PTT",
+      exTitle: "用毫米波触碰无袖带血压趋势前沿",
+      exBadge: "60 GHz 高敏 · 双波束同步",
+      pain: "传统袖带血压计无法连续静默测量，而单点雷达难以获取反映血管弹性与血压趋势的传导时延。",
+      phy: "高频毫米波将 0.3 mm 心跳放大至数十度相位摆动（60 GHz 达 43.2°），双波束同步锁胸口与颈动脉。",
+      ai: "滤除呼吸高次谐波后提取 SCG 机械特征点，端侧精准测算两路脉冲时间差 Δt（PTT）追踪趋势。",
+      metrics: [
+        { k: "脉搏波传导 PTT", v: "148 ms", cls: "cyan" },
+        { k: "SCG 瓣膜特征", v: "AO/AC 清晰锁定", cls: "ok" },
+        { k: "趋势估计", v: "平稳区间", cls: "ok" },
+        { k: "波束切换", v: "双波束并行", cls: "cyan" }
+      ]
+    },
+    {
+      stageTitle: "场景 05 · 独居安全与老人/宠物私密空间守护",
+      leftLabel: "微多普勒跌倒识别 → 切入体征复核",
+      rightLabel: "垂直速度突变 + 跌倒后呼吸确认",
+      exTitle: "卧室与卫生间的隐形紧急守护者",
+      exBadge: "私密空间可用 · 双重确认防误报",
+      pain: "卫生间与卧室是独居老人跌倒高发地，却绝对不能安装摄像头；纯加速度误报又难以核实安危。",
+      phy: "微多普勒速度谱清晰区分“快速坐下”与“失控摔倒”，跌倒触发后雷达立刻收窄波束切入体征模式。",
+      ai: "端侧综合跌倒速度突变与跌倒后目标是否静止、呼吸是否微弱，二次核验无误后即刻推送紧急告警。",
+      metrics: [
+        { k: "微多普勒峰值", v: "-2.8 m/s (跌倒)", cls: "alert" },
+        { k: "跌倒后状态", v: "静止 · 呼吸微弱", cls: "warn" },
+        { k: "误报拦截", v: "体征二次核验", cls: "cyan" },
+        { k: "应急通道", v: "已触发微信/短信", cls: "alert" }
+      ]
+    }
+  ];
+
+  var FREQS = {
+    "5.8": { lambda: "51.7 mm", deg: "4.2°", noise: 0.26, ampScale: 0.52 },
+    "24":  { lambda: "12.5 mm", deg: "17.3°", noise: 0.11, ampScale: 0.80 },
+    "60":  { lambda: "5.0 mm",  deg: "43.2°", noise: 0.035, ampScale: 1.00 }
+  };
+
+  var state = {
+    idx: 0,
+    freq: "60",
+    auto: true,
+    cycleMs: 6800,
+    elapsedInScene: 0,
+    t: 0
+  };
+
+  var sceneCanvas = document.getElementById("scene-canvas");
+  var waveCanvas = document.getElementById("wave-canvas");
+  var sCtx = sceneCanvas.getContext("2d");
+  var wCtx = waveCanvas.getContext("2d");
+
+  var stageTitleEl = document.getElementById("stage-title");
+  var leftLabelEl = document.getElementById("left-label");
+  var rightLabelEl = document.getElementById("right-label");
+  var phaseTagEl = document.getElementById("phase-tag");
+  var metricsRowEl = document.getElementById("metrics-row");
+  var exTitleEl = document.getElementById("ex-title");
+  var exBadgeEl = document.getElementById("ex-badge");
+  var exPainEl = document.getElementById("ex-pain");
+  var exPhyEl = document.getElementById("ex-phy");
+  var exAiEl = document.getElementById("ex-ai");
+  var autoBtn = document.getElementById("toggle-auto");
+  var tabEls = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var freqEls = Array.prototype.slice.call(document.querySelectorAll(".freq-btn"));
+
+  function resizeCanvas(c) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var rect = c.getBoundingClientRect();
+    var w = Math.max(200, Math.floor(rect.width));
+    var h = Math.max(180, Math.floor(rect.height));
+    if (c.width !== Math.floor(w * dpr) || c.height !== Math.floor(h * dpr)) {
+      c.width = Math.floor(w * dpr);
+      c.height = Math.floor(h * dpr);
+    }
+    var ctx = c.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { w: w, h: h };
+  }
+
+  function updateUI() {
+    var sc = SCENES[state.idx];
+    var f = FREQS[state.freq];
+    stageTitleEl.textContent = sc.stageTitle;
+    leftLabelEl.textContent = sc.leftLabel;
+    rightLabelEl.textContent = sc.rightLabel;
+    phaseTagEl.textContent = state.freq + " GHz · λ=" + f.lambda + " · 0.3 mm → Δφ=" + f.deg;
+    exTitleEl.textContent = sc.exTitle;
+    exBadgeEl.textContent = sc.exBadge;
+    exPainEl.textContent = sc.pain;
+    exPhyEl.textContent = sc.phy;
+    exAiEl.textContent = sc.ai;
+
+    while (metricsRowEl.firstChild) metricsRowEl.removeChild(metricsRowEl.firstChild);
+    sc.metrics.forEach(function (m) {
+      var box = document.createElement("div");
+      box.className = "metric";
+      var k = document.createElement("div");
+      k.className = "metric-k";
+      k.textContent = m.k;
+      var v = document.createElement("div");
+      v.className = "metric-v " + m.cls;
+      v.textContent = m.v;
+      box.appendChild(k);
+      box.appendChild(v);
+      metricsRowEl.appendChild(box);
+    });
+
+    tabEls.forEach(function (btn, i) {
+      btn.classList.toggle("active", i === state.idx);
+      var bar = btn.querySelector(".tab-prog");
+      if (bar && i !== state.idx) bar.style.width = "0%";
+    });
+    freqEls.forEach(function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-freq") === state.freq);
+    });
+    autoBtn.textContent = state.auto ? "暂停轮播" : "自动轮播";
+  }
+
+  function drawGridBg(ctx, w, h) {
+    ctx.fillStyle = "#0a0f18";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(51, 65, 85, 0.28)";
+    ctx.lineWidth = 1;
+    var step = 24;
+    for (var x = step; x < w; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (var y = step; y < h; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+  }
+
+  function drawRadarUnit(ctx, x, y, label) {
+    ctx.save();
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.roundRect(x - 16, y - 10, 32, 20, 5);
+    ctx.fill();
+    ctx.stroke();
+    // antenna array dots
+    ctx.fillStyle = "#38bdf8";
+    for (var i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.arc(x + i * 7, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(label || "mmWave 雷达", x, y + 23);
+    ctx.restore();
+  }
+
+  function drawBeamArcs(ctx, ox, oy, tx, ty, color, phase, count, spread) {
+    var ang = Math.atan2(ty - oy, tx - ox);
+    var dist = Math.hypot(tx - ox, ty - oy);
+    ctx.save();
+    // soft beam cone
+    var grad = ctx.createRadialGradient(ox, oy, 8, ox, oy, dist);
+    grad.addColorStop(0, color.replace("1)", "0.28)"));
+    grad.addColorStop(1, color.replace("1)", "0.02)"));
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.arc(ox, oy, dist, ang - spread, ang + spread);
+    ctx.closePath();
+    ctx.fill();
+
+    // propagating wavefront arcs
+    for (var i = 0; i < count; i++) {
+      var p = ((phase + i / count) % 1);
+      var r = 16 + p * (dist - 18);
+      var alpha = (1 - p) * 0.85;
+      ctx.strokeStyle = color.replace("1)", alpha.toFixed(2) + ")");
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(ox, oy, r, ang - spread * 0.78, ang + spread * 0.78);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawScene0(ctx, w, h, t) {
+    drawGridBg(ctx, w, h);
+    var deskY = h * 0.78;
+    // desk line
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(16, deskY); ctx.lineTo(w - 16, deskY); ctx.stroke();
+
+    // Monitor on left
+    var monX = w * 0.11;
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "#475569";
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(monX - 15, deskY - 64, 30, 46);
+    ctx.strokeRect(monX - 15, deskY - 64, 30, 46);
+    ctx.fillRect(monX - 3, deskY - 18, 6, 18);
+
+    // Ambient breathing lamp
+    var lampPhase = 0.5 + 0.5 * Math.sin(t * 2.1);
+    var isAlert = (Math.sin(t * 0.7) > 0.15);
+    var lampColor = isAlert ? "rgba(251, 191, 36," : "rgba(56, 189, 248,";
+    var lampX = w * 0.25, lampY = deskY - 20;
+    var lg = ctx.createRadialGradient(lampX, lampY, 3, lampX, lampY, 20 + lampPhase * 14);
+    lg.addColorStop(0, lampColor + "0.75)");
+    lg.addColorStop(1, lampColor + "0)");
+    ctx.fillStyle = lg;
+    ctx.beginPath(); ctx.arc(lampX, lampY, 34, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = isAlert ? "#fbbf24" : "#38bdf8";
+    ctx.beginPath(); ctx.arc(lampX, lampY, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "600 9.5px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(isAlert ? "屏气预警光" : "呼吸引导灯", lampX, deskY + 14);
+
+    // Radar unit on desk
+    var rx = w * 0.48, ry = deskY - 11;
+    drawRadarUnit(ctx, rx, ry, "桌面雷达");
+
+    // Spinning fan clutter (top middle)
+    var fx = w * 0.50, fy = h * 0.25;
+    ctx.save();
+    ctx.translate(fx, fy);
+    ctx.strokeStyle = "rgba(248, 113, 113, 0.55)";
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.arc(0, 0, 17, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.rotate(t * 7);
+    ctx.fillStyle = "#94a3b8";
+    for (var b = 0; b < 3; b++) {
+      ctx.rotate((Math.PI * 2) / 3);
+      ctx.beginPath(); ctx.ellipse(0, -8, 3.5, 8, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+    // RL Nulling cone to fan
+    ctx.save();
+    ctx.strokeStyle = "rgba(248, 113, 113, 0.65)";
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(rx, ry - 10); ctx.lineTo(fx, fy + 16); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#f87171";
+    ctx.font = "600 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("风扇杂波 · RL 零陷 -26dB", fx, fy - 22);
+    ctx.restore();
+
+    // Person seated on right
+    var px = w * 0.77, py = deskY - 56;
+    var chestShift = Math.sin(t * 2.2) * (isAlert ? 1.2 : 3.5);
+    // Main beam locking chest
+    drawBeamArcs(ctx, rx + 14, ry - 4, px - 12 + chestShift, py + 8, "rgba(56, 189, 248, 1)", t * 0.65, 5, 0.24);
+
+    // Silhouette
+    ctx.fillStyle = "#334155";
+    ctx.beginPath(); ctx.arc(px + 2, py - 32, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(px - 14 + chestShift * 0.5, py - 14, 32, 54, 12); ctx.fill();
+    // Chest micro-motion glow
+    var hb = 0.5 + 0.5 * Math.sin(t * 8.2);
+    ctx.fillStyle = "rgba(244, 63, 94," + (0.45 + hb * 0.45).toFixed(2) + ")";
+    ctx.beginPath(); ctx.arc(px - 4 + chestShift, py + 8, 5 + hb * 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "600 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("胸壁锁相", px + 2, py + 54);
+  }
+
+  function drawScene1(ctx, w, h, t) {
+    drawGridBg(ctx, w, h);
+    var bedY = h * 0.73;
+    // Nightstand + radar on left
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(w * 0.08, bedY - 24, 52, 46);
+    var rx = w * 0.16, ry = bedY - 34;
+    drawRadarUnit(ctx, rx, ry, "床头雷达");
+
+    // Bed frame
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(w * 0.30, bedY, w * 0.62, 16);
+    ctx.fillStyle = "#334155";
+    ctx.fillRect(w * 0.86, bedY - 28, 10, 44);
+
+    // Apnea episode cycle (every 5s: 2.2s normal, 1.8s flat apnea, 1s gasp)
+    var cyc = t % 5.2;
+    var apnea = cyc > 2.2 && cyc < 4.1;
+    var gasp = cyc >= 4.1;
+    var chestLift = apnea ? 0.4 : gasp ? Math.sin((cyc - 4.1) * 14) * 5.5 : Math.sin(t * 2.1) * 3.5;
+
+    // Through-blanket waves
+    var cx = w * 0.62, cy = bedY - 22 - chestLift;
+    drawBeamArcs(ctx, rx + 16, ry, cx, cy, apnea ? "rgba(251, 191, 36, 1)" : "rgba(56, 189, 248, 1)", t * 0.6, 5, 0.22);
+
+    // Sleeping person head & blanket
+    ctx.fillStyle = "#475569";
+    ctx.beginPath(); ctx.arc(w * 0.79, bedY - 14, 12, 0, Math.PI * 2); ctx.fill();
+    // Thick blanket curve
+    ctx.fillStyle = "rgba(51, 65, 85, 0.88)";
+    ctx.strokeStyle = "#64748b";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.33, bedY);
+    ctx.quadraticCurveTo(w * 0.56, bedY - 38 - chestLift, w * 0.72, bedY - 12);
+    ctx.lineTo(w * 0.72, bedY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Target indicator under blanket
+    ctx.fillStyle = apnea ? "#fbbf24" : "#34d399";
+    ctx.beginPath(); ctx.arc(cx, cy + 5, 5, 0, Math.PI * 2); ctx.fill();
+
+    // Status banner
+    ctx.fillStyle = apnea ? "rgba(245, 158, 11, 0.18)" : gasp ? "rgba(248, 113, 113, 0.2)" : "rgba(52, 211, 153, 0.15)";
+    ctx.strokeStyle = apnea ? "#fbbf24" : gasp ? "#f87171" : "#34d399";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(w * 0.34, h * 0.17, w * 0.54, 26, 6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = apnea ? "#fde68a" : gasp ? "#fecaca" : "#a7f3d0";
+    ctx.font = "600 11px sans-serif";
+    ctx.textAlign = "center";
+    var msg = apnea ? "检测到呼吸平直期 >10s（筛查标记）" : gasp ? "代偿性急促喘气捕捉完成" : "隔被平稳追踪 · 深睡 / REM 分期中";
+    ctx.fillText(msg, w * 0.61, h * 0.17 + 17);
+  }
+
+  function drawScene2(ctx, w, h, t) {
+    drawGridBg(ctx, w, h);
+    var deskY = h * 0.80;
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(16, deskY); ctx.lineTo(w - 16, deskY); ctx.stroke();
+
+    // Monitor + Radar on left
+    var rx = w * 0.24, ry = deskY - 12;
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(w * 0.11, deskY - 72, 10, 56);
+    drawRadarUnit(ctx, rx, ry, "AoA 相控阵");
+
+    // Slouch cycle: smoothly leans forward then corrects
+    var slouch = Math.max(0, Math.sin(t * 1.15)); // 0 = upright, 1 = slouched
+    var bad = slouch > 0.55;
+    var hipX = w * 0.72, hipY = deskY - 12;
+    var torsoLen = 58;
+    var tiltRad = (0.08 + slouch * 0.44); // lean forward toward left
+    var shX = hipX - Math.sin(tiltRad) * torsoLen;
+    var shY = hipY - Math.cos(tiltRad) * torsoLen;
+    var headX = shX - Math.sin(tiltRad * 1.35) * 22;
+    var headY = shY - Math.cos(tiltRad * 1.35) * 22;
+
+    // Upright baseline guide (dashed green)
+    ctx.save();
+    ctx.strokeStyle = "rgba(52, 211, 153, 0.5)";
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(hipX, hipY); ctx.lineTo(hipX, hipY - 82); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // AoA fan beam
+    drawBeamArcs(ctx, rx + 14, ry - 4, shX, shY, bad ? "rgba(248, 113, 113, 1)" : "rgba(56, 189, 248, 1)", t * 0.65, 5, 0.30);
+
+    // Spine & body
+    ctx.strokeStyle = bad ? "#f87171" : "#34d399";
+    ctx.lineWidth = 7;
+    ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(hipX, hipY); ctx.lineTo(shX, shY); ctx.stroke();
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(shX, shY); ctx.lineTo(headX, headY); ctx.stroke();
+    ctx.fillStyle = bad ? "#fca5a5" : "#a7f3d0";
+    ctx.beginPath(); ctx.arc(headX, headY, 12, 0, Math.PI * 2); ctx.fill();
+
+    // Angle readout
+    var deg = (4 + slouch * 20).toFixed(1);
+    ctx.fillStyle = bad ? "#f87171" : "#34d399";
+    ctx.font = "700 11.5px ui-monospace, monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("前倾角 θ = " + deg + "°", w * 0.45, h * 0.22);
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "600 10.5px sans-serif";
+    ctx.fillText(bad ? "乌龟颈告警：请回正拉伸" : "坐姿基准正常（无摄像头）", w * 0.45, h * 0.30);
+  }
+
+  function drawScene3(ctx, w, h, t) {
+    drawGridBg(ctx, w, h);
+    var rx = w * 0.22, ry = h * 0.56;
+    drawRadarUnit(ctx, rx, ry, "双波束阵列");
+
+    // Torso outline on right
+    var px = w * 0.72, py = h * 0.52;
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "#475569";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(px, py - 56, 16, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(px - 24, py - 34, 48, 86, 16); ctx.fill(); ctx.stroke();
+
+    // Two target points: carotid (neck) & aorta (chest)
+    var neckX = px - 8, neckY = py - 36;
+    var heartX = px - 12, heartY = py + 8;
+
+    // Dual beams!
+    drawBeamArcs(ctx, rx + 14, ry - 4, heartX, heartY, "rgba(56, 189, 248, 1)", t * 0.75, 4, 0.14);
+    drawBeamArcs(ctx, rx + 14, ry - 6, neckX, neckY, "rgba(52, 211, 153, 1)", t * 0.75 + 0.3, 4, 0.14);
+
+    // Pulse propagation dot traveling from heart to neck
+    var pCycle = (t * 1.15) % 1;
+    var pulse1 = Math.exp(-Math.pow((pCycle - 0.15) / 0.08, 2));
+    var pulse2 = Math.exp(-Math.pow((pCycle - 0.38) / 0.08, 2));
+
+    // Artery line
+    ctx.strokeStyle = "rgba(244, 63, 94, 0.45)";
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(heartX, heartY); ctx.lineTo(neckX, neckY); ctx.stroke();
+
+    // Pulse wave dot along artery
+    if (pCycle >= 0.12 && pCycle <= 0.42) {
+      var u = (pCycle - 0.12) / 0.30;
+      var bx = heartX + (neckX - heartX) * u;
+      var by = heartY + (neckY - heartY) * u;
+      ctx.fillStyle = "#f43f5e";
+      ctx.beginPath(); ctx.arc(bx, by, 4.5, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.fillStyle = "rgba(56, 189, 248," + (0.45 + pulse1 * 0.55).toFixed(2) + ")";
+    ctx.beginPath(); ctx.arc(heartX, heartY, 5 + pulse1 * 5, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = "rgba(52, 211, 153," + (0.45 + pulse2 * 0.55).toFixed(2) + ")";
+    ctx.beginPath(); ctx.arc(neckX, neckY, 5 + pulse2 * 5, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "600 10px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("波束 A · 主动脉 SCG", w * 0.36, h * 0.74);
+    ctx.fillStyle = "#34d399";
+    ctx.fillText("波束 B · 颈动脉脉冲", w * 0.36, h * 0.24);
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "700 11px ui-monospace, monospace";
+    ctx.fillText("Δt = PTT (148 ms)", w * 0.36, h * 0.86);
+  }
+
+  function drawScene4(ctx, w, h, t) {
+    drawGridBg(ctx, w, h);
+    var floorY = h * 0.80;
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(16, floorY); ctx.lineTo(w - 16, floorY); ctx.stroke();
+
+    // Wall-mounted radar top-left
+    var rx = w * 0.17, ry = h * 0.28;
+    drawRadarUnit(ctx, rx, ry, "私密守护雷达");
+
+    // 5s loop: 0..1.4 standing, 1.4..2.0 falling, 2.0..5.0 on floor + vital check
+    var cyc = t % 5.2;
+    var fallU = cyc < 1.4 ? 0 : cyc < 2.0 ? (cyc - 1.4) / 0.6 : 1;
+    var ease = fallU * fallU;
+    var pivotX = w * 0.60, pivotY = floorY - 6;
+    var ang = -Math.PI / 2 + ease * (Math.PI / 2 - 0.08);
+    var len = 56;
+    var headX = pivotX + Math.cos(ang) * len;
+    var headY = pivotY + Math.sin(ang) * len;
+    var chestX = pivotX + Math.cos(ang) * (len * 0.58);
+    var chestY = pivotY + Math.sin(ang) * (len * 0.58);
+
+    var isFalling = cyc >= 1.4 && cyc < 2.1;
+    var onFloor = cyc >= 2.1;
+
+    drawBeamArcs(
+      ctx, rx + 14, ry + 6, chestX, chestY,
+      isFalling ? "rgba(248, 113, 113, 1)" : onFloor ? "rgba(251, 191, 36, 1)" : "rgba(56, 189, 248, 1)",
+      t * 0.75, 5, onFloor ? 0.13 : 0.25
+    );
+
+    // Person stick/silhouette
+    ctx.strokeStyle = onFloor ? "#fbbf24" : isFalling ? "#f87171" : "#94a3b8";
+    ctx.lineWidth = 7;
+    ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(headX, headY); ctx.stroke();
+    ctx.fillStyle = onFloor ? "#fde68a" : isFalling ? "#fca5a5" : "#cbd5e1";
+    ctx.beginPath(); ctx.arc(headX, headY, 10, 0, Math.PI * 2); ctx.fill();
+
+    // Fall micro-Doppler impact ring
+    if (isFalling || (cyc >= 2.0 && cyc < 2.6)) {
+      ctx.strokeStyle = "rgba(248, 113, 113, 0.8)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(headX, headY, 14 + ((cyc - 1.4) * 18) % 24, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // Status pill
+    var label = isFalling ? "微多普勒速度突变：识别跌倒！" : onFloor ? "切入生命体征模式 · 复核微弱呼吸 → 紧急告警" : "无摄像头监测中 · 正常活动";
+    ctx.fillStyle = isFalling ? "rgba(239, 68, 68, 0.22)" : onFloor ? "rgba(245, 158, 11, 0.2)" : "rgba(56, 189, 248, 0.14)";
+    ctx.strokeStyle = isFalling ? "#f87171" : onFloor ? "#fbbf24" : "#38bdf8";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(w * 0.34, h * 0.14, w * 0.60, 26, 6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "600 10.5px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(label, w * 0.64, h * 0.14 + 17);
+  }
+
+  function drawWaveform(ctx, w, h, t) {
+    drawGridBg(ctx, w, h);
+    var f = FREQS[state.freq];
+    var padX = 12;
+    var topMid = h * 0.36;
+    var botMid = h * 0.75;
+
+    // Divider line
+    ctx.strokeStyle = "rgba(71, 85, 105, 0.5)";
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(padX, h * 0.55); ctx.lineTo(w - padX, h * 0.55); ctx.stroke();
+    ctx.setLineDash([]);
+
+    var ch1Label = "呼吸位移波 (0.1–0.5 Hz)";
+    var ch2Label = "心跳微动 / 相位特征 (0.8–2.5 Hz)";
+    if (state.idx === 2) {
+      ch1Label = "躯干前倾角 θ(t) 变化曲线";
+      ch2Label = "胸屏基准距离 Δd(t)";
+    } else if (state.idx === 3) {
+      ch1Label = "波束 A · 胸口主动脉 SCG";
+      ch2Label = "波束 B · 颈动脉脉冲（延迟 PTT）";
+    } else if (state.idx === 4) {
+      ch1Label = "微多普勒垂直速度 v(t)";
+      ch2Label = "跌倒后胸壁微动复核波";
+    }
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 10px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(ch1Label, padX, h * 0.18);
+    ctx.fillText(ch2Label, padX, h * 0.61);
+
+    function pseudoNoise(x) {
+      return (Math.sin(x * 37.3 + t * 11) * 0.5 + Math.sin(x * 71.9 - t * 17) * 0.5) * f.noise * 24;
+    }
+
+    // Draw Channel 1
+    ctx.beginPath();
+    ctx.strokeStyle = state.idx === 4 ? "#f87171" : "#38bdf8";
+    ctx.lineWidth = 2;
+    for (var x = padX; x <= w - padX; x += 2) {
+      var u = (x - padX) / (w - 2 * padX);
+      var tau = t - (1 - u) * 5.0;
+      var y = topMid;
+      if (state.idx === 0) {
+        // shallow breathing / holding
+        var hold = (Math.sin(tau * 0.7) > 0.15) ? 0.22 : 1.0;
+        y -= Math.sin(tau * 1.9) * 24 * hold * f.ampScale + pseudoNoise(u) * 0.6;
+      } else if (state.idx === 1) {
+        var c = ((tau % 5.2) + 5.2) % 5.2;
+        if (c > 2.2 && c < 4.1) {
+          y -= Math.sin(tau * 2.0) * 2 + pseudoNoise(u) * 0.5;
+        } else if (c >= 4.1) {
+          y -= Math.sin((c - 4.1) * 12) * 28 * f.ampScale;
+        } else {
+          y -= Math.sin(tau * 2.1) * 22 * f.ampScale;
+        }
+      } else if (state.idx === 2) {
+        var sl = Math.max(0, Math.sin(tau * 1.15));
+        y -= (sl - 0.35) * 44;
+      } else if (state.idx === 3) {
+        var pc = ((tau * 1.15) % 1 + 1) % 1;
+        var pk = Math.exp(-Math.pow((pc - 0.25) / 0.045, 2)) - 0.45 * Math.exp(-Math.pow((pc - 0.34) / 0.05, 2));
+        y -= pk * 32 * f.ampScale + pseudoNoise(u);
+      } else {
+        var fc = ((tau % 5.2) + 5.2) % 5.2;
+        var spike = Math.exp(-Math.pow((fc - 1.75) / 0.14, 2));
+        y += spike * 34 - pseudoNoise(u) * 0.4;
+      }
+      if (x === padX) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw Channel 2
+    ctx.beginPath();
+    ctx.strokeStyle = state.idx === 3 ? "#34d399" : state.idx === 2 ? "#fbbf24" : "#f472b6";
+    ctx.lineWidth = 1.9;
+    for (var x2 = padX; x2 <= w - padX; x2 += 2) {
+      var u2 = (x2 - padX) / (w - 2 * padX);
+      var tau2 = t - (1 - u2) * 5.0;
+      var y2 = botMid;
+      if (state.idx === 0 || state.idx === 1) {
+        var rate = state.idx === 0 ? 1.32 : 0.96;
+        var hp = ((tau2 * rate) % 1 + 1) % 1;
+        var beat = Math.exp(-Math.pow((hp - 0.3) / 0.04, 2)) - 0.35 * Math.exp(-Math.pow((hp - 0.38) / 0.04, 2));
+        y2 -= beat * 26 * f.ampScale + pseudoNoise(u2 + 2);
+      } else if (state.idx === 2) {
+        var sl2 = Math.max(0, Math.sin(tau2 * 1.15));
+        y2 += (sl2 - 0.35) * 34;
+      } else if (state.idx === 3) {
+        // Delayed by PTT (~0.18 of cycle)
+        var pc2 = ((tau2 * 1.15) % 1 + 1) % 1;
+        var pk2 = Math.exp(-Math.pow((pc2 - 0.43) / 0.055, 2));
+        y2 -= pk2 * 28 * f.ampScale + pseudoNoise(u2 + 3);
+      } else {
+        var fc2 = ((tau2 % 5.2) + 5.2) % 5.2;
+        var amp = fc2 > 2.0 ? 0.35 : 0.9;
+        y2 -= Math.sin(tau2 * 2.3) * 18 * amp * f.ampScale + pseudoNoise(u2 + 1) * 0.7;
+      }
+      if (x2 === padX) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+    }
+    ctx.stroke();
+
+    // Frequency SNR footer annotation
+    ctx.fillStyle = state.freq === "60" ? "#34d399" : state.freq === "24" ? "#38bdf8" : "#fbbf24";
+    ctx.font = "600 10px ui-monospace, monospace";
+    ctx.textAlign = "right";
+    var snrTxt = state.freq === "60" ? "60 GHz 高敏锁定（低底噪）" : state.freq === "24" ? "24 GHz 中高敏均衡" : "5.8 GHz 相位摆动小（底噪显著抬升）";
+    ctx.fillText(snrTxt, w - padX, h - 8);
+  }
+
+  var lastTs = 0;
+  function frame(ts) {
+    if (!lastTs) lastTs = ts;
+    var dt = Math.min(0.05, (ts - lastTs) / 1000);
+    lastTs = ts;
+    state.t += dt;
+
+    if (state.auto) {
+      state.elapsedInScene += dt * 1000;
+      var activeBar = tabEls[state.idx] && tabEls[state.idx].querySelector(".tab-prog");
+      if (activeBar) {
+        activeBar.style.width = Math.min(100, (state.elapsedInScene / state.cycleMs) * 100).toFixed(1) + "%";
+      }
+      if (state.elapsedInScene >= state.cycleMs) {
+        state.elapsedInScene = 0;
+        state.idx = (state.idx + 1) % SCENES.length;
+        updateUI();
+      }
+    }
+
+    var sDim = resizeCanvas(sceneCanvas);
+    var wDim = resizeCanvas(waveCanvas);
+    if (state.idx === 0) drawScene0(sCtx, sDim.w, sDim.h, state.t);
+    else if (state.idx === 1) drawScene1(sCtx, sDim.w, sDim.h, state.t);
+    else if (state.idx === 2) drawScene2(sCtx, sDim.w, sDim.h, state.t);
+    else if (state.idx === 3) drawScene3(sCtx, sDim.w, sDim.h, state.t);
+    else drawScene4(sCtx, sDim.w, sDim.h, state.t);
+
+    drawWaveform(wCtx, wDim.w, wDim.h, state.t);
+    requestAnimationFrame(frame);
+  }
+
+  tabEls.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.idx = parseInt(btn.getAttribute("data-idx"), 10) || 0;
+      state.elapsedInScene = 0;
+      updateUI();
+    });
+  });
+
+  freqEls.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.freq = btn.getAttribute("data-freq") || "60";
+      updateUI();
+    });
+  });
+
+  autoBtn.addEventListener("click", function () {
+    state.auto = !state.auto;
+    if (!state.auto) {
+      var bar = tabEls[state.idx] && tabEls[state.idx].querySelector(".tab-prog");
+      if (bar) bar.style.width = "100%";
+    } else {
+      state.elapsedInScene = 0;
+    }
+    updateUI();
+  });
+
+  updateUI();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

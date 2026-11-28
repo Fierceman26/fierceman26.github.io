@@ -8,16 +8,25 @@ const ZH_SUBTITLE: Record<string, string> = {
   pi: '电源完整性',
   gezhi: '观察与思辨',
   llm: '从头搭建',
+  'ai-hardware': '智能感知与端侧系统',
 };
 
 const GEZHI_KEYWORDS_EN = ['AI Agent', 'Human-AI', 'Engineering', 'First Principles'];
+const AI_HARDWARE_KEYWORDS_EN = ['mmWave', 'Radar', 'Edge AI', 'Co-design'];
 
 export function categoryView(cat: (typeof CATEGORIES)[number], locale: Locale) {
+  const title = locale === 'en' && cat.slug === 'ai-hardware' ? 'AI Hardware' : cat.title;
+  const keywords =
+    locale === 'en' && cat.slug === 'gezhi'
+      ? GEZHI_KEYWORDS_EN
+      : locale === 'en' && cat.slug === 'ai-hardware'
+        ? AI_HARDWARE_KEYWORDS_EN
+        : cat.keywords;
   return {
-    title: cat.title,
+    title,
     subtitle: locale === 'zh' ? (ZH_SUBTITLE[cat.slug] ?? cat.subtitle) : cat.subtitle,
     tagline: locale === 'zh' ? cat.taglineZh : cat.tagline,
-    keywords: (locale === 'en' && cat.slug === 'gezhi' ? GEZHI_KEYWORDS_EN : cat.keywords) as readonly string[],
+    keywords: keywords as readonly string[],
   };
 }
 
@@ -77,8 +86,8 @@ export const ui = {
     sections: {
       title: '栏目',
       kicker: '栏目',
-      description: '按栏目浏览：HSD 高速数字、EOE 光电链路、SiPh 硅光器件、PI 电源完整性、AI随想、LLM 从头搭建。',
-      lead: '一份日志，六条编辑线。挑今天离你的工作最近的那一条。',
+      description: '按栏目浏览：HSD 高速数字、EOE 光电链路、SiPh 硅光器件、PI 电源完整性、AI随想、LLM 从头搭建、AI硬件。',
+      lead: '一份日志，七条编辑线。挑今天离你的工作最近的那一条。',
       misc: (n: number) => `另有 ${n} 篇未归入栏目的笔记 ——`,
       browse: '浏览全部文章 →',
     },
@@ -186,8 +195,8 @@ export const ui = {
       title: 'Sections',
       kicker: 'The Sections',
       description:
-        'Browse by section: HSD, EOE, silicon photonics, power integrity, AI Reflections, and LLM.',
-      lead: 'Six editorial lines, one journal. Pick whichever is closest to your work today.',
+        'Browse by section: HSD, EOE, silicon photonics, power integrity, AI Reflections, LLM, and AI Hardware.',
+      lead: 'Seven editorial lines, one journal. Pick whichever is closest to your work today.',
       misc: (n: number) => `Plus ${n} miscellaneous ${n === 1 ? 'note' : 'notes'} —`,
       browse: 'browse the full archive →',
     },
